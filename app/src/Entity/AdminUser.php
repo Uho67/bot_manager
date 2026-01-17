@@ -4,8 +4,24 @@ namespace App\Entity;
 
 use App\Repository\AdminUserRepository;
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\Delete;
+
 
 #[ORM\Entity(repositoryClass: AdminUserRepository::class)]
+#[ApiResource(
+    operations: [
+        new GetCollection(), // GET /admin_users
+        new Get(),           // GET /admin_users/{id}
+        new Post(),          // POST /admin_users
+        new Put(),           // PUT /admin_users/{id}
+        new Delete()         // DELETE /admin_users/{id}
+    ]
+)]
 class AdminUser
 {
     #[ORM\Id]
