@@ -19,5 +19,11 @@ services:
     App\:
         resource: '../src/'
 
+    # Password processor for AdminUser
+    App\AdminUser\State\AdminUserPasswordProcessor:
+        arguments:
+            $persistProcessor: '@api_platform.doctrine.orm.state.persist_processor'
+            $passwordHasher: '@security.user_password_hasher'
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
