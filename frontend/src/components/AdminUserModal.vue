@@ -160,7 +160,6 @@ watch(() => props.admin, (admin) => {
   submitting.value = false;
 }, { immediate: true });
 
-// Сбрасываем состояние при закрытии модального окна
 watch(() => props.isOpen, (newValue) => {
   if (!newValue) {
     submitting.value = false;

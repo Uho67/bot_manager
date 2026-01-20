@@ -79,12 +79,6 @@
                   <p class="text-blue-100 text-xs">ID: {{ admin.id }}</p>
                 </div>
               </div>
-              <span
-                v-if="admin.is_super"
-                class="bg-yellow-400 text-yellow-900 text-xs font-semibold px-2 py-1 rounded-full"
-              >
-                SUPER
-              </span>
             </div>
           </div>
 
@@ -108,9 +102,6 @@
               </svg>
               <div class="flex-1">
                 <p class="text-xs text-gray-500">Permission Level</p>
-                <p class="text-sm font-medium" :class="admin.is_super ? 'text-yellow-600' : 'text-gray-700'">
-                  {{ admin.is_super ? 'Super Admin' : 'Admin' }}
-                </p>
               </div>
             </div>
           </div>
@@ -160,10 +151,6 @@
           <div class="text-center">
             <p class="text-3xl font-bold text-blue-600">{{ admins.length }}</p>
             <p class="text-sm text-gray-600 mt-1">Total Admins</p>
-          </div>
-          <div class="text-center">
-            <p class="text-3xl font-bold text-yellow-600">{{ admins.filter(a => a.is_super).length }}</p>
-            <p class="text-sm text-gray-600 mt-1">Super Admins</p>
           </div>
           <div class="text-center">
             <p class="text-3xl font-bold text-green-600">{{ admins.filter(a => a.bot_code).length }}</p>

@@ -10,9 +10,15 @@ doctrine:
             App:
                 type: attribute
                 is_bundle: false
-                dir: '%kernel.project_dir%/src'
-                prefix: 'App\'
+                dir: '%kernel.project_dir%/src/Entity'
+                prefix: 'App\Entity'
                 alias: App
+            AdminUser:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/AdminUser/Entity'
+                prefix: 'App\AdminUser\Entity'
+                alias: AdminUser
         controller_resolver:
             auto_mapping: false
 

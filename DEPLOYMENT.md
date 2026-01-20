@@ -77,6 +77,8 @@ docker compose -f app/compose.yaml -f app/compose.override.yaml ps
 ```bash
 cd app
 composer install --no-dev --optimize-autoloader
+run JWT secret generation if applicable
+bin/console lexik:jwt:generate-keypair
 ```
 
 ---
