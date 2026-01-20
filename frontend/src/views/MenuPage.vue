@@ -15,9 +15,7 @@
 </template>
 
 <script lang="ts" setup>
-// No logic needed for static menu
 </script>
 
 <style scoped>
-/* Add any additional scoped styles here if needed */
 </style>

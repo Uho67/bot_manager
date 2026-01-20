@@ -3,12 +3,10 @@ api_platform:
         paths: [ '%kernel.project_dir%/src' ]
     title: Hello API Platform
     version: 1.0.0
+    formats:
+        jsonld: ['application/ld+json']
+        json: ['application/json']
     defaults:
         stateless: true
         cache_headers:
             vary: ['Content-Type', 'Authorization', 'Origin']
-        serialization_context:
-            enable_max_depth: true
-            skip_null_values: false
-            # Use property names only
-            attributes: [ 'admin_name', 'admin_password', 'bot_code', 'is_super' ]

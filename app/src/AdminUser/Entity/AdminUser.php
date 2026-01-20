@@ -44,18 +44,22 @@ class AdminUser implements PasswordAuthenticatedUserInterface
     }
     #[ORM\Column(length: 20)]
     #[Groups(['admin_user:read', 'admin_user:write'])]
+    #[SerializedName('admin_name')]
     private ?string $admin_name = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     #[Groups(['admin_user:write'])]
+    #[SerializedName('admin_password')]
     private ?string $admin_password = null;
 
     #[ORM\Column(length: 50, nullable: true)]
     #[Groups(['admin_user:read', 'admin_user:write'])]
+    #[SerializedName('bot_code')]
     private ?string $bot_code = null;
 
     #[ORM\Column(nullable: true)]
     #[Groups(['admin_user:read'])]
+    #[SerializedName('is_super')]
     private ?bool $is_super = null;
 
     public function getAdminName(): ?string
@@ -99,7 +103,7 @@ class AdminUser implements PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function isSuper(): ?bool
+    public function getIsSuper(): ?bool
     {
         return $this->is_super;
     }
