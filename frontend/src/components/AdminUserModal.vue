@@ -81,6 +81,21 @@
             />
           </div>
 
+          <!-- Bot Identifier -->
+          <div>
+            <label for="bot_identifier" class="block text-sm font-medium text-gray-700 mb-1">
+              Bot Identifier
+            </label>
+            <input
+              id="bot_identifier"
+              v-model="formData.bot_identifier"
+              type="text"
+              maxlength="50"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Enter bot identifier"
+            />
+          </div>
+
           <!-- Error Message -->
           <div v-if="errorMessage" class="p-3 bg-red-50 border border-red-200 rounded-lg">
             <p class="text-sm text-red-800">{{ errorMessage }}</p>
@@ -136,6 +151,7 @@ const formData = ref({
   admin_name: '',
   admin_password: '',
   bot_code: '',
+  bot_identifier: '',
 });
 
 watch(() => props.admin, (admin) => {
@@ -145,6 +161,7 @@ watch(() => props.admin, (admin) => {
       admin_name: admin.admin_name || '',
       admin_password: '',
       bot_code: admin.bot_code || '',
+      bot_identifier: admin.bot_identifier || '',
     };
     showPasswordField.value = false;
   } else {
@@ -153,6 +170,7 @@ watch(() => props.admin, (admin) => {
       admin_name: '',
       admin_password: '',
       bot_code: '',
+      bot_identifier: '',
     };
     showPasswordField.value = false;
   }
@@ -181,6 +199,7 @@ const handleSubmit = async () => {
     const data: Record<string, any> = {
       admin_name: formData.value.admin_name,
       bot_code: formData.value.bot_code || null,
+      bot_identifier: formData.value.bot_identifier || null,
     };
 
     if (formData.value.admin_password) {

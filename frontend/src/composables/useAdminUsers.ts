@@ -37,7 +37,7 @@ export function useAdminUsers(): UseAdminUsersReturn {
   };
 
   const updateAdmin = async (id: number, data: Partial<AdminUser>): Promise<AdminUser> => {
-    const response = await api.put(`/api/admin_users/${id}`, data);
+   const response = await api.patch(`/api/admin_users/${id}`, data, { headers: { 'Content-Type': 'application/merge-patch+json' } });
     await fetchAdmins();
     return response.data;
   };

@@ -16,6 +16,14 @@
           Admin Users
         </router-link>
       </li>
+      <li v-if="isSuperAdmin">
+        <router-link
+          to="/bots"
+          class="block w-full text-center py-3 rounded-lg bg-green-600 text-white font-semibold shadow hover:bg-green-700 transition"
+        >
+          Bots
+        </router-link>
+      </li>
       <li v-if="!isSuperAdmin">
         <div class="text-center text-gray-500">
           <p>No menu items available for your role.</p>

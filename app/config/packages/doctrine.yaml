@@ -19,6 +19,12 @@ doctrine:
                 dir: '%kernel.project_dir%/src/AdminUser/Entity'
                 prefix: 'App\AdminUser\Entity'
                 alias: AdminUser
+            Bot:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Bot/Entity'
+                prefix: 'App\Bot\Entity'
+                alias: Bot
         controller_resolver:
             auto_mapping: false
 

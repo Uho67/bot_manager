@@ -3,6 +3,8 @@
  * Copyright © Dmytro Ushchenko. All rights reserved.
  */
 
+declare(strict_types=1);
+
 namespace App\AdminUser\Controller;
 
 use Symfony\Component\HttpFoundation\JsonResponse;

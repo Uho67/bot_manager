@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import MenuPage from '../views/MenuPage.vue';
 import AdminUsersPage from '../views/AdminUsersPage.vue';
+import BotsPage from '../views/BotsPage.vue';
 import LoginView from '../views/LoginView.vue';
 import { useAuth } from '../composables/useAuth';
 
@@ -8,6 +9,7 @@ const routes = [
   { path: '/login', component: LoginView },
   { path: '/', component: MenuPage, meta: { requiresAuth: true } },
   { path: '/admin-users', component: AdminUsersPage, meta: { requiresAuth: true, requiresSuperAdmin: true } },
+  { path: '/bots', component: BotsPage, meta: { requiresAuth: true, requiresSuperAdmin: true } },
 ];
 
 const router = createRouter({

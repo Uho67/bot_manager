@@ -3,6 +3,8 @@
  * Copyright © Dmytro Ushchenko. All rights reserved.
  */
 
+declare(strict_types=1);
+
 namespace App\AdminUser\Entity;
 
 use App\AdminUser\Repository\AdminUserRepository;
@@ -14,6 +16,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Patch;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Attribute\Groups;
@@ -28,6 +31,7 @@ use Symfony\Component\Serializer\Attribute\SerializedName;
         new Get(),
         new Post(processor: AdminUserPasswordProcessor::class),
         new Put(processor: AdminUserPasswordProcessor::class),
+        new Patch(processor: AdminUserPasswordProcessor::class),
         new Delete()
     ],
     normalizationContext: ['groups' => ['admin_user:read']],
@@ -56,6 +60,11 @@ class AdminUser implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['admin_user:read', 'admin_user:write'])]
     #[SerializedName('bot_code')]
     private ?string $bot_code = null;
+
+    #[ORM\Column(length: 50, nullable: true)]
+    #[Groups(['admin_user:read', 'admin_user:write'])]
+    #[SerializedName('bot_identifier')]
+    private ?string $bot_identifier = null;
 
     /**
      * Roles for admin user. Example values:
@@ -108,6 +117,18 @@ class AdminUser implements UserInterface, PasswordAuthenticatedUserInterface
     public function setBotCode(?string $bot_code): static
     {
         $this->bot_code = $bot_code;
+
+        return $this;
+    }
+
+    public function getBotIdentifier(): ?string
+    {
+        return $this->bot_identifier;
+    }
+
+    public function setBotIdentifier(?string $bot_identifier): static
+    {
+        $this->bot_identifier = $bot_identifier;
 
         return $this;
     }

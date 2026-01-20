@@ -83,22 +83,33 @@ bin/console lexik:jwt:generate-keypair
 
 ---
 
-## 5. Run Migrations (after DB is up)
+## 5. Update Database Schema (without migrations)
 
-How you run migrations depends on **how Symfony is running** in production.
+**Note:** This project uses `doctrine:schema:update` for database changes instead of migrations.
 
 ### Option A (Symfony runs on the host)
 
 ```bash
 cd app
-php bin/console doctrine:migrations:migrate --no-interaction
+# Check what SQL will be executed
+php bin/console doctrine:schema:update --dump-sql
+
+# Apply database changes
+php bin/console doctrine:schema:update --force
 ```
 
 ### Option B (Symfony runs in a container)
 Run the same command inside your Symfony/PHP container:
 
 ```bash
-docker compose exec <symfony-service> php bin/console doctrine:migrations:migrate --no-interaction
+# Check what SQL will be executed
+docker compose exec php-fpm php bin/console doctrine:schema:update --dump-sql
+
+# Apply database changes
+docker compose exec php-fpm php bin/console doctrine:schema:update --force
+```
+
+**Important:** The `--force` flag automatically applies all schema changes based on your entity definitions.
 ```
 
 > Note: your current `app/compose.yaml` defines **only the `database` service**. If you want Symfony to run in Docker too, you must add a PHP/Symfony service to the compose file.

@@ -1,4 +1,7 @@
 <?php
+/**
+ * Copyright © Dmytro Ushchenko. All rights reserved.
+ */
 
 declare(strict_types=1);
 
