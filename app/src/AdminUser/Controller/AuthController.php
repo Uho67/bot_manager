@@ -58,6 +58,11 @@ class AuthController
         }
 
         $token = $jwtManager->create($user);
-        return new JsonResponse(['token' => $token]);
+        return new JsonResponse([
+            'token' => $token,
+            'admin_name' => $user->getAdminName(),
+            'bot_code' => $user->getBotCode(),
+            'roles' => $user->getRoles(),
+        ]);
     }
 }
