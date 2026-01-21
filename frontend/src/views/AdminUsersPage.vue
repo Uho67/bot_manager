@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 px-4 py-6 sm:px-6 lg:px-8">
+  <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 px-4 py-6 sm:px-6 lg:px-8 pt-20">
     <!-- Header Section -->
     <div class="max-w-7xl mx-auto">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">

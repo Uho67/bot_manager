@@ -24,7 +24,15 @@
           Bots
         </router-link>
       </li>
-      <li v-if="!isSuperAdmin">
+      <li v-if="!isSuperAdmin && user?.roles?.indexOf('ROLE_ADMIN') !== -1">
+        <router-link
+          to="/my-account"
+          class="block w-full text-center py-3 rounded-lg bg-yellow-500 text-white font-semibold shadow hover:bg-yellow-600 transition"
+        >
+          My Account
+        </router-link>
+      </li>
+      <li v-if="!isSuperAdmin && (!user?.roles || user?.roles.indexOf('ROLE_ADMIN') === -1)">
         <div class="text-center text-gray-500">
           <p>No menu items available for your role.</p>
         </div>
