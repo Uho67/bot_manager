@@ -24,6 +24,22 @@
           Bots
         </router-link>
       </li>
+      <li v-if="user && (user.roles?.includes('ROLE_ADMIN') || user.roles?.includes('ROLE_SUPER_ADMIN'))">
+        <router-link
+          to="/configs"
+          class="block w-full text-center py-3 rounded-lg bg-indigo-600 text-white font-semibold shadow hover:bg-indigo-700 transition"
+        >
+          Configs
+        </router-link>
+      </li>
+      <li v-if="user && (user.roles?.includes('ROLE_ADMIN') || user.roles?.includes('ROLE_SUPER_ADMIN'))">
+        <router-link
+          to="/my-bots"
+          class="block w-full text-center py-3 rounded-lg bg-purple-600 text-white font-semibold shadow hover:bg-purple-700 transition"
+        >
+          My Bots
+        </router-link>
+      </li>
       <li v-if="!isSuperAdmin && user?.roles?.indexOf('ROLE_ADMIN') !== -1">
         <router-link
           to="/my-account"

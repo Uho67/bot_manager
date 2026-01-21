@@ -23,15 +23,15 @@ use Symfony\Component\Serializer\Attribute\Groups;
     shortName: 'Bot',
     operations: [
         new GetCollection(),
-        new Get(),
-        new Post(),
-        new Patch(),
-        new Put(),
-        new Delete()
+        new Get(security: "is_granted('ROLE_SUPER_ADMIN')"),
+        new Post(security: "is_granted('ROLE_SUPER_ADMIN')"),
+        new Patch(security: "is_granted('ROLE_SUPER_ADMIN')"),
+        new Put(security: "is_granted('ROLE_SUPER_ADMIN')"),
+        new Delete(security: "is_granted('ROLE_SUPER_ADMIN')"),
     ],
     normalizationContext: ['groups' => ['bot:read']],
     denormalizationContext: ['groups' => ['bot:write']],
-    security: "is_granted('ROLE_SUPER_ADMIN')"
+    security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_SUPER_ADMIN')"
 )]
 class Bot
 {
@@ -91,4 +91,3 @@ class Bot
         return $this;
     }
 }
-

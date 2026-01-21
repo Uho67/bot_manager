@@ -4,6 +4,8 @@ import AdminUsersPage from '../views/AdminUsersPage.vue';
 import BotsPage from '../views/BotsPage.vue';
 import LoginView from '../views/LoginView.vue';
 import MyAccountPage from '../views/MyAccountPage.vue';
+import MyBotsPage from '../views/MyBotsPage.vue';
+import ConfigsPage from '../views/ConfigsPage.vue';
 import { useAuth } from '../composables/useAuth';
 
 const routes = [
@@ -12,6 +14,8 @@ const routes = [
   { path: '/admin-users', component: AdminUsersPage, meta: { requiresAuth: true, requiresSuperAdmin: true } },
   { path: '/bots', component: BotsPage, meta: { requiresAuth: true, requiresSuperAdmin: true } },
   { path: '/my-account', component: MyAccountPage, meta: { requiresAuth: true } },
+  { path: '/my-bots', component: MyBotsPage, meta: { requiresAuth: true } },
+  { path: '/configs', component: ConfigsPage, meta: { requiresAuth: true } },
 ];
 
 const router = createRouter({

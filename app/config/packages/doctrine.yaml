@@ -25,6 +25,12 @@ doctrine:
                 dir: '%kernel.project_dir%/src/Bot/Entity'
                 prefix: 'App\Bot\Entity'
                 alias: Bot
+            Config:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Config/Entity'
+                prefix: 'App\Config\Entity'
+                alias: Config
         controller_resolver:
             auto_mapping: false
 

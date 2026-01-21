@@ -18,6 +18,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
+// php bin/console app:create-admin-user admin_name admin_password bot_code --role=ADMIN
 #[AsCommand(
     name: 'app:create-admin-user',
     description: 'Creates a new admin user.',

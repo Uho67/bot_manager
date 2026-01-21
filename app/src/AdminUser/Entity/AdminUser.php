@@ -36,7 +36,7 @@ use Symfony\Component\Serializer\Attribute\SerializedName;
     ],
     normalizationContext: ['groups' => ['admin_user:read']],
     denormalizationContext: ['groups' => ['admin_user:write']],
-    security: "is_granted('ROLE_SUPER_ADMIN')"
+    security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_SUPER_ADMIN')"
 )]
 class AdminUser implements UserInterface, PasswordAuthenticatedUserInterface
 {

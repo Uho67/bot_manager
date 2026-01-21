@@ -9,6 +9,16 @@
 parameters:
 
 services:
+    App\AdminUser\Doctrine\CurrentUserExtension:
+        tags:
+            - { name: api_platform.doctrine.orm.query_extension.collection }
+    App\Bot\Doctrine\Extension\BotCollectionExtension:
+        tags:
+            - { name: api_platform.doctrine.orm.query_extension.collection }
+    App\Config\Doctrine\ConfigCollectionExtension:
+        tags:
+            - { name: api_platform.doctrine.orm.query_extension.collection }
+
     # default configuration for services in *this* file
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
