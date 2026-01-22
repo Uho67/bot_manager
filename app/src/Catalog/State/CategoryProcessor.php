@@ -30,6 +30,12 @@ class CategoryProcessor implements ProcessorInterface
             return $this->persistProcessor->process($data, $operation, $uriVariables, $context);
         }
 
+        $this->logger->info('CategoryProcessor received data', [
+            'category_id' => $data->getId(),
+            'category_name' => $data->getName(),
+            'childCategories_count' => $data->getChildCategories()->count(),
+        ]);
+
         // Get current user from JWT
         $user = $this->security->getUser();
 
@@ -47,6 +53,7 @@ class CategoryProcessor implements ProcessorInterface
             }
         }
 
+        // childCategories is now the owning side, so it will be persisted automatically
         return $this->persistProcessor->process($data, $operation, $uriVariables, $context);
     }
 }

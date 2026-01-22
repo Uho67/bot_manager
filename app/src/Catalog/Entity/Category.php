@@ -16,6 +16,7 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Catalog\Repository\CategoryRepository;
 use App\Catalog\State\CategoryProcessor;
+use App\Catalog\Validator\ValidCategoryChildren;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -23,7 +24,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
-#[ORM\Index(columns: ['bot_identifier'], name: 'idx_category_bot_identifier')]
+#[ORM\Index(name: 'idx_category_bot_identifier', columns: ['bot_identifier'])]
 #[ApiResource(
     shortName: 'Category',
     operations: [
@@ -64,23 +65,16 @@ class Category
     /**
      * @var Collection<int, Category>
      */
-    #[ORM\ManyToMany(targetEntity: Category::class, inversedBy: 'childCategories')]
-    #[ORM\JoinTable(name: 'category_parent')]
+    #[ORM\ManyToMany(targetEntity: Category::class)]
+    #[ORM\JoinTable(name: 'category_children')]
     #[Groups(['category:read', 'category:write'])]
-    #[Assert\Count(max: 10, maxMessage: 'A category cannot have more than {{ limit }} parent categories.')]
-    private Collection $parentCategories;
-
-    /**
-     * @var Collection<int, Category>
-     */
-    #[ORM\ManyToMany(targetEntity: Category::class, mappedBy: 'parentCategories')]
-    #[Groups(['category:read'])]
+    #[Assert\Count(max: 10, maxMessage: 'A category cannot have more than {{ limit }} children.')]
+    #[ValidCategoryChildren]
     private Collection $childCategories;
 
     public function __construct()
     {
         $this->products = new ArrayCollection();
-        $this->parentCategories = new ArrayCollection();
         $this->childCategories = new ArrayCollection();
     }
 
@@ -141,30 +135,6 @@ class Category
     /**
      * @return Collection<int, Category>
      */
-    public function getParentCategories(): Collection
-    {
-        return $this->parentCategories;
-    }
-
-    public function addParentCategory(Category $parentCategory): static
-    {
-        if (!$this->parentCategories->contains($parentCategory)) {
-            $this->parentCategories->add($parentCategory);
-        }
-
-        return $this;
-    }
-
-    public function removeParentCategory(Category $parentCategory): static
-    {
-        $this->parentCategories->removeElement($parentCategory);
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Category>
-     */
     public function getChildCategories(): Collection
     {
         return $this->childCategories;
@@ -174,7 +144,6 @@ class Category
     {
         if (!$this->childCategories->contains($childCategory)) {
             $this->childCategories->add($childCategory);
-            $childCategory->addParentCategory($this);
         }
 
         return $this;
@@ -182,9 +151,7 @@ class Category
 
     public function removeChildCategory(Category $childCategory): static
     {
-        if ($this->childCategories->removeElement($childCategory)) {
-            $childCategory->removeParentCategory($this);
-        }
+        $this->childCategories->removeElement($childCategory);
 
         return $this;
     }

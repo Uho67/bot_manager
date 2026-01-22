@@ -6,6 +6,10 @@ import LoginView from '../views/LoginView.vue';
 import MyAccountPage from '../views/MyAccountPage.vue';
 import MyBotsPage from '../views/MyBotsPage.vue';
 import ConfigsPage from '../views/ConfigsPage.vue';
+import ProductListPage from '../views/ProductListPage.vue';
+import ProductEditPage from '../views/ProductEditPage.vue';
+import CategoryListPage from '../views/CategoryListPage.vue';
+import CategoryEditPage from '../views/CategoryEditPage.vue';
 import { useAuth } from '../composables/useAuth';
 
 const routes = [
@@ -16,6 +20,12 @@ const routes = [
   { path: '/my-account', component: MyAccountPage, meta: { requiresAuth: true } },
   { path: '/my-bots', component: MyBotsPage, meta: { requiresAuth: true } },
   { path: '/configs', component: ConfigsPage, meta: { requiresAuth: true } },
+  { path: '/products', name: 'ProductList', component: ProductListPage, meta: { requiresAuth: true, requiresAdmin: true } },
+  { path: '/products/create', name: 'ProductCreate', component: ProductEditPage, meta: { requiresAuth: true, requiresAdmin: true } },
+  { path: '/products/:id/edit', name: 'ProductEdit', component: ProductEditPage, meta: { requiresAuth: true, requiresAdmin: true } },
+  { path: '/categories', name: 'CategoryList', component: CategoryListPage, meta: { requiresAuth: true, requiresAdmin: true } },
+  { path: '/categories/create', name: 'CategoryCreate', component: CategoryEditPage, meta: { requiresAuth: true, requiresAdmin: true } },
+  { path: '/categories/:id/edit', name: 'CategoryEdit', component: CategoryEditPage, meta: { requiresAuth: true, requiresAdmin: true } },
 ];
 
 const router = createRouter({
@@ -32,6 +42,9 @@ router.beforeEach((to, from, next) => {
     next('/login');
   } else if (to.meta.requiresSuperAdmin && user.value?.roles?.indexOf('ROLE_SUPER_ADMIN') === -1) {
     // Redirect to menu if user doesn't have ROLE_SUPER_ADMIN
+    next('/');
+  } else if (to.meta.requiresAdmin && (!user.value || user.value.roles?.indexOf('ROLE_ADMIN') === -1 || user.value.roles?.indexOf('ROLE_SUPER_ADMIN') !== -1)) {
+    // Only allow admins, not super admins
     next('/');
   } else {
     next();

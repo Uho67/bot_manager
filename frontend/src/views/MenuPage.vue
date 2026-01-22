@@ -42,10 +42,18 @@
       </li>
       <li v-if="!isSuperAdmin && user?.roles?.indexOf('ROLE_ADMIN') !== -1">
         <router-link
-          to="/my-account"
-          class="block w-full text-center py-3 rounded-lg bg-yellow-500 text-white font-semibold shadow hover:bg-yellow-600 transition"
+          to="/products"
+          class="block w-full text-center py-3 rounded-lg bg-pink-600 text-white font-semibold shadow hover:bg-pink-700 transition"
         >
-          My Account
+          Products
+        </router-link>
+      </li>
+      <li v-if="!isSuperAdmin && user?.roles?.indexOf('ROLE_ADMIN') !== -1">
+        <router-link
+          to="/categories"
+          class="block w-full text-center py-3 rounded-lg bg-orange-600 text-white font-semibold shadow hover:bg-orange-700 transition"
+        >
+          Categories
         </router-link>
       </li>
       <li v-if="!isSuperAdmin && (!user?.roles || user?.roles.indexOf('ROLE_ADMIN') === -1)">
