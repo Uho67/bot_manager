@@ -10,6 +10,7 @@ namespace App\Config\Service;
 use App\Config\Entity\Config;
 use App\Config\Repository\ConfigRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Cache\InvalidArgumentException;
 
 readonly class ConfigService
 {
@@ -25,6 +26,9 @@ readonly class ConfigService
         return $config?->getValue() ?? $default;
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     public function set(string $botIdentifier, string $path, string $value, string $name): Config
     {
         $config = $this->configRepository->findByBotIdentifierAndPath($botIdentifier, $path);
@@ -52,6 +56,9 @@ readonly class ConfigService
         return $this->configRepository->findByBotIdentifier($botIdentifier);
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     public function clearCache(string $botIdentifier): void
     {
         $this->configRepository->clearCache($botIdentifier);
