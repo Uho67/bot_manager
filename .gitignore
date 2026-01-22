@@ -10,3 +10,9 @@
 /frontend/.env
 .idea/
 ###< symfony/framework-bundle ###
+
+###> media files ###
+/app/public/media/telegram/*
+!/app/public/media/telegram/.gitkeep
+###< media files ###
+

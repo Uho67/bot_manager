@@ -35,5 +35,25 @@ services:
             $persistProcessor: '@api_platform.doctrine.orm.state.persist_processor'
             $passwordHasher: '@security.user_password_hasher'
 
+    # Bot media service
+    App\Bot\Service\BotMediaService:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+
+    # Bot creation processor
+    App\Bot\State\BotCreationProcessor:
+        arguments:
+            $persistProcessor: '@api_platform.doctrine.orm.state.persist_processor'
+
+    # Bot update processor
+    App\Bot\State\BotUpdateProcessor:
+        arguments:
+            $persistProcessor: '@api_platform.doctrine.orm.state.persist_processor'
+
+    # Bot deletion processor
+    App\Bot\State\BotDeletionProcessor:
+        arguments:
+            $removeProcessor: '@api_platform.doctrine.orm.state.remove_processor'
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
