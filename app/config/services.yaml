@@ -18,6 +18,12 @@ services:
     App\Config\Doctrine\ConfigCollectionExtension:
         tags:
             - { name: api_platform.doctrine.orm.query_extension.collection }
+    App\Catalog\Doctrine\ProductCollectionExtension:
+        tags:
+            - { name: api_platform.doctrine.orm.query_extension.collection }
+    App\Catalog\Doctrine\CategoryCollectionExtension:
+        tags:
+            - { name: api_platform.doctrine.orm.query_extension.collection }
 
     # default configuration for services in *this* file
     _defaults:
@@ -54,6 +60,15 @@ services:
     App\Bot\State\BotDeletionProcessor:
         arguments:
             $removeProcessor: '@api_platform.doctrine.orm.state.remove_processor'
+
+    # Catalog processors
+    App\Catalog\State\ProductProcessor:
+        arguments:
+            $persistProcessor: '@api_platform.doctrine.orm.state.persist_processor'
+
+    App\Catalog\State\CategoryProcessor:
+        arguments:
+            $persistProcessor: '@api_platform.doctrine.orm.state.persist_processor'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
