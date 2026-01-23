@@ -9,6 +9,7 @@ namespace App\Catalog\Validator;
 
 use App\Catalog\Entity\Category;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
@@ -16,103 +17,68 @@ use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 class ValidCategoryChildrenValidator extends ConstraintValidator
 {
     public function __construct(
-        private readonly EntityManagerInterface $entityManager
-    ) {}
+        private readonly EntityManagerInterface $entityManager,
+        private readonly RequestStack $requestStack
+    ) {
+    }
 
     public function validate($value, Constraint $constraint): void
     {
-        if (!$constraint instanceof ValidCategoryChildren) {
-            throw new UnexpectedTypeException($constraint, ValidCategoryChildren::class);
-        }
-
-        if (null === $value || !($value instanceof \Traversable || is_array($value))) {
+        if (!($value instanceof \Traversable || is_array($value))) {
             return;
         }
+        $childrenIds = array_map(function ($category) {
+            return $category->getId();
+        }, $value->toArray());
+        $currentCategory = $this->getCurrentCategory();
 
-        // Get the parent category being validated
+        // Check if category is trying to be its own child
+        if (in_array($currentCategory->getId(), $childrenIds)) {
+            throw new \LogicException('A category cannot be its own child.');
+        }
+
+        // Check if any child is an ancestor of the parent
+        if ($this->isAncestor($childrenIds, $currentCategory)) {
+            throw new \LogicException('Check children for circular reference.');
+        }
+    }
+
+    private function getCurrentCategory(): Category
+    {
+        // Try to get parent ID from context object first
         $parentCategory = $this->context->getObject();
+        $parentId = $parentCategory?->getId();
 
-        if (!$parentCategory instanceof Category) {
-            return;
-        }
-
-        // If the category doesn't have an ID yet, it's new - skip validation
-        if (!$parentCategory->getId()) {
-            return;
-        }
-
-        $parentId = $parentCategory->getId();
-
-        foreach ($value as $child) {
-            if (!$child instanceof Category) {
-                continue;
-            }
-
-            // Check if trying to add itself as a child
-            if ($child->getId() === $parentId) {
-                $this->context->buildViolation($constraint->message)
-                    ->setParameter('{{ categoryId }}', (string)$parentId)
-                    ->addViolation();
-                return;
-            }
-
-            // Check if the child is actually a parent of this category (circular reference)
-            if ($this->isAncestor($child, $parentCategory)) {
-                $this->context->buildViolation($constraint->circularMessage)
-                    ->setParameter('{{ categoryId }}', (string)$child->getId())
-                    ->addViolation();
-                return;
+        // If no ID from context, try to extract from request URI (for PUT/PATCH requests)
+        if (!$parentId) {
+            $request = $this->requestStack->getCurrentRequest();
+            if ($request && preg_match('#/api/categories/(\d+)#', $request->getPathInfo(), $matches)) {
+                $parentId = (int)$matches[1];
             }
         }
+
+        // Fetch the parent category from database
+        $parentCategory = $this->entityManager->getRepository(Category::class)->find($parentId);
+        if (!$parentCategory) {
+            throw new \LogicException('Request does not contain valid category ID.');
+        }
+        return $parentCategory;
     }
 
-    /**
-     * Check if $possibleAncestor is an ancestor of $category
-     */
-    private function isAncestor(Category $possibleAncestor, Category $category): bool
+    private function isAncestor(array $childrenIds, Category $category): bool
     {
-        // Get fresh data from database to avoid stale collection data
-        $categoryFromDb = $this->entityManager->find(Category::class, $category->getId());
+        $qb = $this->entityManager->createQueryBuilder();
 
-        if (!$categoryFromDb) {
-            return false;
-        }
+        $count = $qb->select('COUNT(c.id)')
+            ->from(Category::class, 'c')
+            ->where(':category MEMBER OF c.childCategories')
+            ->andWhere($qb->expr()->in('c.id', ':possibleAncestors'))
+            ->setParameter('category', $category)
+            ->setParameter('possibleAncestors', $childrenIds)
+            ->getQuery()
+            ->getSingleScalarResult();
 
-        // Check if the category we're checking is in the children of possibleAncestor
-        foreach ($possibleAncestor->getChildCategories() as $child) {
-            if ($child->getId() === $category->getId()) {
-                return true;
-            }
-
-            // Recursively check children (prevent infinite loops by limiting depth)
-            if ($this->isAncestorRecursive($child, $category, 0, 10)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Recursive check with depth limit to prevent infinite loops
-     */
-    private function isAncestorRecursive(Category $current, Category $target, int $depth, int $maxDepth): bool
-    {
-        if ($depth >= $maxDepth) {
-            return false;
-        }
-
-        foreach ($current->getChildCategories() as $child) {
-            if ($child->getId() === $target->getId()) {
-                return true;
-            }
-
-            if ($this->isAncestorRecursive($child, $target, $depth + 1, $maxDepth)) {
-                return true;
-            }
-        }
-
-        return false;
+        return $count > 0;
     }
 }
 

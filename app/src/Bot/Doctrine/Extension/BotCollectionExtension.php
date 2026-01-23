@@ -22,20 +22,18 @@ final readonly class BotCollectionExtension implements QueryCollectionExtensionI
         null|Operation $operation = null,
         array $context = []
     ): void {
-        if ($resourceClass !== Bot::class) {
+        if (Bot::class !== $resourceClass) {
             return;
         }
 
         if ($this->security->isGranted('ROLE_SUPER_ADMIN')) {
-            return; // No filter for super admin
+            return;
         }
-
-        if ($this->security->isGranted('ROLE_ADMIN')) {
-            $user = $this->security->getUser();
-            if (method_exists($user, 'getBotIdentifier')) {
-                $queryBuilder->andWhere('o.bot_identifier = :bot_identifier')
-                    ->setParameter('bot_identifier', $user->getBotIdentifier());
-            }
+        if (!$this->security->isGranted('ROLE_ADMIN')) {
+            throw new \LogicException('Access denied.');
         }
+        $user = $this->security->getUser();
+        $queryBuilder->andWhere('o.bot_identifier = :bot_identifier')
+            ->setParameter('bot_identifier', $user->getBotIdentifier());
     }
 }

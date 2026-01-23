@@ -14,10 +14,10 @@ use App\AdminUser\Entity\AdminUser;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bundle\SecurityBundle\Security;
 
-final class CurrentUserExtension implements QueryCollectionExtensionInterface
+final readonly class CurrentUserExtension implements QueryCollectionExtensionInterface
 {
     public function __construct(
-        private readonly Security $security,
+        private Security $security,
     ) {
     }
 
@@ -32,17 +32,10 @@ final class CurrentUserExtension implements QueryCollectionExtensionInterface
             return;
         }
 
-        $user = $this->security->getUser();
-        if (!$user instanceof AdminUser) {
-            return;
-        }
-
-        // If user is SUPER_ADMIN, show all users
         if ($this->security->isGranted('ROLE_SUPER_ADMIN')) {
             return;
         }
-
-        // If user is only ROLE_ADMIN, show only themselves
+        $user = $this->security->getUser();
         $rootAlias = $queryBuilder->getRootAliases()[0];
         $queryBuilder->andWhere(sprintf('%s.id = :current_user_id', $rootAlias))
             ->setParameter('current_user_id', $user->getId());

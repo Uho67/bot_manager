@@ -8,7 +8,6 @@ declare(strict_types=1);
 namespace App\AdminUser\Entity;
 
 use App\AdminUser\Repository\AdminUserRepository;
-use App\AdminUser\State\AdminUserPasswordProcessor;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
@@ -29,9 +28,9 @@ use Symfony\Component\Serializer\Attribute\SerializedName;
     operations: [
         new GetCollection(),
         new Get(),
-        new Post(processor: AdminUserPasswordProcessor::class),
-        new Put(processor: AdminUserPasswordProcessor::class),
-        new Patch(processor: AdminUserPasswordProcessor::class),
+        new Post(),
+        new Put(),
+        new Patch(),
         new Delete()
     ],
     normalizationContext: ['groups' => ['admin_user:read']],

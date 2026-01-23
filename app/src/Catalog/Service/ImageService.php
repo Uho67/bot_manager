@@ -12,12 +12,12 @@ use App\Bot\Service\BotMediaService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-class ImageService
+readonly class ImageService
 {
     public function __construct(
-        private readonly BotMediaService $botMediaService,
-        private readonly BotRepository $botRepository,
-        private readonly LoggerInterface $logger
+        private BotMediaService $botMediaService,
+        private BotRepository $botRepository,
+        private LoggerInterface $logger
     ) {}
 
     public function uploadImage(UploadedFile $file, string $botIdentifier, string $entityCode): string

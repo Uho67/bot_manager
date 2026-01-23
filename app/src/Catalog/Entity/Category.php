@@ -15,7 +15,6 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Catalog\Repository\CategoryRepository;
-use App\Catalog\State\CategoryProcessor;
 use App\Catalog\Validator\ValidCategoryChildren;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -30,9 +29,9 @@ use Symfony\Component\Validator\Constraints as Assert;
     operations: [
         new GetCollection(),
         new Get(),
-        new Post(processor: CategoryProcessor::class),
-        new Put(processor: CategoryProcessor::class),
-        new Patch(processor: CategoryProcessor::class),
+        new Post(),
+        new Put(),
+        new Patch(),
         new Delete(),
     ],
     normalizationContext: ['groups' => ['category:read']],

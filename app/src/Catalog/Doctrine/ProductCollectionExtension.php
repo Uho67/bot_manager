@@ -10,24 +10,25 @@ namespace App\Catalog\Doctrine;
 use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
-use App\Catalog\Entity\Product;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bundle\SecurityBundle\Security;
+use App\Catalog\Entity\Product;
 
 /**
  * Filter products by bot_identifier from current user's JWT token
  */
-class ProductCollectionExtension implements QueryCollectionExtensionInterface
+readonly class ProductCollectionExtension implements QueryCollectionExtensionInterface
 {
     public function __construct(
-        private readonly Security $security
-    ) {}
+        private Security $security
+    ) {
+    }
 
     public function applyToCollection(
         QueryBuilder $queryBuilder,
         QueryNameGeneratorInterface $queryNameGenerator,
         string $resourceClass,
-        Operation $operation = null,
+        Operation|null $operation = null,
         array $context = []
     ): void {
         if (Product::class !== $resourceClass) {
@@ -36,7 +37,7 @@ class ProductCollectionExtension implements QueryCollectionExtensionInterface
 
         $user = $this->security->getUser();
 
-        if (!$user || !method_exists($user, 'getBotIdentifier')) {
+        if (!$user) {
             return;
         }
 

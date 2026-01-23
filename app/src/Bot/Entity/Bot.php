@@ -9,9 +9,6 @@ namespace App\Bot\Entity;
 
 use ApiPlatform\Metadata\Patch;
 use App\Bot\Repository\BotRepository;
-use App\Bot\State\BotCreationProcessor;
-use App\Bot\State\BotDeletionProcessor;
-use App\Bot\State\BotUpdateProcessor;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
@@ -27,22 +24,10 @@ use Symfony\Component\Serializer\Attribute\Groups;
     operations: [
         new GetCollection(),
         new Get(security: "is_granted('ROLE_SUPER_ADMIN')"),
-        new Post(
-            security: "is_granted('ROLE_SUPER_ADMIN')",
-            processor: BotCreationProcessor::class
-        ),
-        new Patch(
-            security: "is_granted('ROLE_SUPER_ADMIN')",
-            processor: BotUpdateProcessor::class
-        ),
-        new Put(
-            security: "is_granted('ROLE_SUPER_ADMIN')",
-            processor: BotUpdateProcessor::class
-        ),
-        new Delete(
-            security: "is_granted('ROLE_SUPER_ADMIN')",
-            processor: BotDeletionProcessor::class
-        ),
+        new Post(security: "is_granted('ROLE_SUPER_ADMIN')"),
+        new Patch(security: "is_granted('ROLE_SUPER_ADMIN')"),
+        new Put(security: "is_granted('ROLE_SUPER_ADMIN')"),
+        new Delete(security: "is_granted('ROLE_SUPER_ADMIN')"),
     ],
     normalizationContext: ['groups' => ['bot:read']],
     denormalizationContext: ['groups' => ['bot:write']],

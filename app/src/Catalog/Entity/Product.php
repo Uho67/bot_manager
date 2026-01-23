@@ -15,7 +15,6 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Catalog\Repository\ProductRepository;
-use App\Catalog\State\ProductProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -30,9 +29,9 @@ use Symfony\Component\Validator\Constraints as Assert;
     operations: [
         new GetCollection(),
         new Get(),
-        new Post(processor: ProductProcessor::class),
-        new Put(processor: ProductProcessor::class),
-        new Patch(processor: ProductProcessor::class),
+        new Post(),
+        new Put(),
+        new Patch(),
         new Delete(),
     ],
     normalizationContext: ['groups' => ['product:read']],

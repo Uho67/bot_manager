@@ -8,5 +8,14 @@ const api = axios.create({
   },
 });
 
+// Add XDEBUG_SESSION to every request as query parameter
+api.interceptors.request.use((config) => {
+  config.params = {
+    ...config.params,
+    XDEBUG_SESSION_START: 'PHPSTORM'
+  };
+  return config;
+});
+
 export default api;
 

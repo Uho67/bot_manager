@@ -9,66 +9,56 @@
 parameters:
 
 services:
-    App\AdminUser\Doctrine\CurrentUserExtension:
-        tags:
-            - { name: api_platform.doctrine.orm.query_extension.collection }
-    App\Bot\Doctrine\Extension\BotCollectionExtension:
-        tags:
-            - { name: api_platform.doctrine.orm.query_extension.collection }
-    App\Config\Doctrine\ConfigCollectionExtension:
-        tags:
-            - { name: api_platform.doctrine.orm.query_extension.collection }
-    App\Catalog\Doctrine\ProductCollectionExtension:
-        tags:
-            - { name: api_platform.doctrine.orm.query_extension.collection }
-    App\Catalog\Doctrine\CategoryCollectionExtension:
-        tags:
-            - { name: api_platform.doctrine.orm.query_extension.collection }
-
     # default configuration for services in *this* file
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+
+    App\AdminUser\Doctrine\CurrentUserExtension:
+        tags:
+            - { name: api_platform.doctrine.orm.query_extension.collection, entity: App\AdminUser\Entity\AdminUser }
+    App\Bot\Doctrine\Extension\BotCollectionExtension:
+        tags:
+            - { name: api_platform.doctrine.orm.query_extension.collection, entity: App\Bot\Entity\Bot }
+    App\Config\Doctrine\ConfigCollectionExtension:
+        tags:
+            - { name: api_platform.doctrine.orm.query_extension.collection, entity: App\Config\Entity\Config }
+    App\Catalog\Doctrine\ProductCollectionExtension:
+        tags:
+            - { name: api_platform.doctrine.orm.query_extension.collection, entity: App\Catalog\Entity\Product }
+    App\Catalog\Doctrine\CategoryCollectionExtension:
+        tags:
+            - { name: api_platform.doctrine.orm.query_extension.collection, entity: App\Catalog\Entity\Category }
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
     App\:
         resource: '../src/'
 
-    # Password processor for AdminUser
-    App\AdminUser\State\AdminUserPasswordProcessor:
-        arguments:
-            $persistProcessor: '@api_platform.doctrine.orm.state.persist_processor'
-            $passwordHasher: '@security.user_password_hasher'
+    # AdminUser entity listener (replaces AdminUserPasswordProcessor)
+    App\AdminUser\EventListener\AdminUserEntityListener:
+        tags:
+            - { name: doctrine.orm.entity_listener, event: prePersist, entity: App\AdminUser\Entity\AdminUser }
+            - { name: doctrine.orm.entity_listener, event: preUpdate, entity: App\AdminUser\Entity\AdminUser }
 
     # Bot media service
     App\Bot\Service\BotMediaService:
         arguments:
             $projectDir: '%kernel.project_dir%'
 
-    # Bot creation processor
-    App\Bot\State\BotCreationProcessor:
-        arguments:
-            $persistProcessor: '@api_platform.doctrine.orm.state.persist_processor'
+    # Bot entity listener (replaces processors)
+    App\Bot\EventListener\BotEntityListener:
+        tags:
+            - { name: doctrine.orm.entity_listener, event: postPersist, entity: App\Bot\Entity\Bot }
+            - { name: doctrine.orm.entity_listener, event: preUpdate, entity: App\Bot\Entity\Bot }
+            - { name: doctrine.orm.entity_listener, event: postRemove, entity: App\Bot\Entity\Bot }
 
-    # Bot update processor
-    App\Bot\State\BotUpdateProcessor:
-        arguments:
-            $persistProcessor: '@api_platform.doctrine.orm.state.persist_processor'
-
-    # Bot deletion processor
-    App\Bot\State\BotDeletionProcessor:
-        arguments:
-            $removeProcessor: '@api_platform.doctrine.orm.state.remove_processor'
-
-    # Catalog processors
-    App\Catalog\State\ProductProcessor:
-        arguments:
-            $persistProcessor: '@api_platform.doctrine.orm.state.persist_processor'
-
-    App\Catalog\State\CategoryProcessor:
-        arguments:
-            $persistProcessor: '@api_platform.doctrine.orm.state.persist_processor'
+    App\Catalog\EventListener\CatalogEntityListener:
+        tags:
+            - { name: doctrine.orm.entity_listener, event: prePersist, entity: App\Catalog\Entity\Product }
+            - { name: doctrine.orm.entity_listener, event: preUpdate, entity: App\Catalog\Entity\Product }
+            - { name: doctrine.orm.entity_listener, event: prePersist, entity: App\Catalog\Entity\Category }
+            - { name: doctrine.orm.entity_listener, event: preUpdate, entity: App\Catalog\Entity\Category }
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

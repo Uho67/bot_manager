@@ -10,24 +10,22 @@ namespace App\Catalog\Doctrine;
 use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
-use App\Catalog\Entity\Category;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bundle\SecurityBundle\Security;
+use App\Catalog\Entity\Category;
 
-/**
- * Filter categories by bot_identifier from current user's JWT token
- */
-class CategoryCollectionExtension implements QueryCollectionExtensionInterface
+readonly class CategoryCollectionExtension implements QueryCollectionExtensionInterface
 {
     public function __construct(
-        private readonly Security $security
-    ) {}
+        private Security $security
+    ) {
+    }
 
     public function applyToCollection(
         QueryBuilder $queryBuilder,
         QueryNameGeneratorInterface $queryNameGenerator,
         string $resourceClass,
-        Operation $operation = null,
+        Operation|null $operation = null,
         array $context = []
     ): void {
         if (Category::class !== $resourceClass) {
@@ -35,8 +33,7 @@ class CategoryCollectionExtension implements QueryCollectionExtensionInterface
         }
 
         $user = $this->security->getUser();
-
-        if (!$user || !method_exists($user, 'getBotIdentifier')) {
+        if (!$user) {
             return;
         }
 
