@@ -11,32 +11,29 @@ help: ## Show this help message
 
 # Production commands
 build: ## Build production containers
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-app}
-      MYSQL_USER: ${MYSQL_USER:-app}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-!ChangeMe!}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}build: ## Build production containers
+	docker compose --env-file .env -f $(COMPOSE_PROD) build
 
 start: ## Start production containers
-start: ## Start production containers
+	docker compose --env-file .env -f $(COMPOSE_PROD) up -d
 
 stop: ## Stop production containers
-stop: ## Stop production containers
+	docker compose --env-file .env -f $(COMPOSE_PROD) stop
 
 restart: ## Restart production containers
-restart: ## Restart production containers
+	docker compose --env-file .env -f $(COMPOSE_PROD) restart
 
 down: ## Stop and remove production containers
-down: ## Stop and remove production containers
+	docker compose --env-file .env -f $(COMPOSE_PROD) down
 
 logs: ## Show production logs
-ps: ## Show running containers
+	docker compose --env-file .env -f $(COMPOSE_PROD) logs -f
 
 ps: ## Show running containers
-	docker compose -f $(COMPOSE_PROD) ps
+	docker compose --env-file .env -f $(COMPOSE_PROD) ps
 
-	@docker compose --env-file .env -f $(COMPOSE_PROD) ps -a 2>/dev/null || echo "No production containers"
+ps-all: ## Show ALL containers (including stopped)
 	@echo "=== Production Containers ==="
-	@docker compose -f $(COMPOSE_PROD) ps -a 2>/dev/null || echo "No production containers"
+	@docker compose --env-file .env -f $(COMPOSE_PROD) ps -a 2>/dev/null || echo "No production containers"
 	@echo ""
 	@echo "=== Development Containers ==="
 	@docker compose -f $(COMPOSE_DEV) ps -a 2>/dev/null || echo "No development containers"
@@ -74,10 +71,10 @@ db-migrate: ## Run database migrations
 
 db-update: ## Update database schema
 	docker compose -f $(COMPOSE_PROD) exec php php bin/console doctrine:schema:update --force
-
+	docker compose --env-file .env -f $(COMPOSE_PROD) exec php php bin/console doctrine:migrations:migrate --no-interaction
 db-backup: ## Backup database
 	cd scripts && ./backup-db.sh
-
+	docker compose --env-file .env -f $(COMPOSE_PROD) exec php php bin/console doctrine:schema:update --force
 db-restore: ## Restore database (usage: make db-restore FILE=backup_20260123_120000.sql.gz)
 	@if [ -z "$(FILE)" ]; then echo "Usage: make db-restore FILE=backup_file.sql.gz"; exit 1; fi
 	gunzip < backups/$(FILE) | docker compose -f $(COMPOSE_PROD) exec -T database mysql -u root -p$(MYSQL_ROOT_PASSWORD) $(MYSQL_DATABASE)
