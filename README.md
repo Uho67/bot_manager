@@ -1,174 +1,85 @@
-# Bot API - Symfony Application
+# Bot API
 
-A production-ready Symfony API application with Docker containerization, Vue.js frontend, and comprehensive deployment scripts.
+Symfony 7.2 + Vue.js 3 + Docker
 
-## Project Structure
+## Quick Deployment
 
-```
-bot_api/
-├── app/                    # Symfony application
-├── frontend/               # Vue.js frontend application
-├── docker/                 # Docker configuration files
-│   ├── docker-compose.dev.yml    # Development environment
-│   ├── docker-compose.prod.yml   # Production environment
-│   ├── mysql/              # MySQL initialization scripts
-│   ├── nginx/              # Nginx configuration
-│   ├── php/                # PHP-FPM Dockerfile
-│   └── .dockerignore       # Docker ignore file
-├── scripts/                # Shell scripts for deployment and maintenance
-│   ├── backup-db.sh        # Database backup script
-│   ├── deploy-quick.sh     # Quick deployment script
-│   ├── deploy.sh           # Standard deployment script
-│   ├── health-check.sh     # Health check script
-│   ├── start-frontend.sh   # Frontend development server
-│   ├── test-local.sh       # Local testing setup
-│   └── update-app.sh       # Application update script
-├── documentation/          # Project documentation
-│   ├── DEPLOYMENT.md       # Deployment guide
-│   ├── DEPLOYMENT_DOCKER.md # Docker deployment guide
-│   ├── DOCKER_INDEX.md     # Docker index
-│   ├── FILES_SUMMARY.md    # Files summary
-│   ├── LOCAL_TESTING.md    # Local testing guide
-│   ├── README_DOCKER.md    # Docker README
-│   ├── START_HERE.md       # Getting started guide
-│   └── SUCCESS.md          # Success metrics
-├── Makefile                # Make commands for common tasks
-└── README.md               # This file
-```
-
-## Quick Start
-
-### Development Environment
+### First Time Setup
 
 ```bash
-# Start development environment
-make dev-start
+# 1. Clone repository
+git clone <repo-url> /var/www/bot_api
+cd /var/www/bot_api
 
-# Or use the interactive test script
-make test-local
-```
+# 2. Create environment files
+cp .env.example .env.prod
+nano .env.prod  # Configure your settings
 
-### Production Deployment
+cp app/.env.example app/.env.prod.local
+nano app/.env.prod.local  # Match settings with .env.prod
 
-```bash
-# Quick deployment (recommended)
+# 3. Deploy
 make deploy-prod
-
-# Or step by step
-make build
-make start
 ```
 
-**💡 Tip:** Don't have a domain? You can deploy using your server's IP address! See `documentation/DEPLOYMENT_WITHOUT_DOMAIN.md` for the complete guide.
-
-## Available Make Commands
-
-Run `make help` to see all available commands:
-
-- **Production**: `build`, `start`, `stop`, `restart`, `down`, `logs`, `ps`
-- **Development**: `dev-start`, `dev-stop`, `dev-down`, `dev-logs`
-- **Cleanup**: `down-all`, `clean-all`, `clean-volumes`, `clean`
-- **Database**: `db-migrate`, `db-update`, `db-backup`, `db-restore`
-- **Cache**: `cache-clear`, `cache-warmup`
-- **Frontend**: `frontend-install`, `frontend-build`, `frontend-dev`
-- **Deployment**: `deploy-prod`, `update`
-- **Utilities**: `ssh-php`, `ssh-nginx`, `ssh-db`, `ssl-generate`, `jwt-generate`, `stats`
-
-## Technology Stack
-
-- **Backend**: Symfony 7.2 (PHP 8.3)
-- **Database**: MySQL 8.0
-- **Cache**: Redis 7
-- **Frontend**: Vue.js 3 + TypeScript + Vite
-- **Web Server**: Nginx
-- **Containerization**: Docker & Docker Compose
-
-## Documentation
-
-All documentation is available in the `documentation/` directory:
-
-- [Getting Started](documentation/START_HERE.md) - Begin here
-- [Local Testing Guide](documentation/LOCAL_TESTING.md) - Local development setup
-- [Deployment Guide](documentation/DEPLOYMENT.md) - Production deployment
-- [Docker Guide](documentation/DEPLOYMENT_DOCKER.md) - Docker-specific deployment
-
-## Scripts
-
-All maintenance and deployment scripts are located in the `scripts/` directory:
+### Update Deployment
 
 ```bash
-# Backup database
-cd scripts && ./backup-db.sh
-
-# Deploy application
-cd scripts && ./deploy-quick.sh
-
-# Update application
-cd scripts && ./update-app.sh
-
-# Run health checks
-cd scripts && ./health-check.sh
-
-# Start frontend dev server
-cd scripts && ./start-frontend.sh
+cd /var/www/bot_api
+git pull
+make deploy-prod
 ```
 
 ## Environment Configuration
 
-Copy the example environment files and configure:
+### .env.prod (Required values)
+
+```dotenv
+DOMAIN=your-server-ip-or-domain
+MYSQL_PASSWORD=your_strong_password
+MYSQL_ROOT_PASSWORD=your_root_password
+REDIS_PASSWORD=your_redis_password
+APP_SECRET=random_32_character_string
+DATABASE_URL=mysql://bot_api_user:your_strong_password@database:3306/bot_api_db?serverVersion=8.0&charset=utf8mb4
+JWT_PASSPHRASE=your_jwt_passphrase
+CORS_ALLOW_ORIGIN=^https?://(localhost|your-server-ip)(:[0-9]+)?$
+```
+
+### app/.env.prod.local
+
+Match the passwords from .env.prod.
+
+## Commands
 
 ```bash
-# Local development (Warden, Docker Desktop, etc.)
-cp .env.example .env
-
-# Production deployment (use .env.prod to avoid conflicts)
-cp .env.example .env.prod
-
-# Application environment
-cp app/.env.example app/.env.local
-
-# Frontend environment
-cp frontend/.env.example frontend/.env.local
+make deploy-prod   # Full deployment
+make logs          # View logs
+make ps            # Container status
+make restart       # Restart services
+make db-update     # Update database
+make cache-clear   # Clear cache
+make clean-all     # Remove everything
 ```
 
-**Note for Production:** Use `.env.prod` instead of `.env` on production servers to avoid conflicts with local development tools. The production docker-compose file (`docker/docker-compose.prod.yml`) is configured to use `.env.prod`. See `documentation/ENV_PROD_USAGE.md` for details.
+## Troubleshooting
 
-# Application environment
-cp app/.env.example app/.env.local
-
-# Frontend environment
-cp frontend/.env.example frontend/.env.local
-```
-
-## Database
-
-The project uses **MySQL 8.0** for optimal Symfony compatibility.
-
-### Migrations
+### Git conflicts on server
 
 ```bash
-# Run migrations
-make db-migrate
-
-# Or manually
-docker compose -f docker/docker-compose.prod.yml exec php php bin/console doctrine:migrations:migrate
+git restore .
+git pull
 ```
 
-### Backup & Restore
+### View logs
 
 ```bash
-# Backup
-make db-backup
-
-# Restore
-make db-restore FILE=backup_20260125_120000.sql.gz
+make logs
 ```
 
-## Support
+### Rebuild from scratch
 
-For detailed information, please refer to the documentation in the `documentation/` directory.
-
-## License
-
-Proprietary - All rights reserved
+```bash
+make clean-all
+make deploy-prod
+```
 

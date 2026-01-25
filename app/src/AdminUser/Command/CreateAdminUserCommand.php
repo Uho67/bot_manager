@@ -60,9 +60,7 @@ class CreateAdminUserCommand extends Command
 
         $adminUser = new AdminUser();
         $adminUser->setAdminName($adminName);
-        $adminUser->setAdminPassword(
-            $this->passwordHasher->hashPassword($adminUser, $input->getArgument('admin_password'))
-        );
+        $adminUser->setAdminPassword($input->getArgument('admin_password'));
         $adminUser->setBotCode($input->getArgument('bot_code'));
         $adminUser->setRoles([$role]);
 

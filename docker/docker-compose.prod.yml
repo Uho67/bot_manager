@@ -60,15 +60,37 @@ services:
       JWT_PASSPHRASE: ${JWT_PASSPHRASE}
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
     volumes:
-      - ../app:/var/www/html
+      # Mount public directory from host
+      - ../app/public:/var/www/html/public
+      # Writable var directory
       - php_var:/var/www/html/var
-      - ../app/public/media:/var/www/html/public/media
+      # Runtime configuration
+      - ../app/.env.prod.local:/var/www/html/.env.prod.local:ro
     networks:
       - bot_api_network
     depends_on:
       database:
         condition: service_healthy
       redis:
+        condition: service_healthy
+
+  # phpMyAdmin - Database Management
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: bot_api_phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "${PMA_PORT:-8080}:80"
+    environment:
+      PMA_HOST: database
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      UPLOAD_LIMIT: 100M
+    networks:
+      - bot_api_network
+    depends_on:
+      database:
         condition: service_healthy
 
   # Nginx Web Server
@@ -85,9 +107,8 @@ services:
       - ../app/public:/var/www/html/public:ro
       - ../frontend/dist:/var/www/frontend:ro
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf:ro
       - ./nginx/ssl:/etc/nginx/ssl:ro
-      - ../app/public/media:/var/www/html/public/media:ro
     networks:
       - bot_api_network
     depends_on:
@@ -104,4 +125,3 @@ volumes:
     driver: local
   php_var:
     driver: local
-

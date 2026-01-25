@@ -1,20 +1,36 @@
+# Environment files (production secrets)
+.env
+.env.local
+.env.prod
+.env.production
+.env.*.local
 
-###> symfony/framework-bundle ###
-/.env.local
-/.env.local.php
-/.env.*.local
-/.env.prod
-/.env.production
-/config/secrets/prod/prod.decrypt.private.php
-/public/bundles/
-/var/
-/vendor/
-/frontend/.env
+# Frontend build and dependencies
+frontend/dist/
+frontend/node_modules/
+frontend/.env.production
+frontend/.env.local
+
+# Backend
+app/vendor/
+app/var/
+app/public/bundles/
+app/config/secrets/prod/prod.decrypt.private.php
+
+# SSL certificates
+docker/nginx/ssl/*.pem
+docker/nginx/ssl/*.key
+docker/nginx/ssl/*.crt
+
+# Media uploads
+app/public/media/telegram/*
+!app/public/media/telegram/.gitkeep
+
+# IDE
 .idea/
-###< symfony/framework-bundle ###
+.vscode/
 
-###> media files ###
-/app/public/media/telegram/*
-!/app/public/media/telegram/.gitkeep
-###< media files ###
+# OS
+.DS_Store
+Thumbs.db
 
