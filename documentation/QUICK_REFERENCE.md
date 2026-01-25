@@ -138,11 +138,14 @@ docker compose -f docker/docker-compose.prod.yml
 ## Environment Files (unchanged)
 
 ```
-.env                    # Root environment
+.env                    # Local development (Warden, etc.)
+.env.prod               # Production environment (use this on server!)
 .env.example            # Root environment template
 app/.env.local          # App environment
 frontend/.env.local     # Frontend environment
 ```
+
+**Important:** Production deployments use `.env.prod` instead of `.env` to avoid conflicts with local development tools. See `documentation/ENV_PROD_USAGE.md` for details.
 
 ## Quick Commands Cheat Sheet
 

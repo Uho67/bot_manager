@@ -1,5 +1,9 @@
 version: '3.8'
 
+# NOTE: This file uses .env.prod for environment variables
+# Run with: docker compose --env-file ../.env.prod -f docker-compose.prod.yml [command]
+# Or symlink: ln -sf .env.prod .env (in project root)
+
 services:
   # MySQL Database
   database:

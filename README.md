@@ -116,8 +116,20 @@ cd scripts && ./start-frontend.sh
 Copy the example environment files and configure:
 
 ```bash
-# Root environment
+# Local development (Warden, Docker Desktop, etc.)
 cp .env.example .env
+
+# Production deployment (use .env.prod to avoid conflicts)
+cp .env.example .env.prod
+
+# Application environment
+cp app/.env.example app/.env.local
+
+# Frontend environment
+cp frontend/.env.example frontend/.env.local
+```
+
+**Note for Production:** Use `.env.prod` instead of `.env` on production servers to avoid conflicts with local development tools. The production docker-compose file (`docker/docker-compose.prod.yml`) is configured to use `.env.prod`. See `documentation/ENV_PROD_USAGE.md` for details.
 
 # Application environment
 cp app/.env.example app/.env.local

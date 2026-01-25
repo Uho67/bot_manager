@@ -53,7 +53,7 @@ This guide provides complete instructions for deploying the Bot API project (Sym
                     ┌────────────┼────────────┐
                     ▼            ▼            ▼
               ┌─────────┐  ┌─────────┐  ┌─────────┐
-              │ MariaDB │  │  Redis  │  │  Media  │
+              │ Mysql   │  │  Redis  │  │  Media  │
               │   DB    │  │  Cache  │  │ Storage │
               └─────────┘  └─────────┘  └─────────┘
 ```
@@ -64,22 +64,87 @@ This guide provides complete instructions for deploying the Bot API project (Sym
 
 ### 1. Install Docker and Docker Compose
 
+**Method 1: Using Docker's Official Installation Script (Recommended)**
+
+This is the easiest and most reliable method that works on all modern Linux distributions:
+
+```bash
+# Update system packages
+sudo apt update && sudo apt upgrade -y
+
+# Remove any old Docker installations
+sudo apt remove -y docker docker-engine docker.io containerd runc 2>/dev/null || true
+
+# Download and run Docker's official installation script
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+
+# Install Docker Compose plugin
+sudo apt update
+sudo apt install -y docker-compose-plugin
+
+# Add current user to docker group
+sudo usermod -aG docker $USER
+
+# Start and enable Docker
+sudo systemctl start docker
+sudo systemctl enable docker
+
+# Apply group changes (or log out and back in)
+newgrp docker
+
+# Verify installation
+docker --version
+docker compose version
+
+# Test Docker
+docker run hello-world
+```
+
+**Expected output:**
+- Docker version 24.0+ or later
+- Docker Compose version v2.x.x or later
+- "Hello from Docker!" message
+
+---
+
+**Method 2: Manual Repository Installation (Alternative)**
+
+If the automated script doesn't work, use this manual method:
+
+<details>
+<summary>Click to expand manual installation steps</summary>
+
 ```bash
 # Update package index
 sudo apt update && sudo apt upgrade -y
 
 # Install required packages
-sudo apt install -y apt-transport-https ca-certificates curl software-properties-common
+sudo apt install -y apt-transport-https ca-certificates curl software-properties-common gnupg lsb-release
+
+# Remove any old Docker installations
+sudo apt remove -y docker docker-engine docker.io containerd runc 2>/dev/null || true
 
 # Add Docker's official GPG key
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+sudo mkdir -p /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+sudo chmod a+r /etc/apt/keyrings/docker.gpg
 
-# Add Docker repository
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+# Add Docker repository (Ubuntu)
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
-# Install Docker
+# For Debian, use this instead:
+# echo \
+#   "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \
+#   $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+# Update package index with Docker repository
 sudo apt update
-sudo apt install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+
+# Install Docker Engine and Docker Compose plugin
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
 # Add current user to docker group
 sudo usermod -aG docker $USER
@@ -91,13 +156,40 @@ sudo systemctl enable docker
 # Verify installation
 docker --version
 docker compose version
+
+# Test Docker (may need to log out and back in for group changes)
+sudo docker run hello-world
 ```
+
+</details>
+
+---
+
+**Troubleshooting Docker Installation:**
+
+If you encounter errors like "Package 'docker-ce' has no installation candidate":
+
+```bash
+# Check your OS version
+lsb_release -a
+
+# Use the official script (most reliable)
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+sudo apt install -y docker-compose-plugin
+
+# Verify
+docker --version
+docker compose version
+```
+
+For more installation help, see: `documentation/DOCKER_INSTALLATION_FIX.md`
 
 ### 2. Install Node.js (for building frontend)
 
 ```bash
-# Install Node.js 18.x
-curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+# Install Node.js 22.x
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
 sudo apt install -y nodejs
 
 # Verify installation
@@ -130,14 +222,19 @@ git clone git@github.com:username/bot_api.git .
 
 ## Environment Configuration
 
+**Note:** Production uses `.env.prod` to avoid conflicts with local development `.env` files (e.g., Warden, Docker Desktop, etc.). See `documentation/ENV_PROD_USAGE.md` for details.
+
 ### 1. Root Environment File
 
 ```bash
-# Copy example file
-cp .env.example .env
+# Copy example file (using .env.prod to avoid conflicts with local .env)
+cp .env.example .env.prod
 
 # Edit with your actual values
-nano .env
+nano .env.prod
+
+# Create symlink so docker-compose uses .env.prod
+ln -sf .env.prod .env
 ```
 
 **Important variables to update:**
@@ -224,7 +321,7 @@ sudo cp /etc/letsencrypt/live/yourdomain.com/privkey.pem docker/nginx/ssl/key.pe
 sudo chown $USER:$USER docker/nginx/ssl/*.pem
 
 # Set up auto-renewal
-echo "0 0 * * * certbot renew --quiet && docker compose -f /var/www/bot_api/docker-compose.prod.yml restart nginx" | sudo crontab -
+echo "0 0 * * * certbot renew --quiet && docker compose -f /var/www/bot_api/docker/docker-compose.prod.yml restart nginx" | sudo crontab -
 ```
 
 ### 3. Generate JWT Keys
@@ -243,33 +340,35 @@ openssl pkey -in config/jwt/private.pem -out config/jwt/public.pem -pubout
 cd ..
 ```
 
-### 4. Build and Start Containers
-
-```bash
 # Build images
-docker compose -f docker-compose.prod.yml build
+docker compose -f docker/docker-compose.prod.yml build
+```bash
+# Build images (using .env.prod file)
+docker compose -f docker/docker-compose.prod.yml up -d
 
 # Start services
-docker compose -f docker-compose.prod.yml up -d
+docker compose -f docker/docker-compose.prod.yml ps
 
 # Check status
-docker compose -f docker-compose.prod.yml ps
+docker compose -f docker/docker-compose.prod.yml logs -f
 
 # View logs
-docker compose -f docker-compose.prod.yml logs -f
+**Note:** The `.env` symlink created earlier points to `.env.prod`, so docker-compose automatically uses production settings.
+# Then use normal commands
+docker compose -f docker/docker-compose.prod.yml up -d
 ```
 
 ### 5. Initialize Database
 
 ```bash
 # Run migrations (if using migrations)
-docker compose -f docker-compose.prod.yml exec php php bin/console doctrine:migrations:migrate --no-interaction
+docker compose -f docker/docker-compose.prod.yml exec php php bin/console doctrine:migrations:migrate --no-interaction
 
 # OR update schema (if not using migrations)
-docker compose -f docker-compose.prod.yml exec php php bin/console doctrine:schema:update --force
+docker compose -f docker/docker-compose.prod.yml exec php php bin/console doctrine:schema:update --force
 
 # Create admin user (if applicable)
-docker compose -f docker-compose.prod.yml exec php php bin/console app:create-admin
+docker compose -f docker/docker-compose.prod.yml exec php php bin/console app:create-admin
 ```
 
 ---
@@ -287,7 +386,7 @@ sudo tee /usr/local/bin/renew-ssl.sh > /dev/null <<'EOF'
 certbot renew --quiet
 cp /etc/letsencrypt/live/yourdomain.com/fullchain.pem /var/www/bot_api/docker/nginx/ssl/cert.pem
 cp /etc/letsencrypt/live/yourdomain.com/privkey.pem /var/www/bot_api/docker/nginx/ssl/key.pem
-docker compose -f /var/www/bot_api/docker-compose.prod.yml restart nginx
+docker compose -f /var/www/bot_api/docker/docker-compose.prod.yml restart nginx
 EOF
 
 # Make executable
@@ -308,7 +407,7 @@ echo "0 0 * * * /usr/local/bin/renew-ssl.sh" | sudo crontab -
 mkdir -p backups
 
 # Backup database
-docker compose -f docker-compose.prod.yml exec database \
+docker compose -f docker/docker-compose.prod.yml exec database \
   mysqldump -u root -p${MYSQL_ROOT_PASSWORD} ${MYSQL_DATABASE} > backups/backup_$(date +%Y%m%d_%H%M%S).sql
 
 # Or using docker exec
@@ -320,7 +419,7 @@ docker exec bot_api_database \
 
 ```bash
 # Restore from backup
-docker compose -f docker-compose.prod.yml exec -T database \
+docker compose -f docker/docker-compose.prod.yml exec -T database \
   mysql -u root -p${MYSQL_ROOT_PASSWORD} ${MYSQL_DATABASE} < backups/backup_20260123_120000.sql
 ```
 
@@ -356,34 +455,34 @@ echo "0 2 * * * /var/www/bot_api/backup-db.sh" | crontab -
 
 ```bash
 # All services
-docker compose -f docker-compose.prod.yml logs -f
+docker compose -f docker/docker-compose.prod.yml logs -f
 
 # Specific service
-docker compose -f docker-compose.prod.yml logs -f php
-docker compose -f docker-compose.prod.yml logs -f nginx
-docker compose -f docker-compose.prod.yml logs -f database
+docker compose -f docker/docker-compose.prod.yml logs -f php
+docker compose -f docker/docker-compose.prod.yml logs -f nginx
+docker compose -f docker/docker-compose.prod.yml logs -f database
 
 # Last 100 lines
-docker compose -f docker-compose.prod.yml logs --tail=100 php
+docker compose -f docker/docker-compose.prod.yml logs --tail=100 php
 ```
 
 ### Container Management
 
 ```bash
 # Restart all services
-docker compose -f docker-compose.prod.yml restart
+docker compose -f docker/docker-compose.prod.yml restart
 
 # Restart specific service
-docker compose -f docker-compose.prod.yml restart php
+docker compose -f docker/docker-compose.prod.yml restart php
 
 # Stop all services
-docker compose -f docker-compose.prod.yml stop
+docker compose -f docker/docker-compose.prod.yml stop
 
 # Start all services
-docker compose -f docker-compose.prod.yml start
+docker compose -f docker/docker-compose.prod.yml start
 
 # Rebuild and restart
-docker compose -f docker-compose.prod.yml up -d --build
+docker compose -f docker/docker-compose.prod.yml up -d --build
 ```
 
 ### Update Application
@@ -399,16 +498,16 @@ npm run build
 cd ..
 
 # Rebuild backend container
-docker compose -f docker-compose.prod.yml build php
+docker compose -f docker/docker-compose.prod.yml build php
 
 # Restart services
-docker compose -f docker-compose.prod.yml up -d
+docker compose -f docker/docker-compose.prod.yml up -d
 
 # Run migrations if needed
-docker compose -f docker-compose.prod.yml exec php php bin/console doctrine:migrations:migrate --no-interaction
+docker compose -f docker/docker-compose.prod.yml exec php php bin/console doctrine:migrations:migrate --no-interaction
 
 # Clear cache
-docker compose -f docker-compose.prod.yml exec php php bin/console cache:clear
+docker compose -f docker/docker-compose.prod.yml exec php php bin/console cache:clear
 ```
 
 ### Resource Monitoring
@@ -457,20 +556,20 @@ docker compose -f docker-compose.prod.yml exec php chown -R www-data:www-data /v
 
 ```bash
 # Check database is running
-docker compose -f docker-compose.prod.yml ps database
+docker compose -f docker/docker-compose.prod.yml ps database
 
 # Test database connection
-docker compose -f docker-compose.prod.yml exec database mysql -u root -p${MYSQL_ROOT_PASSWORD} -e "SELECT 1;"
+docker compose -f docker/docker-compose.prod.yml exec database mysql -u root -p${MYSQL_ROOT_PASSWORD} -e "SELECT 1;"
 
 # Check PHP can connect
-docker compose -f docker-compose.prod.yml exec php php bin/console doctrine:query:sql "SELECT 1"
+docker compose -f docker/docker-compose.prod.yml exec php php bin/console doctrine:query:sql "SELECT 1"
 ```
 
 #### 4. Redis Connection Issues
 
 ```bash
 # Test Redis connection
-docker compose -f docker-compose.prod.yml exec redis redis-cli -a ${REDIS_PASSWORD} ping
+docker compose -f docker/docker-compose.prod.yml exec redis redis-cli -a ${REDIS_PASSWORD} ping
 
 # Should return: PONG
 ```
@@ -479,23 +578,23 @@ docker compose -f docker-compose.prod.yml exec redis redis-cli -a ${REDIS_PASSWO
 
 ```bash
 # Check PHP-FPM is running
-docker compose -f docker-compose.prod.yml ps php
+docker compose -f docker/docker-compose.prod.yml ps php
 
 # Check PHP-FPM logs
-docker compose -f docker-compose.prod.yml logs php
+docker compose -f docker/docker-compose.prod.yml logs php
 
 # Restart PHP service
-docker compose -f docker-compose.prod.yml restart php
+docker compose -f docker/docker-compose.prod.yml restart php
 ```
 
 #### 6. Nginx Configuration Errors
 
 ```bash
 # Test nginx configuration
-docker compose -f docker-compose.prod.yml exec nginx nginx -t
+docker compose -f docker/docker-compose.prod.yml exec nginx nginx -t
 
 # Reload nginx
-docker compose -f docker-compose.prod.yml exec nginx nginx -s reload
+docker compose -f docker/docker-compose.prod.yml exec nginx nginx -s reload
 ```
 
 ### Debug Mode
@@ -504,10 +603,10 @@ To enable debug mode temporarily:
 
 ```bash
 # Set APP_ENV to dev in app/.env.local
-docker compose -f docker-compose.prod.yml exec php sh -c 'echo "APP_ENV=dev" >> .env.local'
+docker compose -f docker/docker-compose.prod.yml exec php sh -c 'echo "APP_ENV=dev" >> .env.local'
 
 # Clear cache
-docker compose -f docker-compose.prod.yml exec php php bin/console cache:clear
+docker compose -f docker/docker-compose.prod.yml exec php php bin/console cache:clear
 
 # Remember to switch back to prod!
 ```
@@ -516,20 +615,20 @@ docker compose -f docker-compose.prod.yml exec php php bin/console cache:clear
 
 ```bash
 # PHP container
-docker compose -f docker-compose.prod.yml exec php sh
+docker compose -f docker/docker-compose.prod.yml exec php sh
 
 # Nginx container
-docker compose -f docker-compose.prod.yml exec nginx sh
+docker compose -f docker/docker-compose.prod.yml exec nginx sh
 
 # Database container
-docker compose -f docker-compose.prod.yml exec database bash
+docker compose -f docker/docker-compose.prod.yml exec database bash
 ```
 
 ---
 
 ## Security Checklist
 
-- [ ] Changed all default passwords in `.env`
+- [ ] Changed all default passwords in `.env.prod`
 - [ ] Generated strong `APP_SECRET`
 - [ ] Generated strong `JWT_PASSPHRASE`
 - [ ] Configured SSL/TLS certificates
