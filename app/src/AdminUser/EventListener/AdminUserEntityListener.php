@@ -13,26 +13,40 @@ use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
-class AdminUserEntityListener
+readonly class AdminUserEntityListener
 {
     public function __construct(
-        private readonly UserPasswordHasherInterface $passwordHasher,
-        private readonly LoggerInterface $logger
+        private UserPasswordHasherInterface $passwordHasher,
+        private LoggerInterface $logger
     ) {}
 
     /**
-     * Hash password before persisting new AdminUser
+     * Ensure user has at least ADMIN role if not already SUPER_ADMIN or ADMIN
+     */
+    private function ensureAdminRole(AdminUser $adminUser): void
+    {
+        $roles = $adminUser->getRoles();
+        if (!in_array('ROLE_ADMIN', $roles, true) && !in_array('ROLE_SUPER_ADMIN', $roles, true)) {
+            $roles = ['ROLE_ADMIN'];
+            $adminUser->setRoles($roles);
+        }
+    }
+
+    /**
+     * Hash password and ensure ADMIN role before persisting new AdminUser
      */
     public function prePersist(AdminUser $adminUser, PrePersistEventArgs $args): void
     {
+        $this->ensureAdminRole($adminUser);
         $this->hashPassword($adminUser);
     }
 
     /**
-     * Hash password before updating AdminUser
+     * Hash password and ensure ADMIN role before updating AdminUser
      */
     public function preUpdate(AdminUser $adminUser, PreUpdateEventArgs $args): void
     {
+        $this->ensureAdminRole($adminUser);
         $this->hashPassword($adminUser);
 
         // If password was changed, mark it for update
@@ -63,4 +77,3 @@ class AdminUserEntityListener
         }
     }
 }
-
