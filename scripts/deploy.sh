@@ -83,7 +83,18 @@ echo ""
 echo "Initializing database..."
 docker compose --env-file .env -f docker/docker-compose.prod.yml exec -T php php bin/console doctrine:schema:update --force || true
 
-# Step 8: Clear cache
+# Step 8: Generate JWT keys (with correct ownership)
+echo ""
+echo "Generating JWT keys..."
+docker compose --env-file .env -f docker/docker-compose.prod.yml exec -T php sh -c "
+    mkdir -p config/jwt && \
+    php bin/console lexik:jwt:generate-keypair --skip-if-exists 2>/dev/null || \
+    php bin/console lexik:jwt:generate-keypair --overwrite && \
+    chown -R www-data:www-data config/jwt/
+"
+echo -e "${GREEN}✓ JWT keys configured${NC}"
+
+# Step 9: Clear cache
 echo ""
 echo "Clearing cache..."
 docker compose --env-file .env -f docker/docker-compose.prod.yml exec -T php php bin/console cache:clear || true

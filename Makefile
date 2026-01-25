@@ -1,4 +1,4 @@
-.PHONY: help build start stop restart logs ps clean deploy-prod down-all clean-all ssh-php db-update cache-clear frontend-build
+.PHONY: help build start stop restart logs ps clean deploy-prod prod down-all clean-all ssh-php db-update cache-clear frontend-build
 
 # Docker Compose files
 COMPOSE_PROD = docker/docker-compose.prod.yml
@@ -10,7 +10,8 @@ help: ## Show this help
 	@echo 'Usage: make [target]'
 	@echo ''
 	@echo 'Deployment:'
-	@echo '  deploy-prod    Full production deployment'
+	@echo '  deploy-prod    Full production deployment (first time)'
+	@echo '  prod           Quick update: rebuild PHP + clear cache'
 	@echo ''
 	@echo 'Container Management:'
 	@echo '  build          Build containers'
@@ -35,6 +36,11 @@ help: ## Show this help
 
 deploy-prod: ## Full production deployment
 	@chmod +x scripts/deploy.sh && ./scripts/deploy.sh
+
+prod: ## Quick update: rebuild PHP + fix JWT + clear cache
+	docker compose --env-file $(ENV_FILE) -f $(COMPOSE_PROD) up -d --build php
+	docker compose --env-file $(ENV_FILE) -f $(COMPOSE_PROD) exec php sh -c "mkdir -p config/jwt && [ -f config/jwt/private.pem ] || php bin/console lexik:jwt:generate-keypair && chown -R www-data:www-data config/jwt/"
+	docker compose --env-file $(ENV_FILE) -f $(COMPOSE_PROD) exec php php bin/console cache:clear --env=prod
 
 # ===================
 # CONTAINER MANAGEMENT
