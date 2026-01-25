@@ -1,0 +1,106 @@
+version: '3.8'
+
+services:
+  # MySQL Database
+  database:
+    image: mysql:${MYSQL_VERSION:-8.0}
+    container_name: bot_api_database
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-app}
+      MYSQL_USER: ${MYSQL_USER:-app}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-!ChangeMe!}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+    volumes:
+      - database_data:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d
+    networks:
+      - bot_api_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-root}"]
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+
+  # Redis Cache & Session Store
+  redis:
+    image: redis:7-alpine
+    container_name: bot_api_redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis_password}
+    volumes:
+      - redis_data:/data
+    networks:
+      - bot_api_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # Symfony PHP-FPM Backend
+  php:
+    build:
+      context: ..
+      dockerfile: docker/php/Dockerfile
+      target: production
+      args:
+        - APP_DIR=app
+    container_name: bot_api_php
+    restart: unless-stopped
+    environment:
+      APP_ENV: ${APP_ENV:-prod}
+      APP_SECRET: ${APP_SECRET}
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_URL: ${REDIS_URL:-redis://:redis_password@redis:6379}
+      CORS_ALLOW_ORIGIN: ${CORS_ALLOW_ORIGIN:-*}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-%kernel.project_dir%/config/jwt/private.pem}
+      JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY:-%kernel.project_dir%/config/jwt/public.pem}
+      JWT_PASSPHRASE: ${JWT_PASSPHRASE}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+    volumes:
+      - ../app:/var/www/html
+      - php_var:/var/www/html/var
+      - ../app/public/media:/var/www/html/public/media
+    networks:
+      - bot_api_network
+    depends_on:
+      database:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # Nginx Web Server
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: bot_api_nginx
+    restart: unless-stopped
+    ports:
+      - "${HTTP_PORT:-80}:80"
+      - "${HTTPS_PORT:-443}:443"
+    volumes:
+      - ../app/public:/var/www/html/public:ro
+      - ../frontend/dist:/var/www/frontend:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - ../app/public/media:/var/www/html/public/media:ro
+    networks:
+      - bot_api_network
+    depends_on:
+      - php
+
+networks:
+  bot_api_network:
+    driver: bridge
+
+volumes:
+  database_data:
+    driver: local
+  redis_data:
+    driver: local
+  php_var:
+    driver: local
+

@@ -14,7 +14,9 @@ cd /var/www/bot_api/app
 
 echo ""
 echo "Step 1: Pulling latest code..."
+cd /var/www/bot_api
 git pull origin main
+cd app
 
 echo ""
 echo "Step 2: Installing/updating Composer dependencies..."

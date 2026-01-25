@@ -42,7 +42,7 @@ git clone <your-repo-url> .
 Example `DATABASE_URL` for MariaDB (Doctrine):
 
 ```dotenv
-DATABASE_URL="mariadb://app:!ChangeMe!@database:3306/app?serverVersion=11.3"
+DATABASE_URL="mysql://app:!ChangeMe!@database:3306/app?serverVersion=8.0"
 ```
 
 ### Frontend (Vue)

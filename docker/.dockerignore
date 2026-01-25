@@ -1,0 +1,67 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Docker
+docker-compose*.yml
+Dockerfile
+.dockerignore
+
+# Documentation
+*.md
+README*
+CHANGELOG*
+LICENSE
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Dependencies
+node_modules/
+vendor/
+
+# Build artifacts
+dist/
+build/
+
+# Environment files
+.env*
+!.env.example
+
+# Cache and temp
+var/cache/
+var/log/
+var/sessions/
+.cache/
+tmp/
+temp/
+
+# Tests
+tests/
+.phpunit.result.cache
+coverage/
+
+# Backups
+backups/
+*.sql
+*.sql.gz
+
+# Misc
+*.bak
+*.tmp
+

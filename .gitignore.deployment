@@ -1,0 +1,70 @@
+# Docker & Deployment
+docker/nginx/ssl/*.pem
+!docker/nginx/ssl/README.md
+backups/
+*.sql
+*.sql.gz
+
+# Environment files
+.env
+.env.local
+.env.*.local
+app/.env
+app/.env.local
+app/.env.*.local
+frontend/.env
+frontend/.env.local
+frontend/.env.production.local
+
+# Logs
+var/log/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Dependencies
+node_modules/
+vendor/
+
+# Build
+frontend/dist/
+frontend/build/
+
+# Cache
+var/cache/
+.cache/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Symfony
+app/var/
+!app/var/.gitkeep
+app/public/bundles/
+app/public/media/
+!app/public/media/.gitkeep
+
+# JWT Keys (optional - some prefer to commit these for deployment)
+app/config/jwt/*.pem
+!app/config/jwt/.gitkeep
+
+# Tests
+.phpunit.result.cache
+coverage/
+
+# Composer
+composer.phar
+
+# NPM
+package-lock.json
+yarn.lock
+
