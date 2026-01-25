@@ -2,40 +2,58 @@
 
 This guide provides complete instructions for deploying the Bot API project (Symfony + Vue.js + Redis) using Docker Compose.
 
-## Table of Contents
-1. [Prerequisites](#prerequisites)
-2. [Project Architecture](#project-architecture)
-3. [Initial Server Setup](#initial-server-setup)
-4. [Environment Configuration](#environment-configuration)
-5. [Building and Deployment](#building-and-deployment)
-6. [SSL/TLS Configuration](#ssltls-configuration)
-7. [Database Management](#database-management)
-8. [Monitoring and Maintenance](#monitoring-and-maintenance)
-9. [Troubleshooting](#troubleshooting)
+## Deployment Scenarios
+
+Choose your deployment scenario:
+
+| Scenario | SSL | Browser Warnings | Setup Complexity | Cost |
+|----------|-----|------------------|------------------|------|
+| **A: Domain with SSL (Let's Encrypt)** | ✅ Free, Trusted | ❌ None | Medium | $10-15/year (domain) |
+| **B: Domain without SSL (HTTP only)** | ❌ No encryption | ⚠️ Not secure warning | Easy | $10-15/year (domain) |
+| **C: IP Address (Self-signed SSL)** | ⚠️ Self-signed | ⚠️ Security warning | Easy | Free |
+
+**Recommended for:**
+- **Option A**: Production deployments (best security)
+- **Option B**: Testing with domain, non-sensitive data
+- **Option C**: Testing, development, internal tools
+
+💡 **Using IP Address?** You're using Option C - Continue with this guide.
 
 ---
 
-## Prerequisites
+## 🚀 Quick Deployment (Recommended)
 
-### Server Requirements
-- **OS**: Ubuntu 20.04 LTS or later (recommended) / Debian / CentOS
-- **RAM**: Minimum 2GB, recommended 4GB+
-- **CPU**: 2+ cores
-- **Disk**: 20GB+ free space
-- **Network**: Public IP address with ports 80 and 443 accessible
+**One-command deployment after configuration:**
 
-### Required Software
-- Docker (version 20.10+)
-- Docker Compose (version 2.0+)
-- Git
-- Node.js 18+ (for building frontend)
-
----
-
-## Project Architecture
-
+```bash
+make deploy-prod
 ```
-┌─────────────────────────────────────────────────┐
+
+This runs `scripts/deploy-quick.sh` which automatically:
+- ✅ Builds frontend
+- ✅ Generates SSL certificates (if missing)
+- ✅ Builds & starts Docker containers
+- ✅ Generates JWT keys
+- ✅ Runs database migrations
+- ✅ Shows deployment status
+
+**Useful Make Commands:**
+```bash
+make help          # Show all commands
+make build         # Build containers only
+make start         # Start services
+make stop          # Stop services
+make logs          # View logs
+make db-migrate    # Run migrations
+make ps            # Container status
+```
+
+**For manual step-by-step deployment**, continue reading below.
+
+---
+
+## Architecture Overview
+
 │                    Nginx                        │
 │         (Reverse Proxy + SSL/TLS)              │
 │  Port 80 (HTTP) → 443 (HTTPS Redirect)         │
@@ -226,8 +244,21 @@ git clone git@github.com:username/bot_api.git .
 
 ### 1. Root Environment File
 
-```bash
-# Copy example file (using .env.prod to avoid conflicts with local .env)
+
+**Configure based on your deployment option:**
+
+**Option A & B (Domain):**
+```dotenv
+DOMAIN=yourdomain.com
+CORS_ALLOW_ORIGIN=^https?://(localhost|yourdomain\.com)(:[0-9]+)?$
+```
+
+**Option C (IP Address - e.g., 46.175.145.84):**
+```dotenv
+DOMAIN=46.175.145.84
+CORS_ALLOW_ORIGIN=^https?://(localhost|127\.0\.0\.1|46\.175\.145\.84)(:[0-9]+)?$
+```
+⚠️ **Important for IP:** Escape dots with backslash: `46\.175\.145\.84`
 cp .env.example .env.prod
 
 # Edit with your actual values
@@ -243,24 +274,59 @@ ln -sf .env.prod .env
 - `REDIS_PASSWORD` - Strong Redis password
 - `APP_SECRET` - Random 32+ character string
 - `JWT_PASSPHRASE` - Strong passphrase for JWT
-- `DOMAIN` - Your actual domain name
+- `DOMAIN` - Your actual domain name **OR server IP address** (e.g., `45.76.123.45`)
+- `CORS_ALLOW_ORIGIN` - Update with your domain or IP (escape dots: `192\.168\.1\.100`)
 
-### 2. Backend Environment File
-
+**📝 Note:** Don't have a domain? You can use your server's IP address! See `documentation/DEPLOYMENT_WITHOUT_DOMAIN.md` for complete IP-based deployment guide.
 ```bash
-# Copy example file
-cp app/.env.example app/.env.local
-
-# Edit with your values
-nano app/.env.local
+# Copy example file (using .env.prod to avoid conflicts with local .env)
+TELEGRAM_WEBHOOK_URL=https://yourdomain.com/api/telegram/webhook
 ```
+
+**Option B (Domain without SSL):**
+```dotenv
+CORS_ALLOW_ORIGIN=^https?://(localhost|yourdomain\.com)(:[0-9]+)?$
+TELEGRAM_WEBHOOK_URL=http://yourdomain.com/api/telegram/webhook
+```
+
+**Option C (IP Address - 46.175.145.84):**
+```dotenv
+CORS_ALLOW_ORIGIN=^https?://(localhost|127\.0\.0\.1|46\.175\.145\.84)(:[0-9]+)?$
+TELEGRAM_WEBHOOK_URL=http://46.175.145.84/api/telegram/webhook
+```
+⚠️ **Remember:** Escape dots in IP: `46\.175\.145\.84`
+
+**Why `.env.prod.local`?**
+- Symfony **skips** `.env.local` when `APP_ENV=prod`
+- In production, Symfony loads: `.env` → `.env.prod` → **`.env.prod.local`**
+- `.env.prod.local` is gitignored (safe for production credentials)
 
 **Key configurations:**
 - Match `DATABASE_URL` with Docker Compose database credentials
-- Match `REDIS_URL` with Redis password
-- Set `CORS_ALLOW_ORIGIN` to your domain
-- Update `JWT_PASSPHRASE` to match root .env
-- Add your `TELEGRAM_BOT_TOKEN` if applicable
+**Configure API URL based on your deployment option:**
+
+**Option A (Domain with SSL - Let's Encrypt):**
+```dotenv
+VITE_API_URL=https://yourdomain.com
+VITE_DEBUG=false
+```
+
+**Option B (Domain without SSL - HTTP only):**
+```dotenv
+VITE_API_URL=http://yourdomain.com
+VITE_DEBUG=false
+```
+
+**Option C (IP Address - 46.175.145.84):**
+```dotenv
+VITE_API_URL=http://46.175.145.84
+VITE_DEBUG=false
+```
+
+💡 **Tip:** If using self-signed SSL with IP, use `https://46.175.145.84` but users will need to accept browser security warnings.
+- Update `JWT_PASSPHRASE` to match root `.env.prod`
+- Update `TELEGRAM_BOT_TOKEN` if applicable
+- **Important:** Update `serverVersion=11.3` to `serverVersion=8.0` for MySQL
 
 ### 3. Frontend Environment File
 
@@ -289,40 +355,141 @@ npm install
 
 # Build for production (uses .env.production)
 npm run build
-
-# Go back to root
-cd ..
+### 2. SSL/TLS Certificate Setup
 ```
+Choose the option that matches your deployment scenario:
 
-### 2. Generate SSL Certificates
-
-**Option A: Self-signed (for testing only)**
-```bash
-openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-  -keyout docker/nginx/ssl/key.pem \
-  -out docker/nginx/ssl/cert.pem \
-  -subj "/C=US/ST=State/L=City/O=Organization/CN=localhost"
+# Note: Replace 46.175.145.84 with your actual IP or use localhost
 ```
+#### **Option A: Domain with SSL (Let's Encrypt) - Recommended for Production**
+⚠️ **Note:** Self-signed certificates will show browser security warnings. Users must manually accept the certificate.
+✅ **Best for:** Production deployments with a domain name
+✅ **SSL:** Free, automatically trusted by browsers
+✅ **Security:** Full HTTPS encryption
+---
 
-**Option B: Let's Encrypt (recommended for production)**
+**Option B: Let's Encrypt (ONLY for domain names - NOT for IP addresses)**
+
+⚠️ **Important:** Let's Encrypt **CANNOT** issue certificates for IP addresses. You **MUST** have a domain name.
+
+**Steps:**
+
+**Requirements:**
+# 1. Stop any service on port 80
+- Domain DNS A record points to your server IP
+- Port 80 is accessible from the internet
+# 2. Install certbot
 ```bash
 # Stop any service on port 80
-sudo systemctl stop nginx 2>/dev/null || true
+# 3. Generate certificates (replace with your actual domain)
 
 # Install certbot
-sudo apt install -y certbot
+# 4. Create SSL directory
+mkdir -p docker/nginx/ssl
 
-# Generate certificates
+# 5. Copy certificates to project
+
+# Generate certificates (replace with your actual domain)
 sudo certbot certonly --standalone -d yourdomain.com -d www.yourdomain.com
 
+# 6. Set up automatic renewal (see SSL Configuration section below)
+
+
+**Access your app:** `https://yourdomain.com`
 # Copy to project
 sudo cp /etc/letsencrypt/live/yourdomain.com/fullchain.pem docker/nginx/ssl/cert.pem
 sudo cp /etc/letsencrypt/live/yourdomain.com/privkey.pem docker/nginx/ssl/key.pem
-sudo chown $USER:$USER docker/nginx/ssl/*.pem
+#### **Option B: Domain without SSL (HTTP Only) - Testing Only**
 
-# Set up auto-renewal
-echo "0 0 * * * certbot renew --quiet && docker compose -f /var/www/bot_api/docker/docker-compose.prod.yml restart nginx" | sudo crontab -
+⚠️ **Best for:** Testing, non-sensitive data
+❌ **SSL:** None - unencrypted HTTP only
+⚠️ **Security:** Data transmitted in plain text
+
+**Requirements:**
+- You own a domain name
+- Domain DNS A record points to your server IP
+
+**Steps:**
+
+```bash
+# 1. Create dummy SSL files (nginx still needs them in config)
+mkdir -p docker/nginx/ssl
+
+# 2. Generate self-signed cert (won't be used, but nginx config requires files)
+openssl req -x509 -nodes -days 1 -newkey rsa:2048 \
+  -keyout docker/nginx/ssl/key.pem \
+  -out docker/nginx/ssl/cert.pem \
+  -subj "/CN=localhost"
+
+# 3. Update nginx config to only listen on port 80 (optional)
+# Edit docker/nginx/conf.d/default.conf and remove SSL server block
 ```
+
+**Access your app:** `http://yourdomain.com`
+```
+⚠️ **Warning:** Not recommended for production! No encryption means credentials and data are visible to network observers.
+
+For testing with IP addresses, you can disable HTTPS:
+- Access via: `http://YOUR_IP` (no SSL)
+#### **Option C: IP Address with Self-Signed SSL - What You're Using**
+- Only use for development/testing
+✅ **Best for:** Testing, development, internal tools
+⚠️ **SSL:** Self-signed - browser will show security warnings
+✅ **Security:** Encrypted, but users must manually accept certificate
+| Have domain name | Option B (Let's Encrypt) | ✅ Free, trusted SSL |
+**Requirements:**
+- Server with public IP address
+- Ports 80 and 443 accessible
+
+**Steps:**
+
+```bash
+# 1. Create SSL directory
+mkdir -p docker/nginx/ssl
+
+# 2. Generate self-signed certificate for your IP (e.g., 46.175.145.84)
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  -keyout docker/nginx/ssl/key.pem \
+  -out docker/nginx/ssl/cert.pem \
+  -subj "/C=US/ST=State/L=City/O=YourOrg/CN=46.175.145.84"
+
+# Note: Replace 46.175.145.84 with your actual IP address
+```
+
+**Access your app:**
+- HTTPS: `https://46.175.145.84` (will show security warning - click "Advanced" and "Proceed")
+- HTTP: `http://46.175.145.84` (if you want to avoid warnings, but less secure)
+
+⚠️ **Browser Warning:** Users will see "Your connection is not private" or similar. This is normal for self-signed certificates. Click "Advanced" → "Proceed to 46.175.145.84 (unsafe)" to continue.
+
+💡 **For production:** Consider getting a cheap domain ($10/year) to use Let's Encrypt free SSL without warnings.
+
+---
+
+#### **Quick Comparison**
+
+| Option | Command | Access URL | Browser Warning? | Data Encrypted? |
+|--------|---------|------------|------------------|-----------------|
+| **A: Domain + Let's Encrypt** | `certbot certonly --standalone -d yourdomain.com` | `https://yourdomain.com` | ❌ No | ✅ Yes |
+| **B: Domain HTTP only** | No SSL setup needed | `http://yourdomain.com` | ⚠️ "Not secure" | ❌ No |
+| **C: IP + Self-signed** | `openssl req -x509 ... -subj "/CN=46.175.145.84"` | `https://46.175.145.84` | ⚠️ "Not private" | ✅ Yes |
+
+---
+
+#### **Why Let's Encrypt doesn't work with IP addresses**
+
+Let's Encrypt **requires a domain name** because:
+- Certificates are tied to domain names in the DNS system
+- IP addresses can change or be reassigned
+- Domain validation is done via DNS/HTTP challenges
+- This is a security feature, not a limitation
+
+**Solution:** If you need trusted SSL certificates, get a domain name (very affordable: $10-15/year from Namecheap, Google Domains, etc.)
+| Local testing | Option A (Self-signed) | ⚠️ Works but browser warnings |
+| Internal network | Option A (Self-signed) | ⚠️ Works but browser warnings |
+| Production with IP | Get a domain first! | 🛑 Self-signed not ideal |
+
+💡 **Tip:** Domains are cheap ($10-15/year). Consider getting one for production deployments to enable proper SSL.
 
 ### 3. Generate JWT Keys
 
@@ -340,23 +507,55 @@ openssl pkey -in config/jwt/private.pem -out config/jwt/public.pem -pubout
 cd ..
 ```
 
-# Build images
-docker compose -f docker/docker-compose.prod.yml build
+### 4. Build and Start Containers
+
+**Option 1: Using Make Commands (Recommended - Simpler)**
+
 ```bash
-# Build images (using .env.prod file)
-docker compose -f docker/docker-compose.prod.yml up -d
+# Build images
+make build
 
 # Start services
-docker compose -f docker/docker-compose.prod.yml ps
+make start
 
 # Check status
-docker compose -f docker/docker-compose.prod.yml logs -f
+make ps
 
 # View logs
-**Note:** The `.env` symlink created earlier points to `.env.prod`, so docker-compose automatically uses production settings.
-# Then use normal commands
-docker compose -f docker/docker-compose.prod.yml up -d
+make logs
 ```
+
+**Option 2: Using Docker Compose Directly**
+
+**Using Make Commands (Recommended):**
+
+```bash
+# Run migrations
+make db-migrate
+
+# OR update schema (if not using migrations)
+make db-update
+```
+
+**Using Docker Compose Directly:**
+
+```bash
+# Run migrations
+docker compose -f docker/docker-compose.prod.yml build
+
+# OR update schema
+docker compose -f docker/docker-compose.prod.yml up -d
+
+# Check status
+docker compose -f docker/docker-compose.prod.yml ps
+
+# View logs
+docker compose -f docker/docker-compose.prod.yml logs -f
+```
+
+💡 **Tip:** Use `make help` to see all available commands!
+
+**Note:** The `.env` symlink created earlier points to `.env.prod`, so docker-compose automatically uses production settings.
 
 ### 5. Initialize Database
 
@@ -375,13 +574,41 @@ docker compose -f docker/docker-compose.prod.yml exec php php bin/console app:cr
 
 ## SSL/TLS Configuration
 
-### Automatic SSL Renewal
+### Automatic SSL Renewal (Option A Only - Let's Encrypt with Domain)
 
-For Let's Encrypt certificates, set up automatic renewal:
+⚠️ **Note:** This section **ONLY applies to Option A** (Domain with Let's Encrypt).
+
+If you're using:
+- **Option B** (Domain without SSL) - Skip this section
+- **Option C** (IP with self-signed SSL) - Skip this section, self-signed certs are valid for 365 days
+
+---
+
+**For Option A users:**
+
+Set up automatic certificate renewal to prevent expiration:
 
 ```bash
 # Create renewal script
 sudo tee /usr/local/bin/renew-ssl.sh > /dev/null <<'EOF'
+#!/bin/bash
+certbot renew --quiet
+cp /etc/letsencrypt/live/yourdomain.com/fullchain.pem /var/www/bot_api/docker/nginx/ssl/cert.pem
+cp /etc/letsencrypt/live/yourdomain.com/privkey.pem /var/www/bot_api/docker/nginx/ssl/key.pem
+docker compose -f /var/www/bot_api/docker/docker-compose.prod.yml restart nginx
+EOF
+
+# Make executable
+sudo chmod +x /usr/local/bin/renew-ssl.sh
+
+# Add to crontab (runs daily at midnight)
+echo "0 0 * * * /usr/local/bin/renew-ssl.sh" | sudo crontab -
+
+# Test renewal (dry run)
+sudo certbot renew --dry-run
+```
+
+Let's Encrypt certificates are valid for 90 days. The cron job will automatically renew them when they're close to expiration.
 #!/bin/bash
 certbot renew --quiet
 cp /etc/letsencrypt/live/yourdomain.com/fullchain.pem /var/www/bot_api/docker/nginx/ssl/cert.pem

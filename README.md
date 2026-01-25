@@ -59,6 +59,8 @@ make build
 make start
 ```
 
+**💡 Tip:** Don't have a domain? You can deploy using your server's IP address! See `documentation/DEPLOYMENT_WITHOUT_DOMAIN.md` for the complete guide.
+
 ## Available Make Commands
 
 Run `make help` to see all available commands:
