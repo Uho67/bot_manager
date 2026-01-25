@@ -69,9 +69,16 @@ COPY docker/php/php-prod.ini /usr/local/etc/php/conf.d/custom.ini
 # Copy application files
 COPY app /var/www/html
 
-# Install dependencies (production only, optimized)
-RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress \
+# Set environment to production
+ENV APP_ENV=prod
+
+# Install dependencies (production only, optimized, skip auto-scripts)
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress --no-scripts \
     && composer dump-autoload --optimize --no-dev --classmap-authoritative
+
+# Clear cache after composer install
+RUN php bin/console cache:clear --env=prod --no-warmup || true \
+    && php bin/console cache:warmup --env=prod || true
 
 # Set proper permissions
 RUN chown -R www-data:www-data /var/www/html/var \

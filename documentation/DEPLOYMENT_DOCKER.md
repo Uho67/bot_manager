@@ -215,7 +215,17 @@ node --version
 npm --version
 ```
 
-### 3. Create Project Directory
+### 3. Install Make (for simplified commands)
+
+```bash
+# Install make
+sudo apt install -y make
+
+# Verify installation
+make --version
+```
+
+### 4. Create Project Directory
 
 ```bash
 # Create directory

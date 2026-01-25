@@ -22,7 +22,13 @@ curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
 sudo apt install -y nodejs
 ```
 
-### 3. Setup Project
+### 3. Install Make
+```bash
+sudo apt install -y make
+make --version
+```
+
+### 4. Setup Project
 ```bash
 sudo mkdir -p /var/www/bot_api
 sudo chown $USER:$USER /var/www/bot_api

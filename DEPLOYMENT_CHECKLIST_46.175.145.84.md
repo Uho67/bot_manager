@@ -28,6 +28,9 @@ docker compose version
 curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
 sudo apt install -y nodejs
 
+# Install Make
+sudo apt install -y make
+
 # Create project directory
 sudo mkdir -p /var/www/bot_api
 sudo chown $USER:$USER /var/www/bot_api
