@@ -88,13 +88,18 @@ echo ""
 echo "Services status:"
 docker compose -f ../docker/docker-compose.prod.yml ps
 echo ""
+
+# Try to detect domain/IP from .env.prod
+DOMAIN_VALUE=$(grep "^DOMAIN=" ../.env.prod 2>/dev/null | cut -d'=' -f2 || echo "localhost")
+
 echo -e "${GREEN}Application is running at:${NC}"
-echo "  HTTP:  http://localhost"
-echo "  HTTPS: https://localhost"
+echo "  HTTP:  http://${DOMAIN_VALUE}"
+echo "  HTTPS: https://${DOMAIN_VALUE}"
 echo ""
 echo -e "${YELLOW}Useful commands:${NC}"
-echo "  View logs:     docker compose -f ../docker/docker-compose.prod.yml logs -f"
-echo "  Stop services: docker compose -f ../docker/docker-compose.prod.yml stop"
-echo "  Restart:       docker compose -f ../docker/docker-compose.prod.yml restart"
+echo "  View logs:     make logs"
+echo "  Stop services: make stop"
+echo "  Restart:       make restart"
+echo "  Clear cache:   make cache-clear"
 echo ""
 
