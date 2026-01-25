@@ -55,10 +55,10 @@ fi
 
 # Build and start containers
 echo -e "${GREEN}Building Docker containers...${NC}"
-docker compose -f ../docker/docker-compose.prod.yml build
+docker compose --env-file ../.env -f ../docker/docker-compose.prod.yml build
 
 echo -e "${GREEN}Starting services...${NC}"
-docker compose -f ../docker/docker-compose.prod.yml up -d
+docker compose --env-file ../.env -f ../docker/docker-compose.prod.yml up -d
 
 # Wait for database to be ready
 echo -e "${YELLOW}Waiting for database to be ready...${NC}"
@@ -67,17 +67,17 @@ sleep 10
 # Generate JWT keys if needed
 if [ ! -f "../app/config/jwt/private.pem" ]; then
     echo -e "${GREEN}Generating JWT keys...${NC}"
-    docker compose -f ../docker/docker-compose.prod.yml exec -T php php bin/console lexik:jwt:generate-keypair --skip-if-exists
+    docker compose --env-file ../.env -f ../docker/docker-compose.prod.yml exec -T php php bin/console lexik:jwt:generate-keypair --skip-if-exists
 fi
 
 # Run database migrations/updates
 echo -e "${GREEN}Updating database schema...${NC}"
-docker compose -f ../docker/docker-compose.prod.yml exec -T php php bin/console doctrine:migrations:migrate --no-interaction || \
-docker compose -f ../docker/docker-compose.prod.yml exec -T php php bin/console doctrine:schema:update --force
+docker compose --env-file ../.env -f ../docker/docker-compose.prod.yml exec -T php php bin/console doctrine:migrations:migrate --no-interaction || \
+docker compose --env-file ../.env -f ../docker/docker-compose.prod.yml exec -T php php bin/console doctrine:schema:update --force
 
 # Clear cache
 echo -e "${GREEN}Clearing cache...${NC}"
-docker compose -f ../docker/docker-compose.prod.yml exec -T php php bin/console cache:clear
+docker compose --env-file ../.env -f ../docker/docker-compose.prod.yml exec -T php php bin/console cache:clear
 
 # Show status
 echo ""
@@ -86,7 +86,7 @@ echo "Deployment completed successfully!"
 echo "===================================${NC}"
 echo ""
 echo "Services status:"
-docker compose -f ../docker/docker-compose.prod.yml ps
+docker compose --env-file ../.env -f ../docker/docker-compose.prod.yml ps
 echo ""
 
 # Try to detect domain/IP from .env.prod

@@ -1,6 +1,5 @@
 .PHONY: help build start stop restart logs ps ps-all clean backup update deploy-prod deploy-dev down down-all dev-down clean-all clean-volumes
 
-# Docker Compose files
 COMPOSE_PROD = docker/docker-compose.prod.yml
 COMPOSE_DEV = docker/docker-compose.dev.yml
 
@@ -12,27 +11,30 @@ help: ## Show this help message
 
 # Production commands
 build: ## Build production containers
-	docker compose -f $(COMPOSE_PROD) build
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-app}
+      MYSQL_USER: ${MYSQL_USER:-app}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-!ChangeMe!}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}build: ## Build production containers
 
 start: ## Start production containers
-	docker compose -f $(COMPOSE_PROD) up -d
+start: ## Start production containers
 
 stop: ## Stop production containers
-	docker compose -f $(COMPOSE_PROD) stop
+stop: ## Stop production containers
 
 restart: ## Restart production containers
-	docker compose -f $(COMPOSE_PROD) restart
+restart: ## Restart production containers
 
 down: ## Stop and remove production containers
-	docker compose -f $(COMPOSE_PROD) down
+down: ## Stop and remove production containers
 
 logs: ## Show production logs
-	docker compose -f $(COMPOSE_PROD) logs -f
+ps: ## Show running containers
 
 ps: ## Show running containers
 	docker compose -f $(COMPOSE_PROD) ps
 
-ps-all: ## Show ALL containers (including stopped)
+	@docker compose --env-file .env -f $(COMPOSE_PROD) ps -a 2>/dev/null || echo "No production containers"
 	@echo "=== Production Containers ==="
 	@docker compose -f $(COMPOSE_PROD) ps -a 2>/dev/null || echo "No production containers"
 	@echo ""
@@ -105,13 +107,13 @@ update: ## Update application
 	cd scripts && ./update-app.sh
 
 ssh-php: ## SSH into PHP container
-	docker compose -f $(COMPOSE_PROD) exec php sh
+	docker compose --env-file .env -f $(COMPOSE_PROD) exec php sh
 
 ssh-nginx: ## SSH into Nginx container
-	docker compose -f $(COMPOSE_PROD) exec nginx sh
+	docker compose --env-file .env -f $(COMPOSE_PROD) exec nginx sh
 
 ssh-db: ## SSH into database container
-down-all: ## Stop and remove ALL containers (dev + prod)
+	docker compose --env-file .env -f $(COMPOSE_PROD) exec database bash
 	docker compose -f $(COMPOSE_DEV) down 2>/dev/null || true
 	docker compose -f $(COMPOSE_PROD) down 2>/dev/null || true
 	@echo "All containers stopped and removed"
