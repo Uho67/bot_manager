@@ -64,6 +64,8 @@ services:
       - ../app/public:/var/www/html/public
       # Writable var directory
       - php_var:/var/www/html/var
+      # JWT keys (persisted across rebuilds)
+      - jwt_keys:/var/www/html/config/jwt
       # Runtime configuration
       - ../app/.env.prod.local:/var/www/html/.env.prod.local:ro
     networks:
@@ -124,4 +126,6 @@ volumes:
   redis_data:
     driver: local
   php_var:
+    driver: local
+  jwt_keys:
     driver: local
