@@ -1,4 +1,4 @@
-.PHONY: help build start stop restart logs ps clean deploy-prod prod down-all clean-all ssh-php db-update cache-clear frontend-build
+.PHONY: help build start stop restart logs ps clean deploy-prod prod down-all clean-all ssh-php db-update cache-clear frontend-build cs-check cs-fix phpcs phpcbf
 
 # Docker Compose files
 COMPOSE_PROD = docker/docker-compose.prod.yml
@@ -26,6 +26,12 @@ help: ## Show this help
 	@echo '  db-update      Update database schema'
 	@echo '  cache-clear    Clear Symfony cache'
 	@echo '  ssh-php        SSH into PHP container'
+	@echo ''
+	@echo 'Code Quality:'
+	@echo '  cs-check       Check code style (dry-run)'
+	@echo '  cs-fix         Fix code style'
+	@echo '  phpcs          Run PHP CodeSniffer'
+	@echo '  phpcbf         Fix PHP CodeSniffer issues'
 	@echo ''
 	@echo 'Cleanup:'
 	@echo '  clean-all      Remove all containers and volumes'
@@ -86,6 +92,22 @@ ssh-php: ## SSH into PHP container
 
 frontend-build: ## Build frontend
 	cd frontend && npm install && npm run build
+
+# ===================
+# CODE QUALITY
+# ===================
+
+cs-check: ## Check code style (dry-run)
+	cd app && vendor/bin/php-cs-fixer fix --dry-run --diff
+
+cs-fix: ## Fix code style
+	cd app && vendor/bin/php-cs-fixer fix
+
+phpcs: ## Run PHP CodeSniffer
+	cd app && vendor/bin/phpcs
+
+phpcbf: ## Fix PHP CodeSniffer issues
+	cd app && vendor/bin/phpcbf
 
 # ===================
 # CLEANUP

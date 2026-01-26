@@ -21,8 +21,9 @@ class ProductImageController extends AbstractController
 {
     public function __construct(
         private readonly ImageService $imageService,
-        private readonly LoggerInterface $logger
-    ) {}
+        private readonly LoggerInterface $logger,
+    ) {
+    }
 
     #[Route('/product/upload-image', name: 'product_upload_image', methods: ['POST'])]
     #[IsGranted('ROLE_ADMIN')]
@@ -51,7 +52,6 @@ class ProductImageController extends AbstractController
                 'success' => true,
                 'path' => $imagePath
             ]);
-
         } catch (\Exception $e) {
             $this->logger->error('Failed to upload product image', [
                 'error' => $e->getMessage()
