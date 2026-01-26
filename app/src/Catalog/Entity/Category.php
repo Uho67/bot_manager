@@ -46,11 +46,11 @@ class Category
     #[Groups(['category:read', 'product:read'])]
     private ?int $id = null;
 
-    #[ORM\Column(length: 10)]
+    #[ORM\Column(length: 255)]
     #[Groups(['category:read', 'category:write', 'product:read'])]
     private ?string $name = null;
 
-    #[ORM\Column(length: 10)]
+    #[ORM\Column(length: 255)]
     #[Groups(['category:read'])]
     private ?string $bot_identifier = null;
 

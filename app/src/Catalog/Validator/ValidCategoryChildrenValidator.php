@@ -13,6 +13,8 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
+use Traversable;
+use LogicException;
 
 class ValidCategoryChildrenValidator extends ConstraintValidator
 {
@@ -24,32 +26,36 @@ class ValidCategoryChildrenValidator extends ConstraintValidator
 
     public function validate($value, Constraint $constraint): void
     {
-        if (!($value instanceof \Traversable || is_array($value))) {
+        if (!($value instanceof Traversable || is_array($value))) {
             return;
         }
+
+        $currentCategory = $this->getCurrentCategory();
+
+        if (!$currentCategory || !$currentCategory->getId()) {
+            return;
+        }
+
         $childrenIds = array_map(function ($category) {
             return $category->getId();
         }, $value->toArray());
-        $currentCategory = $this->getCurrentCategory();
 
-        // Check if category is trying to be its own child
+        $childrenIds = array_filter($childrenIds);
+
         if (in_array($currentCategory->getId(), $childrenIds)) {
-            throw new \LogicException('A category cannot be its own child.');
+            throw new LogicException('A category cannot be its own child.');
         }
 
-        // Check if any child is an ancestor of the parent
-        if ($this->isAncestor($childrenIds, $currentCategory)) {
-            throw new \LogicException('Check children for circular reference.');
+        if (!empty($childrenIds) && $this->isAncestor($childrenIds, $currentCategory)) {
+            throw new LogicException('Check children for circular reference.');
         }
     }
 
-    private function getCurrentCategory(): Category
+    private function getCurrentCategory(): ?Category
     {
-        // Try to get parent ID from context object first
         $parentCategory = $this->context->getObject();
         $parentId = $parentCategory?->getId();
 
-        // If no ID from context, try to extract from request URI (for PUT/PATCH requests)
         if (!$parentId) {
             $request = $this->requestStack->getCurrentRequest();
             if ($request && preg_match('#/api/categories/(\d+)#', $request->getPathInfo(), $matches)) {
@@ -57,10 +63,13 @@ class ValidCategoryChildrenValidator extends ConstraintValidator
             }
         }
 
-        // Fetch the parent category from database
+        if (!$parentId) {
+            return null;
+        }
+
         $parentCategory = $this->entityManager->getRepository(Category::class)->find($parentId);
         if (!$parentCategory) {
-            throw new \LogicException('Request does not contain valid category ID.');
+            throw new LogicException('Request does not contain valid category ID.');
         }
         return $parentCategory;
     }

@@ -37,11 +37,13 @@ help: ## Show this help
 deploy-prod: ## Full production deployment
 	@chmod +x scripts/deploy.sh && ./scripts/deploy.sh
 
-prod: ## Quick update: rebuild PHP + fix permissions + clear cache
+prod: ## Quick update: rebuild PHP + fix permissions + DB update + clear cache
 	docker compose --env-file $(ENV_FILE) -f $(COMPOSE_PROD) up -d --build php
 	docker compose --env-file $(ENV_FILE) -f $(COMPOSE_PROD) exec php sh -c "mkdir -p config/jwt && [ -f config/jwt/private.pem ] || php bin/console lexik:jwt:generate-keypair && chown -R www-data:www-data config/jwt/"
-	docker compose --env-file $(ENV_FILE) -f $(COMPOSE_PROD) exec php sh -c "mkdir -p public/media && chown -R www-data:www-data public/media"
+	docker compose --env-file $(ENV_FILE) -f $(COMPOSE_PROD) exec php sh -c "mkdir -p public/media && chown -R www-data:www-data public/media var"
+	docker compose --env-file $(ENV_FILE) -f $(COMPOSE_PROD) exec php php bin/console doctrine:schema:update --force || true
 	docker compose --env-file $(ENV_FILE) -f $(COMPOSE_PROD) exec php php bin/console cache:clear --env=prod
+	docker compose --env-file $(ENV_FILE) -f $(COMPOSE_PROD) exec php chown -R www-data:www-data var/
 
 # ===================
 # CONTAINER MANAGEMENT

@@ -50,8 +50,7 @@ class ResetAdminPasswordCommand extends Command
             return Command::FAILURE;
         }
 
-        $hashedPassword = $this->passwordHasher->hashPassword($adminUser, $newPassword);
-        $adminUser->setAdminPassword($hashedPassword);
+        $adminUser->setAdminPassword($newPassword);
 
         $this->entityManager->flush();
 

@@ -46,7 +46,7 @@ class Product
     #[Groups(['product:read', 'category:read'])]
     private ?int $id = null;
 
-    #[ORM\Column(length: 10)]
+    #[ORM\Column(length: 255)]
     #[Groups(['product:read', 'product:write', 'category:read'])]
     private ?string $name = null;
 
@@ -58,7 +58,7 @@ class Product
     #[Groups(['product:read', 'product:write'])]
     private ?string $image = null;
 
-    #[ORM\Column(length: 10)]
+    #[ORM\Column(length: 255)]
     #[Groups(['product:read'])]
     private ?string $bot_identifier = null;
 

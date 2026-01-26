@@ -60,7 +60,7 @@ class AdminUser implements UserInterface, PasswordAuthenticatedUserInterface
     #[SerializedName('bot_code')]
     private ?string $bot_code = null;
 
-    #[ORM\Column(length: 50, nullable: true)]
+    #[ORM\Column(length: 255, nullable: true)]
     #[Groups(['admin_user:read', 'admin_user:write'])]
     #[SerializedName('bot_identifier')]
     private ?string $bot_identifier = null;

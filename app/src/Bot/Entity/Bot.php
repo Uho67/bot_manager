@@ -41,7 +41,7 @@ class Bot
     #[Groups(['bot:read'])]
     private ?int $id = null;
 
-    #[ORM\Column(length: 50, unique: true)]
+    #[ORM\Column(length: 255, unique: true)]
     #[Groups(['bot:read', 'bot:write'])]
     private ?string $bot_identifier = null;
 

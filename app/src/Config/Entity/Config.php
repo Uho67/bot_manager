@@ -35,10 +35,10 @@ class Config
     #[Assert\Length(max: 255)]
     private string $value = '0';
 
-    #[ORM\Column(type: 'string', length: 10)]
+    #[ORM\Column(type: 'string', length: 255)]
     #[Groups(['config:read', 'config:write'])]
     #[Assert\NotBlank]
-    #[Assert\Length(max: 10)]
+    #[Assert\Length(max: 255)]
     private ?string $bot_identifier = null;
 
     #[ORM\Column(type: 'string', length: 255)]
