@@ -94,6 +94,15 @@ docker compose --env-file .env -f docker/docker-compose.prod.yml exec -T php sh 
 "
 echo -e "${GREEN}✓ JWT keys configured${NC}"
 
+# Step 8b: Fix media directory permissions
+echo ""
+echo "Fixing media permissions..."
+docker compose --env-file .env -f docker/docker-compose.prod.yml exec -T php sh -c "
+    mkdir -p public/media && \
+    chown -R www-data:www-data public/media
+"
+echo -e "${GREEN}✓ Media permissions configured${NC}"
+
 # Step 9: Clear cache
 echo ""
 echo "Clearing cache..."
