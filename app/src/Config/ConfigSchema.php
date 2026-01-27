@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © Dmytro Ushchenko. All rights reserved.
  */
@@ -30,4 +31,3 @@ class ConfigSchema
         ];
     }
 }
-

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © Dmytro Ushchenko. All rights reserved.
  */
@@ -18,7 +19,7 @@ class CacheClearController extends AbstractController
 {
     public function __construct(
         private readonly ConfigService $configService,
-        private readonly TokenStorageInterface $tokenStorage
+        private readonly TokenStorageInterface $tokenStorage,
     ) {
     }
 
@@ -28,7 +29,7 @@ class CacheClearController extends AbstractController
         $token = $this->tokenStorage->getToken();
         $user = $token?->getUser();
 
-        if (!$user || !is_object($user) || !method_exists($user, 'getBotIdentifier')) {
+        if (!$user || !\is_object($user) || !method_exists($user, 'getBotIdentifier')) {
             return new JsonResponse(['error' => 'Not authenticated'], 401);
         }
 
@@ -38,4 +39,3 @@ class CacheClearController extends AbstractController
         return $this->json(['message' => 'Config cache cleared successfully for bot: ' . $botIdentifier]);
     }
 }
-

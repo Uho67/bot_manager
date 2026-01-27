@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © Dmytro Ushchenko. All rights reserved.
  */
@@ -16,7 +17,7 @@ use Symfony\Bundle\SecurityBundle\Security;
 final readonly class ConfigCollectionExtension implements QueryCollectionExtensionInterface
 {
     public function __construct(
-        private Security $security
+        private Security $security,
     ) {
     }
 
@@ -25,7 +26,7 @@ final readonly class ConfigCollectionExtension implements QueryCollectionExtensi
         QueryNameGeneratorInterface $queryNameGenerator,
         string $resourceClass,
         ?\ApiPlatform\Metadata\Operation $operation = null,
-        array $context = []
+        array $context = [],
     ): void {
         if ($resourceClass !== Config::class) {
             return;
@@ -44,4 +45,3 @@ final readonly class ConfigCollectionExtension implements QueryCollectionExtensi
         }
     }
 }
-

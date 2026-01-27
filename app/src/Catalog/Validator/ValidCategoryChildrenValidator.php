@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © Dmytro Ushchenko. All rights reserved.
  */
@@ -9,24 +10,23 @@ namespace App\Catalog\Validator;
 
 use App\Catalog\Entity\Category;
 use Doctrine\ORM\EntityManagerInterface;
+use LogicException;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
-use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 use Traversable;
-use LogicException;
 
 class ValidCategoryChildrenValidator extends ConstraintValidator
 {
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
-        private readonly RequestStack $requestStack
+        private readonly RequestStack $requestStack,
     ) {
     }
 
     public function validate($value, Constraint $constraint): void
     {
-        if (!($value instanceof Traversable || is_array($value))) {
+        if (!($value instanceof Traversable || \is_array($value))) {
             return;
         }
 
@@ -36,13 +36,13 @@ class ValidCategoryChildrenValidator extends ConstraintValidator
             return;
         }
 
-        $childrenIds = array_map(function ($category) {
+        $childrenIds = array_map(static function ($category) {
             return $category->getId();
         }, $value->toArray());
 
         $childrenIds = array_filter($childrenIds);
 
-        if (in_array($currentCategory->getId(), $childrenIds)) {
+        if (\in_array($currentCategory->getId(), $childrenIds, true)) {
             throw new LogicException('A category cannot be its own child.');
         }
 
@@ -59,7 +59,7 @@ class ValidCategoryChildrenValidator extends ConstraintValidator
         if (!$parentId) {
             $request = $this->requestStack->getCurrentRequest();
             if ($request && preg_match('#/api/categories/(\d+)#', $request->getPathInfo(), $matches)) {
-                $parentId = (int)$matches[1];
+                $parentId = (int) $matches[1];
             }
         }
 
@@ -71,6 +71,7 @@ class ValidCategoryChildrenValidator extends ConstraintValidator
         if (!$parentCategory) {
             throw new LogicException('Request does not contain valid category ID.');
         }
+
         return $parentCategory;
     }
 
@@ -90,4 +91,3 @@ class ValidCategoryChildrenValidator extends ConstraintValidator
         return $count > 0;
     }
 }
-

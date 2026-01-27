@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © Dmytro Ushchenko. All rights reserved.
  */
@@ -17,19 +18,8 @@ readonly class AdminUserEntityListener
 {
     public function __construct(
         private UserPasswordHasherInterface $passwordHasher,
-        private LoggerInterface $logger
-    ) {}
-
-    /**
-     * Ensure user has at least ADMIN role if not already SUPER_ADMIN or ADMIN
-     */
-    private function ensureAdminRole(AdminUser $adminUser): void
-    {
-        $roles = $adminUser->getRoles();
-        if (!in_array('ROLE_ADMIN', $roles, true) && !in_array('ROLE_SUPER_ADMIN', $roles, true)) {
-            $roles = ['ROLE_ADMIN'];
-            $adminUser->setRoles($roles);
-        }
+        private LoggerInterface $logger,
+    ) {
     }
 
     /**
@@ -54,8 +44,20 @@ readonly class AdminUserEntityListener
             $entityManager = $args->getObjectManager();
             $entityManager->getUnitOfWork()->recomputeSingleEntityChangeSet(
                 $entityManager->getClassMetadata(AdminUser::class),
-                $adminUser
+                $adminUser,
             );
+        }
+    }
+
+    /**
+     * Ensure user has at least ADMIN role if not already SUPER_ADMIN or ADMIN
+     */
+    private function ensureAdminRole(AdminUser $adminUser): void
+    {
+        $roles = $adminUser->getRoles();
+        if (!\in_array('ROLE_ADMIN', $roles, true) && !\in_array('ROLE_SUPER_ADMIN', $roles, true)) {
+            $roles = ['ROLE_ADMIN'];
+            $adminUser->setRoles($roles);
         }
     }
 
@@ -67,12 +69,12 @@ readonly class AdminUserEntityListener
         if ($adminUser->getAdminPassword()) {
             $hashedPassword = $this->passwordHasher->hashPassword(
                 $adminUser,
-                $adminUser->getAdminPassword()
+                $adminUser->getAdminPassword(),
             );
             $adminUser->setAdminPassword($hashedPassword);
 
             $this->logger->info('Password hashed for admin user', [
-                'admin_name' => $adminUser->getAdminName()
+                'admin_name' => $adminUser->getAdminName(),
             ]);
         }
     }

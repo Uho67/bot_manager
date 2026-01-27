@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © Dmytro Ushchenko. All rights reserved.
  */
@@ -25,8 +26,8 @@ final readonly class CurrentUserExtension implements QueryCollectionExtensionInt
         QueryBuilder $queryBuilder,
         QueryNameGeneratorInterface $queryNameGenerator,
         string $resourceClass,
-        null|Operation $operation = null,
-        array $context = []
+        ?Operation $operation = null,
+        array $context = [],
     ): void {
         if (AdminUser::class !== $resourceClass) {
             return;
@@ -37,7 +38,7 @@ final readonly class CurrentUserExtension implements QueryCollectionExtensionInt
         }
         $user = $this->security->getUser();
         $rootAlias = $queryBuilder->getRootAliases()[0];
-        $queryBuilder->andWhere(sprintf('%s.id = :current_user_id', $rootAlias))
+        $queryBuilder->andWhere(\sprintf('%s.id = :current_user_id', $rootAlias))
             ->setParameter('current_user_id', $user->getId());
     }
 }

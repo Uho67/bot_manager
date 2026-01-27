@@ -13,9 +13,9 @@ $finder = (new PhpCsFixer\Finder())
 return (new PhpCsFixer\Config())
     ->setRules([
         // Standards (layered: PER-CS 2.0 + Symfony + PHP 8.4)
-        '@PER-CS2.0' => true,
-        '@PER-CS2.0:risky' => true,
-        '@Symfony' => true,
+        '@PER-CS2x0' => true,
+        '@PER-CS2x0:risky' => true,
+        '@PHP8x4Migration' => true,
         '@Symfony:risky' => true,
         '@PHP84Migration' => true,
         '@DoctrineAnnotation' => true,

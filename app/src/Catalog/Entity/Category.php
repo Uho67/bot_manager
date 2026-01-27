@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © Dmytro Ushchenko. All rights reserved.
  */
@@ -36,7 +37,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     ],
     normalizationContext: ['groups' => ['category:read']],
     denormalizationContext: ['groups' => ['category:write']],
-    security: "is_granted('ROLE_ADMIN')"
+    security: "is_granted('ROLE_ADMIN')",
 )]
 class Category
 {
@@ -64,7 +65,7 @@ class Category
     /**
      * @var Collection<int, Category>
      */
-    #[ORM\ManyToMany(targetEntity: Category::class)]
+    #[ORM\ManyToMany(targetEntity: self::class)]
     #[ORM\JoinTable(name: 'category_children')]
     #[Groups(['category:read', 'category:write'])]
     #[Assert\Count(max: 10, maxMessage: 'A category cannot have more than {{ limit }} children.')]
@@ -90,6 +91,7 @@ class Category
     public function setName(string $name): static
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -101,6 +103,7 @@ class Category
     public function setBotIdentifier(string $bot_identifier): static
     {
         $this->bot_identifier = $bot_identifier;
+
         return $this;
     }
 
@@ -139,7 +142,7 @@ class Category
         return $this->childCategories;
     }
 
-    public function addChildCategory(Category $childCategory): static
+    public function addChildCategory(self $childCategory): static
     {
         if (!$this->childCategories->contains($childCategory)) {
             $this->childCategories->add($childCategory);
@@ -148,11 +151,10 @@ class Category
         return $this;
     }
 
-    public function removeChildCategory(Category $childCategory): static
+    public function removeChildCategory(self $childCategory): static
     {
         $this->childCategories->removeElement($childCategory);
 
         return $this;
     }
 }
-

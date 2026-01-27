@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © Dmytro Ushchenko. All rights reserved.
  */
@@ -7,20 +8,19 @@ declare(strict_types=1);
 
 namespace App\AdminUser\Entity;
 
-use App\AdminUser\Repository\AdminUserRepository;
-use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
-use ApiPlatform\Metadata\Delete;
-use ApiPlatform\Metadata\Patch;
+use App\AdminUser\Repository\AdminUserRepository;
+use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Serializer\Attribute\SerializedName;
-
 
 #[ORM\Entity(repositoryClass: AdminUserRepository::class)]
 #[ApiResource(
@@ -31,11 +31,11 @@ use Symfony\Component\Serializer\Attribute\SerializedName;
         new Post(),
         new Put(),
         new Patch(),
-        new Delete()
+        new Delete(),
     ],
     normalizationContext: ['groups' => ['admin_user:read']],
     denormalizationContext: ['groups' => ['admin_user:write']],
-    security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_SUPER_ADMIN')"
+    security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_SUPER_ADMIN')",
 )]
 class AdminUser implements UserInterface, PasswordAuthenticatedUserInterface
 {
@@ -136,12 +136,14 @@ class AdminUser implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $roles = $this->roles;
         $roles[] = 'ROLE_USER';
+
         return array_unique($roles);
     }
 
     public function setRoles(array $roles): static
     {
         $this->roles = $roles;
+
         return $this;
     }
 

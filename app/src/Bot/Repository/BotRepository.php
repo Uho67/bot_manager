@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © Dmytro Ushchenko. All rights reserved.
  */
@@ -21,4 +22,3 @@ class BotRepository extends ServiceEntityRepository
         parent::__construct($registry, Bot::class);
     }
 }
-

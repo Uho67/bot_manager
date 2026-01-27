@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © Dmytro Ushchenko. All rights reserved.
  */
@@ -23,7 +24,7 @@ class ConfigRepository extends ServiceEntityRepository
 
     public function __construct(
         ManagerRegistry $registry,
-        private readonly CacheInterface $cache
+        private readonly CacheInterface $cache,
     ) {
         parent::__construct($registry, Config::class);
     }
@@ -42,7 +43,7 @@ class ConfigRepository extends ServiceEntityRepository
                         ->setParameter('botIdentifier', $botIdentifier)
                         ->getQuery()
                         ->getResult();
-                }
+                },
             );
         } catch (InvalidArgumentException $e) {
             return [];
@@ -68,4 +69,3 @@ class ConfigRepository extends ServiceEntityRepository
         $this->cache->delete("{$botIdentifier}" . self::CACHE_KEY);
     }
 }
-

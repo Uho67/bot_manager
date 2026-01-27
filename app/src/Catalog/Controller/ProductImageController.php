@@ -50,17 +50,16 @@ class ProductImageController extends AbstractController
 
             return $this->json([
                 'success' => true,
-                'path' => $imagePath
+                'path' => $imagePath,
             ]);
         } catch (\Exception $e) {
             $this->logger->error('Failed to upload product image', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return $this->json([
-                'error' => 'Failed to upload image: ' . $e->getMessage()
+                'error' => 'Failed to upload image: '.$e->getMessage(),
             ], 500);
         }
     }
 }
-

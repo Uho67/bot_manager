@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © Dmytro Ushchenko. All rights reserved.
  */
@@ -7,7 +8,6 @@ declare(strict_types=1);
 
 namespace App\Config\Controller;
 
-use App\Config\ConfigSchema;
 use App\Config\Entity\Config;
 use App\Config\Service\ConfigService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -26,7 +26,7 @@ class ConfigController extends AbstractController
 {
     public function __construct(
         private readonly ConfigService $configService,
-        private readonly TokenStorageInterface $tokenStorage
+        private readonly TokenStorageInterface $tokenStorage,
     ) {
     }
 
@@ -35,8 +35,9 @@ class ConfigController extends AbstractController
     {
         $user = $this->getUserFromAuth();
 
-        if (in_array('ROLE_SUPER_ADMIN', $user->getRoles(), true)) {
+        if (\in_array('ROLE_SUPER_ADMIN', $user->getRoles(), true)) {
             $allConfigs = $this->configService->getAll();
+
             return $this->json($this->transformConfigs($allConfigs));
         }
 
@@ -44,20 +45,6 @@ class ConfigController extends AbstractController
         $configs = $this->configService->getAllForBot($botIdentifier);
 
         return $this->json($this->transformConfigs($configs));
-    }
-
-
-    private function transformConfigs(array $configs): array
-    {
-        return array_map(function (Config $config) {
-            return [
-                'id' => $config->getId(),
-                'path' => $config->getPath(),
-                'name' => $config->getName(),
-                'value' => $config->getValue(),
-                'bot_identifier' => $config->getBotIdentifier(),
-            ];
-        }, $configs);
     }
 
     #[Route('/{id}', name: 'api_config_update', methods: ['PATCH'])]
@@ -91,7 +78,7 @@ class ConfigController extends AbstractController
         }
 
         // Admin can only create configs for their own bot
-        if (!in_array('ROLE_SUPER_ADMIN', $user->getRoles(), true)) {
+        if (!\in_array('ROLE_SUPER_ADMIN', $user->getRoles(), true)) {
             if ($botIdentifier !== $user->getBotIdentifier()) {
                 throw new AccessDeniedHttpException('Forbidden');
             }
@@ -108,9 +95,19 @@ class ConfigController extends AbstractController
         ], 201);
     }
 
-    /**
-     * @return UserInterface
-     */
+    private function transformConfigs(array $configs): array
+    {
+        return array_map(static function (Config $config) {
+            return [
+                'id' => $config->getId(),
+                'path' => $config->getPath(),
+                'name' => $config->getName(),
+                'value' => $config->getValue(),
+                'bot_identifier' => $config->getBotIdentifier(),
+            ];
+        }, $configs);
+    }
+
     private function getUserFromAuth(): UserInterface
     {
         $user = $this->tokenStorage->getToken()?->getUser();
@@ -122,7 +119,7 @@ class ConfigController extends AbstractController
         return $user;
     }
 
-    private function validateParams(string|null $value, Config|null $config, UserInterface $adminUser): void
+    private function validateParams(?string $value, ?Config $config, UserInterface $adminUser): void
     {
         if ($value === null) {
             throw new BadRequestHttpException('Value is required');
@@ -133,7 +130,7 @@ class ConfigController extends AbstractController
         }
 
         // Admin can only update their own bot's configs
-        if (!in_array('ROLE_SUPER_ADMIN', $adminUser->getRoles(), true)) {
+        if (!\in_array('ROLE_SUPER_ADMIN', $adminUser->getRoles(), true)) {
             if ($config->getBotIdentifier() !== $adminUser->getBotIdentifier()) {
                 throw new AccessDeniedHttpException('Forbidden');
             }

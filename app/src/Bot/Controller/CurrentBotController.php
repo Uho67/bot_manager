@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © Dmytro Ushchenko. All rights reserved.
  */
@@ -29,7 +30,7 @@ readonly class CurrentBotController
     {
         $token = $this->tokenStorage->getToken();
         $user = $token?->getUser();
-        if (!$user || !is_object($user) || !method_exists($user, 'getBotIdentifier')) {
+        if (!$user || !\is_object($user) || !method_exists($user, 'getBotIdentifier')) {
             return new JsonResponse(['error' => 'Not authenticated'], 401);
         }
         $botIdentifier = $user->getBotIdentifier();
@@ -38,19 +39,19 @@ readonly class CurrentBotController
             return new JsonResponse(['error' => 'Bot not found'], 404);
         }
         $data = json_decode($request->getContent(), true);
-        if (!is_array($data)) {
+        if (!\is_array($data)) {
             return new JsonResponse(['error' => 'Invalid request body'], 400);
         }
-        if (array_key_exists('bot_code', $data)) {
+        if (\array_key_exists('bot_code', $data)) {
             $bot->setBotCode($data['bot_code']);
         }
-        if (array_key_exists('api_key', $data)) {
+        if (\array_key_exists('api_key', $data)) {
             $bot->setApiKey($data['api_key']);
         }
         $this->entityManager->persist($bot);
         $this->entityManager->flush();
         $responseData = $this->serializer->normalize($bot, null, ['groups' => ['bot:read']]);
+
         return new JsonResponse($responseData);
     }
 }
-

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © Dmytro Ushchenko. All rights reserved.
  */
@@ -16,13 +17,14 @@ readonly class ConfigService
 {
     public function __construct(
         private ConfigRepository $configRepository,
-        private EntityManagerInterface $entityManager
+        private EntityManagerInterface $entityManager,
     ) {
     }
 
     public function get(string $botIdentifier, string $path, string $default = '0'): string
     {
         $config = $this->configRepository->findByBotIdentifierAndPath($botIdentifier, $path);
+
         return $config?->getValue() ?? $default;
     }
 

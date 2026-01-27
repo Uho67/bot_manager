@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © Dmytro Ushchenko. All rights reserved.
  */
@@ -7,7 +8,6 @@ declare(strict_types=1);
 
 namespace App\Config\Entity;
 
-use App\Bot\Entity\Bot;
 use App\Config\Repository\ConfigRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
@@ -47,7 +47,6 @@ class Config
     #[Assert\Length(max: 255)]
     private ?string $name = null;
 
-
     public function getId(): ?int
     {
         return $this->id;
@@ -61,6 +60,7 @@ class Config
     public function setPath(string $path): static
     {
         $this->path = $path;
+
         return $this;
     }
 
@@ -72,6 +72,7 @@ class Config
     public function setValue(string $value): static
     {
         $this->value = $value;
+
         return $this;
     }
 
@@ -83,6 +84,7 @@ class Config
     public function setBotIdentifier(string $bot_identifier): static
     {
         $this->bot_identifier = $bot_identifier;
+
         return $this;
     }
 
@@ -94,6 +96,7 @@ class Config
     public function setName(string $name): static
     {
         $this->name = $name;
+
         return $this;
     }
 }

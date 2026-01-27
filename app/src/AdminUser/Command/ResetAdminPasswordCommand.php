@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © Dmytro Ushchenko. All rights reserved.
  */
@@ -46,7 +47,8 @@ class ResetAdminPasswordCommand extends Command
         $adminUser = $this->adminUserRepository->findOneBy(['admin_name' => $adminName]);
 
         if (!$adminUser) {
-            $output->writeln('<error>Admin user "' . $adminName . '" not found.</error>');
+            $output->writeln('<error>Admin user "'.$adminName.'" not found.</error>');
+
             return Command::FAILURE;
         }
 
@@ -54,7 +56,8 @@ class ResetAdminPasswordCommand extends Command
 
         $this->entityManager->flush();
 
-        $output->writeln('<info>Password for "' . $adminName . '" has been reset successfully.</info>');
+        $output->writeln('<info>Password for "'.$adminName.'" has been reset successfully.</info>');
+
         return Command::SUCCESS;
     }
 }

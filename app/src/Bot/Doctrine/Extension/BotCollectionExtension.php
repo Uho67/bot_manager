@@ -1,12 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Bot\Doctrine\Extension;
 
-use App\Bot\Entity\Bot;
 use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
+use App\Bot\Entity\Bot;
 use Doctrine\ORM\QueryBuilder;
+use LogicException;
 use Symfony\Bundle\SecurityBundle\Security;
 
 final readonly class BotCollectionExtension implements QueryCollectionExtensionInterface
@@ -19,8 +22,8 @@ final readonly class BotCollectionExtension implements QueryCollectionExtensionI
         QueryBuilder $queryBuilder,
         QueryNameGeneratorInterface $queryNameGenerator,
         string $resourceClass,
-        null|Operation $operation = null,
-        array $context = []
+        ?Operation $operation = null,
+        array $context = [],
     ): void {
         if (Bot::class !== $resourceClass) {
             return;
@@ -30,7 +33,7 @@ final readonly class BotCollectionExtension implements QueryCollectionExtensionI
             return;
         }
         if (!$this->security->isGranted('ROLE_ADMIN')) {
-            throw new \LogicException('Access denied.');
+            throw new LogicException('Access denied.');
         }
         $user = $this->security->getUser();
         $queryBuilder->andWhere('o.bot_identifier = :bot_identifier')

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © Dmytro Ushchenko. All rights reserved.
  */
@@ -7,15 +8,15 @@ declare(strict_types=1);
 
 namespace App\Bot\Entity;
 
-use ApiPlatform\Metadata\Patch;
-use App\Bot\Repository\BotRepository;
-use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
-use ApiPlatform\Metadata\Delete;
+use App\Bot\Repository\BotRepository;
+use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: BotRepository::class)]
@@ -31,7 +32,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
     ],
     normalizationContext: ['groups' => ['bot:read']],
     denormalizationContext: ['groups' => ['bot:write']],
-    security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_SUPER_ADMIN')"
+    security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_SUPER_ADMIN')",
 )]
 class Bot
 {
@@ -66,6 +67,7 @@ class Bot
     public function setBotIdentifier(string $bot_identifier): static
     {
         $this->bot_identifier = $bot_identifier;
+
         return $this;
     }
 
@@ -77,6 +79,7 @@ class Bot
     public function setBotCode(string $bot_code): static
     {
         $this->bot_code = $bot_code;
+
         return $this;
     }
 
@@ -88,6 +91,7 @@ class Bot
     public function setApiKey(string $api_key): static
     {
         $this->api_key = $api_key;
+
         return $this;
     }
 }

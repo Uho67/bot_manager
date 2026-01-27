@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -11,8 +13,9 @@ class ApiHealthController
     public function health(): JsonResponse
     {
         $m = 10;
+
         return new JsonResponse([
-            'status' => 'ok'
+            'status' => 'ok',
         ]);
     }
 }

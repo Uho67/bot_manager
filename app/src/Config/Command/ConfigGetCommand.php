@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © Dmytro Ushchenko. All rights reserved.
  */
@@ -32,11 +33,12 @@ class ConfigGetCommand extends Command
         $this
             ->addArgument('bot_identifier', InputArgument::REQUIRED, 'Bot identifier')
             ->addArgument('path', InputArgument::OPTIONAL, 'Configuration path (shows all if not provided)')
-            ->setHelp(<<<'HELP'
-Get configuration value for a bot:
-  <info>php bin/console app:config:get bot1 admin/name</info>
-  <info>php bin/console app:config:get bot1</info> (shows all configs)
-HELP
+            ->setHelp(
+                <<<'HELP'
+                    Get configuration value for a bot:
+                      <info>php bin/console app:config:get bot1 admin/name</info>
+                      <info>php bin/console app:config:get bot1</info> (shows all configs)
+                    HELP
             );
     }
 
@@ -53,6 +55,7 @@ HELP
 
             if (empty($configs)) {
                 $io->warning('No configurations found for bot: ' . $botIdentifier);
+
                 return Command::SUCCESS;
             }
 
@@ -66,14 +69,14 @@ HELP
             }
 
             $io->table(['Path', 'Value', 'Name'], $rows);
+
             return Command::SUCCESS;
         }
 
         $value = $this->configService->get($botIdentifier, $path);
 
-        $io->success(sprintf('[%s] %s = %s', $botIdentifier, $path, $value));
+        $io->success(\sprintf('[%s] %s = %s', $botIdentifier, $path, $value));
 
         return Command::SUCCESS;
     }
 }
-

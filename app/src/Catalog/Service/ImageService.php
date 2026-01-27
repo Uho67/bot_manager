@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © Dmytro Ushchenko. All rights reserved.
  */
@@ -10,6 +11,7 @@ namespace App\Catalog\Service;
 use App\Bot\Repository\BotRepository;
 use App\Bot\Service\BotMediaService;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 readonly class ImageService
@@ -17,8 +19,9 @@ readonly class ImageService
     public function __construct(
         private BotMediaService $botMediaService,
         private BotRepository $botRepository,
-        private LoggerInterface $logger
-    ) {}
+        private LoggerInterface $logger,
+    ) {
+    }
 
     public function uploadImage(UploadedFile $file, string $botIdentifier, string $entityCode): string
     {
@@ -26,7 +29,7 @@ readonly class ImageService
         $bot = $this->botRepository->findOneBy(['bot_identifier' => $botIdentifier]);
 
         if (!$bot) {
-            throw new \RuntimeException("Bot not found for identifier: {$botIdentifier}");
+            throw new RuntimeException("Bot not found for identifier: {$botIdentifier}");
         }
 
         $apiKey = $bot->getApiKey();
@@ -43,7 +46,7 @@ readonly class ImageService
         $this->logger->info('Product image uploaded', [
             'bot_identifier' => $botIdentifier,
             'filename' => $filename,
-            'public_path' => $publicPath
+            'public_path' => $publicPath,
         ]);
 
         return $publicPath;
@@ -60,16 +63,15 @@ readonly class ImageService
             $botFolder = $matches[1];
             $filename = $matches[2];
 
-            $projectDir = dirname(__DIR__, 3);
+            $projectDir = \dirname(__DIR__, 3);
             $fullPath = "{$projectDir}/public/media/telegram/{$botFolder}/photos/{$filename}";
 
             if (file_exists($fullPath)) {
                 unlink($fullPath);
                 $this->logger->info('Product image deleted', [
-                    'path' => $fullPath
+                    'path' => $fullPath,
                 ]);
             }
         }
     }
 }
-

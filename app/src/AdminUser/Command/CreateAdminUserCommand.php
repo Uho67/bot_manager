@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © Dmytro Ushchenko. All rights reserved.
  */
@@ -47,14 +48,16 @@ class CreateAdminUserCommand extends Command
         $adminName = $input->getArgument('admin_name');
         $roleInput = strtoupper($input->getOption('role'));
         $validRoles = ['ADMIN', 'SUPER_ADMIN'];
-        if (!in_array($roleInput, $validRoles, true)) {
+        if (!\in_array($roleInput, $validRoles, true)) {
             $output->writeln('<error>Invalid role. Allowed values: ADMIN, SUPER_ADMIN.</error>');
+
             return Command::FAILURE;
         }
         $role = $roleInput === 'SUPER_ADMIN' ? 'ROLE_SUPER_ADMIN' : 'ROLE_ADMIN';
 
         if ($this->adminUserRepository->findOneBy(['admin_name' => $adminName])) {
             $output->writeln('<error>Admin user already exists.</error>');
+
             return Command::FAILURE;
         }
 
@@ -68,6 +71,7 @@ class CreateAdminUserCommand extends Command
         $this->entityManager->flush();
 
         $output->writeln('<info>Admin user created successfully with role: ' . $role . '.</info>');
+
         return Command::SUCCESS;
     }
 }

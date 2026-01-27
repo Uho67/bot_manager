@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © Dmytro Ushchenko. All rights reserved.
  */
@@ -10,9 +11,9 @@ namespace App\Catalog\Doctrine;
 use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
+use App\Catalog\Entity\Product;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bundle\SecurityBundle\Security;
-use App\Catalog\Entity\Product;
 
 /**
  * Filter products by bot_identifier from current user's JWT token
@@ -20,7 +21,7 @@ use App\Catalog\Entity\Product;
 readonly class ProductCollectionExtension implements QueryCollectionExtensionInterface
 {
     public function __construct(
-        private Security $security
+        private Security $security,
     ) {
     }
 
@@ -28,8 +29,8 @@ readonly class ProductCollectionExtension implements QueryCollectionExtensionInt
         QueryBuilder $queryBuilder,
         QueryNameGeneratorInterface $queryNameGenerator,
         string $resourceClass,
-        Operation|null $operation = null,
-        array $context = []
+        ?Operation $operation = null,
+        array $context = [],
     ): void {
         if (Product::class !== $resourceClass) {
             return;
@@ -45,8 +46,7 @@ readonly class ProductCollectionExtension implements QueryCollectionExtensionInt
         $rootAlias = $queryBuilder->getRootAliases()[0];
 
         $queryBuilder
-            ->andWhere(sprintf('%s.bot_identifier = :bot_identifier', $rootAlias))
+            ->andWhere(\sprintf('%s.bot_identifier = :bot_identifier', $rootAlias))
             ->setParameter('bot_identifier', $botIdentifier);
     }
 }
-

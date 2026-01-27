@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © Dmytro Ushchenko. All rights reserved.
  */
@@ -36,7 +37,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     ],
     normalizationContext: ['groups' => ['product:read']],
     denormalizationContext: ['groups' => ['product:write']],
-    security: "is_granted('ROLE_ADMIN')"
+    security: "is_granted('ROLE_ADMIN')",
 )]
 class Product
 {
@@ -89,6 +90,7 @@ class Product
     public function setName(string $name): static
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -100,6 +102,7 @@ class Product
     public function setDescription(string $description): static
     {
         $this->description = $description;
+
         return $this;
     }
 
@@ -111,6 +114,7 @@ class Product
     public function setImage(?string $image): static
     {
         $this->image = $image;
+
         return $this;
     }
 
@@ -122,6 +126,7 @@ class Product
     public function setBotIdentifier(string $bot_identifier): static
     {
         $this->bot_identifier = $bot_identifier;
+
         return $this;
     }
 
@@ -149,4 +154,3 @@ class Product
         return $this;
     }
 }
-

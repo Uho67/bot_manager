@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © Dmytro Ushchenko. All rights reserved.
  */
@@ -8,6 +9,7 @@ declare(strict_types=1);
 namespace App\Config\Command;
 
 use App\Config\Service\ConfigService;
+use Exception;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -34,11 +36,12 @@ class ConfigSetCommand extends Command
             ->addArgument('path', InputArgument::REQUIRED, 'Configuration path (e.g., admin/name)')
             ->addArgument('value', InputArgument::REQUIRED, 'Configuration value')
             ->addArgument('name', InputArgument::REQUIRED, 'Configuration display name')
-            ->setHelp(<<<'HELP'
-Set configuration value for a bot:
-  <info>php bin/console app:config:set bot1 admin/name "Admin Name" "Admin Name Field"</info>
-  <info>php bin/console app:config:set bot1 admin/email "admin@example.com" "Admin Email"</info>
-HELP
+            ->setHelp(
+                <<<'HELP'
+                    Set configuration value for a bot:
+                      <info>php bin/console app:config:set bot1 admin/name "Admin Name" "Admin Name Field"</info>
+                      <info>php bin/console app:config:set bot1 admin/email "admin@example.com" "Admin Email"</info>
+                    HELP
             );
     }
 
@@ -54,19 +57,19 @@ HELP
         try {
             $config = $this->configService->set($botIdentifier, $path, $value, $name);
 
-            $io->success(sprintf(
+            $io->success(\sprintf(
                 'Configuration saved: [%s] %s = %s (%s)',
                 $botIdentifier,
                 $path,
                 $value,
-                $name
+                $name,
             ));
 
             return Command::SUCCESS;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $io->error('Failed to save configuration: ' . $e->getMessage());
+
             return Command::FAILURE;
         }
     }
 }
-
