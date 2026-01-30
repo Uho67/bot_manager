@@ -49,6 +49,7 @@ services:
     # Bot entity listener (replaces processors)
     App\Bot\EventListener\BotEntityListener:
         tags:
+            - { name: doctrine.orm.entity_listener, event: prePersist, entity: App\Bot\Entity\Bot }
             - { name: doctrine.orm.entity_listener, event: postPersist, entity: App\Bot\Entity\Bot }
             - { name: doctrine.orm.entity_listener, event: preUpdate, entity: App\Bot\Entity\Bot }
             - { name: doctrine.orm.entity_listener, event: postRemove, entity: App\Bot\Entity\Bot }
