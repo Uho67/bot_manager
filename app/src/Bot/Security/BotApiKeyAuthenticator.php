@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace App\Bot\Security;
 
+use App\AdminUser\Repository\AdminUserRepository;
 use App\Bot\Repository\BotRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,13 +25,14 @@ class BotApiKeyAuthenticator extends AbstractAuthenticator
 {
     public function __construct(
         private readonly BotRepository $botRepository,
+        private readonly AdminUserRepository $adminUserRepository,
     ) {
     }
 
     public function supports(Request $request): ?bool
     {
-        // Only support requests to catalog API endpoints
-        return str_starts_with($request->getPathInfo(), '/api/catalog/');
+        // Only support requests to telegram endpoints
+        return str_starts_with($request->getPathInfo(), '/telegram/');
     }
 
     public function authenticate(Request $request): Passport
@@ -52,11 +54,18 @@ class BotApiKeyAuthenticator extends AbstractAuthenticator
             throw new CustomUserMessageAuthenticationException('Invalid API key');
         }
 
-        // Store bot identifier in request attributes for later use
         $request->attributes->set('bot_identifier', $bot->getBotIdentifier());
+        $request->attributes->set('bot', $bot);
+        $adminUser = $this->adminUserRepository->findOneBy(['bot_code' => $bot->getBotCode()]);
+
+        if (null === $adminUser) {
+            throw new CustomUserMessageAuthenticationException('Admin user not found for this bot');
+        }
 
         return new SelfValidatingPassport(
-            new UserBadge($bot->getBotIdentifier())
+            new UserBadge($adminUser->getAdminName(), function () use ($adminUser) {
+                return $adminUser;
+            })
         );
     }
 
@@ -74,4 +83,3 @@ class BotApiKeyAuthenticator extends AbstractAuthenticator
         );
     }
 }
-

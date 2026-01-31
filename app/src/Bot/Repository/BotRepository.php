@@ -23,19 +23,10 @@ class BotRepository extends ServiceEntityRepository
     }
 
     /**
-     * Find a bot by verifying the plain API key against stored hashed keys
+     * Find a bot by hashing the plain API key with SHA256 and comparing
      */
-    public function findByApiKey(string $plainApiKey): ?Bot
+    public function findByApiKey(string $hashedApiKey): ?Bot
     {
-        // Get all bots and verify the API key against each hashed key
-        $bots = $this->findAll();
-
-        foreach ($bots as $bot) {
-            if (password_verify($plainApiKey, $bot->getApiKey())) {
-                return $bot;
-            }
-        }
-
-        return null;
+        return $this->findOneBy(['api_key' => $hashedApiKey]);
     }
 }

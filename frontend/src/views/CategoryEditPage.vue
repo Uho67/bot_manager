@@ -30,6 +30,11 @@
         <input v-model="form.name" maxlength="10" required class="w-full border rounded px-3 py-2" />
       </div>
       <div>
+        <label class="block mb-1 font-medium">Sort Order</label>
+        <input v-model.number="form.sortOrder" type="number" min="0" class="w-full border rounded px-3 py-2" />
+        <div class="text-xs text-gray-500">Lower numbers appear first</div>
+      </div>
+      <div>
         <label class="block mb-1 font-medium">Children Categories</label>
         <select v-model="form.childCategories" multiple class="w-full border rounded px-3 py-2">
           <option v-for="cat in allCategories" :key="cat.id" :value="`/api/categories/${cat.id}`">{{ cat.name }}</option>
@@ -50,15 +55,20 @@
 import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import api from '../api';
-import type { Category } from '../types/Category';
+
+interface Category {
+  id: number;
+  name: string;
+}
 
 const route = useRoute();
 const router = useRouter();
 const isEdit = computed(() => !!route.params.id);
-const form = ref<{ id?: string; name: string; childCategories: string[] }>({
+const form = ref<{ id?: string; name: string; childCategories: string[]; sortOrder?: number }>({
   id: '',
   name: '',
   childCategories: [],
+  sortOrder: 0,
 });
 const allCategories = ref<Category[]>([]);
 const errorMessage = ref('');
@@ -81,6 +91,7 @@ const fetchCategory = async () => {
         id: data.id,
         name: data.name,
         childCategories: (data.childCategories || []).map((cat: Category) => `/api/categories/${cat.id}`),
+        sortOrder: data.sortOrder || 0,
       };
     } catch (error: any) {
       errorMessage.value = error.response?.data?.description || error.response?.data?.detail || 'Failed to load category';
@@ -103,7 +114,7 @@ const submitForm = async () => {
     } else {
       await api.post('/api/categories', form.value);
     }
-    router.push({ name: 'CategoryList' });
+    await router.push({name: 'CategoryList'});
   } catch (error: any) {
     // Extract error message from API Platform error response
     const apiError = error.response?.data;

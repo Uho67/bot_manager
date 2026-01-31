@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Copyright © Dmytro Ushchenko. All rights reserved.
  */
@@ -14,7 +13,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/catalog')]
+#[Route('/telegram/catalog')]
 class CategoryController extends AbstractController
 {
     public function __construct(
@@ -22,58 +21,52 @@ class CategoryController extends AbstractController
     ) {
     }
 
-    #[Route('/categories/{id}', name: 'api_catalog_category_get', methods: ['GET'])]
+    #[Route('/categories/{id}', name: 'telegram_catalog_category_get', methods: ['GET'])]
     public function getCategory(int $id, Request $request): JsonResponse
     {
-        // Get bot identifier from request attributes (set by authenticator)
-        $botIdentifier = $request->attributes->get('bot_identifier');
-
-        if (!$botIdentifier) {
-            return new JsonResponse(['error' => 'Bot identifier not found'], 401);
-        }
-
-        $category = $this->categoryRepository->find($id);
-
-        if (!$category) {
+        $botIdentifier = $request->attributes->get('bot_identifier') ?? '';
+        $category = $this->categoryRepository->findByIdAndBotIdentifier($id, $botIdentifier);
+        if (empty($category)) {
             return new JsonResponse(['error' => 'Category not found'], 404);
         }
-
-        // Check if category belongs to this bot
-        if ($category->getBotIdentifier() !== $botIdentifier) {
-            return new JsonResponse(['error' => 'Access denied'], 403);
-        }
-
-        // Get child categories filtered by bot identifier
-        $childCategories = array_filter(
-            $category->getChildCategories()->toArray(),
-            fn($child) => $child->getBotIdentifier() === $botIdentifier
-        );
-
-        // Get products filtered by bot identifier
-        $products = array_filter(
-            $category->getProducts()->toArray(),
-            fn($product) => $product->getBotIdentifier() === $botIdentifier
-        );
 
         return new JsonResponse([
             'id' => $category->getId(),
             'name' => $category->getName(),
-            'bot_identifier' => $category->getBotIdentifier(),
+            'sort_order' => $category->getSortOrder(),
             'child_categories' => array_map(function ($child) {
                 return [
                     'id' => $child->getId(),
                     'name' => $child->getName(),
+                    'sort_order' => $child->getSortOrder(),
                 ];
-            }, $childCategories),
+            }, $category->getChildCategories()->toArray()),
             'products' => array_map(function ($product) {
                 return [
                     'id' => $product->getId(),
                     'name' => $product->getName(),
-                    'description' => $product->getDescription(),
-                    'image' => $product->getImage(),
+                    'sort_order' => $product->getSortOrder(),
                 ];
-            }, $products),
+            }, $category->getProducts()->toArray()),
         ]);
     }
-}
 
+    #[Route('/categories', name: 'telegram_catalog_category_list_get', methods: ['GET'])]
+    public function getCategoryList(Request $request): JsonResponse
+    {
+        // Get bot identifier from request attributes (set by authenticator)
+        $botIdentifier = $request->attributes->get('bot_identifier') ?? '';
+        $categories = $this->categoryRepository->findAllByBotIdentifier($botIdentifier);
+        if (empty($categories)) {
+            return new JsonResponse(['error' => 'Any category is assigned to the bot'], 404);
+        }
+
+        return new JsonResponse(array_map(function ($category) {
+            return [
+                'id' => $category->getId(),
+                'name' => $category->getName(),
+                'sort_order' => $category->getSortOrder(),
+            ];
+        }, $categories));
+    }
+}

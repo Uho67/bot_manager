@@ -12,6 +12,7 @@ use App\Bot\Entity\Bot;
 use App\Bot\Service\BotMediaService;
 use Doctrine\ORM\Event\PostPersistEventArgs;
 use Doctrine\ORM\Event\PostRemoveEventArgs;
+use Doctrine\ORM\Event\PostUpdateEventArgs;
 use Doctrine\ORM\Event\PrePersistEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Exception;
@@ -26,17 +27,15 @@ readonly class BotEntityListener
     }
 
     /**
-     * Called before a new Bot is persisted - hash the API key
+     * Called before a new Bot is persisted - hash the API key with SHA256
      */
     public function prePersist(Bot $bot, PrePersistEventArgs $args): void
     {
-        // If api_key is provided, hash it and store plain version temporarily
+        // If api_key is provided, hash it with SHA256 to match Node.js
         if ($bot->getApiKey()) {
             $plainApiKey = $bot->getApiKey();
-            $hashedApiKey = password_hash($plainApiKey, PASSWORD_BCRYPT);
+            $hashedApiKey = hash('sha256', $plainApiKey);
 
-            // Store plain key temporarily for folder creation
-            $bot->setPlainApiKey($plainApiKey);
             // Set hashed key for database storage
             $bot->setApiKey($hashedApiKey);
 
@@ -51,16 +50,16 @@ readonly class BotEntityListener
      */
     public function postPersist(Bot $bot, PostPersistEventArgs $args): void
     {
-        // Use plain API key for folder creation
-        $plainApiKey = $bot->getPlainApiKey();
+        // Use hashed API key for folder creation (first 20 chars)
+        $hashedApiKey = $bot->getApiKey();
 
-        if ($plainApiKey) {
+        if ($hashedApiKey) {
             try {
-                $this->mediaService->createBotFolders($plainApiKey);
+                $this->mediaService->createBotFolders($hashedApiKey);
                 $this->logger->info('Media folders created for new bot', [
                     'bot_id' => $bot->getId(),
                     'bot_identifier' => $bot->getBotIdentifier(),
-                    'folder' => $this->mediaService->getBotFolder($plainApiKey),
+                    'folder' => $this->mediaService->getBotFolder($hashedApiKey),
                 ]);
             } catch (Exception $e) {
                 $this->logger->error('Failed to create media folders for bot', [
@@ -68,9 +67,6 @@ readonly class BotEntityListener
                     'error' => $e->getMessage(),
                 ]);
             }
-
-            // Clear plain API key from memory
-            $bot->setPlainApiKey(null);
         }
     }
 
@@ -82,26 +78,51 @@ readonly class BotEntityListener
         // Check if API key has changed
         if ($args->hasChangedField('api_key')) {
             $oldHashedApiKey = $args->getOldValue('api_key');
-            $newPlainApiKey = $args->getNewValue('api_key');
+            $newValue = $args->getNewValue('api_key');
 
-            // Check if the new value is not already hashed (to prevent double hashing)
-            if ($newPlainApiKey && !password_get_info($newPlainApiKey)['algo']) {
-                // Hash the new API key
-                $newHashedApiKey = password_hash($newPlainApiKey, PASSWORD_BCRYPT);
+            // Check if the new value is not already hashed (SHA256 is 64 chars hex)
+            if ($newValue && !ctype_xdigit($newValue) || strlen($newValue) !== 64) {
+                // Hash the new API key with SHA256
+                $newHashedApiKey = hash('sha256', $newValue);
 
-                // Store plain key temporarily for folder operations
-                $bot->setPlainApiKey($newPlainApiKey);
-                // Update with hashed key
+                // Store old hashed key temporarily for folder renaming
+                $bot->setPlainApiKey($oldHashedApiKey);
+                // Update with new hashed key
                 $bot->setApiKey($newHashedApiKey);
 
                 $this->logger->info('API key hashed for bot update', [
                     'bot_id' => $bot->getId(),
                 ]);
-
-                // Note: Folder renaming will be handled in postUpdate if needed
-                // For now, we'll skip folder renaming as it's complex with hashed keys
-                // The folders are identified by plain API key, but we only store hashed version
             }
+        }
+    }
+
+    /**
+     * Called after a Bot is updated
+     */
+    public function postUpdate(Bot $bot, PostUpdateEventArgs $args): void
+    {
+        // Check if we need to rename folders (plainApiKey contains old hashed key)
+        $oldHashedApiKey = $bot->getPlainApiKey();
+        $newHashedApiKey = $bot->getApiKey();
+
+        if ($oldHashedApiKey && $newHashedApiKey && $oldHashedApiKey !== $newHashedApiKey) {
+            try {
+                $this->mediaService->moveBotFolders($oldHashedApiKey, $newHashedApiKey);
+                $this->logger->info('Media folders renamed for bot', [
+                    'bot_id' => $bot->getId(),
+                    'old_folder' => $this->mediaService->getBotFolder($oldHashedApiKey),
+                    'new_folder' => $this->mediaService->getBotFolder($newHashedApiKey),
+                ]);
+            } catch (Exception $e) {
+                $this->logger->error('Failed to rename media folders for bot', [
+                    'bot_id' => $bot->getId(),
+                    'error' => $e->getMessage(),
+                ]);
+            }
+
+            // Clear temporary storage
+            $bot->setPlainApiKey(null);
         }
     }
 

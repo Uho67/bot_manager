@@ -3,6 +3,7 @@ export interface Product {
   name: string;
   description: string;
   image?: string;
+  sortOrder?: number;
   categories: Category[];
 }
 

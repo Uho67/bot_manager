@@ -39,4 +39,27 @@ class CategoryRepository extends ServiceEntityRepository
             $this->getEntityManager()->flush();
         }
     }
+
+    public function findByIdAndBotIdentifier(int $id, string $botIdentifier): ?Category
+    {
+        return $this->createQueryBuilder('c')
+            ->where('c.id = :id')
+            ->andWhere('c.bot_identifier = :botIdentifier')
+            ->setParameter('id', $id)
+            ->setParameter('botIdentifier', $botIdentifier)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    /**
+     * @return Category[]
+     */
+    public function findAllByBotIdentifier(string $botIdentifier): array
+    {
+        return $this->createQueryBuilder('c')
+            ->where('c.bot_identifier = :botIdentifier')
+            ->setParameter('botIdentifier', $botIdentifier)
+            ->getQuery()
+            ->getResult();
+    }
 }

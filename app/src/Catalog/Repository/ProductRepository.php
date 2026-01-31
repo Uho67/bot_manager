@@ -39,4 +39,27 @@ class ProductRepository extends ServiceEntityRepository
             $this->getEntityManager()->flush();
         }
     }
+
+    public function findByIdAndBotIdentifier(int $id, string $botIdentifier): ?Product
+    {
+        return $this->createQueryBuilder('p')
+            ->where('p.id = :id')
+            ->andWhere('p.bot_identifier = :botIdentifier')
+            ->setParameter('id', $id)
+            ->setParameter('botIdentifier', $botIdentifier)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    /**
+     * @return Product[]
+     */
+    public function findAllByBotIdentifier(string $botIdentifier): array
+    {
+        return $this->createQueryBuilder('p')
+            ->where('p.bot_identifier = :botIdentifier')
+            ->setParameter('botIdentifier', $botIdentifier)
+            ->getQuery()
+            ->getResult();
+    }
 }

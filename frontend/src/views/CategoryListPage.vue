@@ -7,6 +7,7 @@
           <tr>
             <th class="px-4 py-2 border-b text-center">ID</th>
             <th class="px-4 py-2 border-b text-center">Name</th>
+            <th class="px-4 py-2 border-b text-center">Sort Order</th>
             <th class="px-4 py-2 border-b text-center">Children</th>
             <th class="px-4 py-2 border-b text-center">Actions</th>
           </tr>
@@ -15,6 +16,7 @@
           <tr v-for="category in categories" :key="category.id">
             <td class="px-4 py-2 border-b text-center">{{ category.id }}</td>
             <td class="px-4 py-2 border-b text-center">{{ category.name }}</td>
+            <td class="px-4 py-2 border-b text-center">{{ category.sortOrder || 0 }}</td>
             <td class="px-4 py-2 border-b text-center">
               <span v-if="category.childCategories.length === 0" class="text-gray-400 text-sm">No children</span>
               <span v-else>
@@ -24,7 +26,7 @@
             <td class="px-4 py-2 border-b text-center">
               <div class="relative inline-block text-left">
                 <button @click="openDropdown(category.id)" class="px-2 py-1 bg-gray-100 rounded hover:bg-gray-200">Actions</button>
-                <div v-if="dropdownOpen === category.id" class="absolute z-10 mt-2 w-32 bg-white border rounded shadow-lg">
+                <div v-if="dropdownOpen === category.id" class="absolute z-10 w-32 bg-white border rounded shadow-lg right-0 bottom-full mb-1">
                   <button @click="editCategory(category.id)" class="block w-full text-left px-4 py-2 hover:bg-gray-100">Edit</button>
                   <button @click="deleteCategory(category.id)" class="block w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600">Delete</button>
                 </div>

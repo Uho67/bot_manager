@@ -19,8 +19,10 @@ use App\Catalog\Repository\CategoryRepository;
 use App\Catalog\Validator\ValidCategoryChildren;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
@@ -50,6 +52,11 @@ class Category
     #[ORM\Column(length: 255)]
     #[Groups(['category:read', 'category:write', 'product:read'])]
     private ?string $name = null;
+
+    #[ORM\Column(type: Types::INTEGER, options: ['default' => 0])]
+    #[Groups(['category:read', 'category:write'])]
+    #[SerializedName('sortOrder')]
+    private int $sort_order = 0;
 
     #[ORM\Column(length: 255)]
     #[Groups(['category:read'])]
@@ -91,6 +98,18 @@ class Category
     public function setName(string $name): static
     {
         $this->name = $name;
+
+        return $this;
+    }
+
+    public function getSortOrder(): int
+    {
+        return $this->sort_order;
+    }
+
+    public function setSortOrder(int $sort_order): static
+    {
+        $this->sort_order = $sort_order;
 
         return $this;
     }
