@@ -6,6 +6,7 @@ const api = axios.create({
     'Content-Type': 'application/ld+json',
     'Accept': 'application/ld+json',
   },
+  withCredentials: false, // Set to true if you need to send cookies
 });
 
 // Add XDEBUG_SESSION to every request as query parameter

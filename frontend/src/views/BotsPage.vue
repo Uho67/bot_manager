@@ -103,18 +103,6 @@
                 </p>
               </div>
             </div>
-
-            <div class="flex items-start">
-              <svg class="h-5 w-5 text-gray-400 mr-3 mt-0.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-              </svg>
-              <div class="flex-1 min-w-0">
-                <p class="text-xs text-gray-500 mb-1">API Key</p>
-                <p class="text-sm font-mono text-gray-900 truncate">
-                  {{ bot.api_key.substring(0, 20) }}...
-                </p>
-              </div>
-            </div>
           </div>
 
           <!-- Card Actions -->
@@ -188,10 +176,16 @@
             <input
               v-model="formData.api_key"
               type="text"
-              required
+              :required="!editingBot"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
               placeholder="your-api-key-here"
             />
+            <p class="text-xs text-gray-500 mt-1">
+              <svg class="inline h-3 w-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+              </svg>
+              API keys are securely hashed and cannot be retrieved. {{ editingBot ? 'Leave empty to keep current key.' : 'Store this key safely!' }}
+            </p>
           </div>
           <div class="flex gap-3 pt-4">
             <button
@@ -270,7 +264,7 @@ function openEditModal(bot: Bot) {
   formData.value = {
     bot_identifier: bot.bot_identifier,
     bot_code: bot.bot_code,
-    api_key: bot.api_key,
+    api_key: '', // Don't pre-fill API key (it's hashed in DB)
   };
   showModal.value = true;
 }
@@ -284,10 +278,14 @@ async function saveBot() {
   saving.value = true;
   try {
     if (editingBot.value) {
-      await api.patch(`/api/bots/${editingBot.value.id}`, {
+      const updateData: any = {
         bot_code: formData.value.bot_code,
-        api_key: formData.value.api_key,
-      }, {
+      };
+      // Only include api_key if it's provided
+      if (formData.value.api_key) {
+        updateData.api_key = formData.value.api_key;
+      }
+      await api.patch(`/api/bots/${editingBot.value.id}`, updateData, {
         headers: { 'Content-Type': 'application/merge-patch+json' }
       });
     } else {

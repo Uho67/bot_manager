@@ -21,4 +21,12 @@ class BotRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Bot::class);
     }
+
+    /**
+     * Find a bot by hashing the plain API key with SHA256 and comparing
+     */
+    public function findByApiKey(string $hashedApiKey): ?Bot
+    {
+        return $this->findOneBy(['api_key' => $hashedApiKey]);
+    }
 }

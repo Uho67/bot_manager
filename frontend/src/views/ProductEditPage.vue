@@ -27,11 +27,16 @@
       <input v-if="isEdit" type="hidden" name="id" :value="form.id" />
       <div>
         <label class="block mb-1 font-medium">Name</label>
-        <input v-model="form.name" maxlength="10" required class="w-full border rounded px-3 py-2" />
+        <input v-model="form.name" maxlength="50" required class="w-full border rounded px-3 py-2" />
       </div>
       <div>
         <label class="block mb-1 font-medium">Description</label>
         <textarea v-model="form.description" rows="5" required class="w-full border rounded px-3 py-2"></textarea>
+      </div>
+      <div>
+        <label class="block mb-1 font-medium">Sort Order</label>
+        <input v-model.number="form.sortOrder" type="number" min="0" class="w-full border rounded px-3 py-2" />
+        <div class="text-xs text-gray-500">Lower numbers appear first</div>
       </div>
       <div>
         <label class="block mb-1 font-medium">Categories</label>
@@ -61,17 +66,22 @@
 import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import api from '../api';
-import type { Product, Category } from '../types/Product';
+
+interface Category {
+  id: number;
+  name: string;
+}
 
 const route = useRoute();
 const router = useRouter();
 const isEdit = computed(() => !!route.params.id);
-const form = ref<{ id?: string; name: string; description: string; categories: string[]; image?: string }>({
+const form = ref<{ id?: string; name: string; description: string; categories: string[]; image?: string; sortOrder?: number }>({
   id: '',
   name: '',
   description: '',
   categories: [],
   image: '',
+  sortOrder: 0,
 });
 const categories = ref<Category[]>([]);
 const imagePreview = ref<string | null>(null);
@@ -97,6 +107,7 @@ const fetchProduct = async () => {
         description: data.description,
         categories: (data.categories || []).map((cat: Category) => `/api/categories/${cat.id}`),
         image: data.image || '',
+        sortOrder: data.sortOrder || 0,
       };
       // Set image preview with full URL if image exists
       if (data.image) {

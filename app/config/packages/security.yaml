@@ -22,6 +22,12 @@ security:
             pattern: ^/api/login
             stateless: true
             security: false
+        telegram:
+            pattern: ^/telegram
+            stateless: true
+            provider: admin_user_provider
+            custom_authenticators:
+                - App\Bot\Security\BotApiKeyAuthenticator
         api:
             pattern: ^/api
             stateless: true
@@ -31,4 +37,5 @@ security:
     access_control:
         - { path: ^/api/login, roles: PUBLIC_ACCESS }
         - { path: ^/api/health, roles: PUBLIC_ACCESS }
+        - { path: ^/telegram, roles: PUBLIC_ACCESS }
         - { path: ^/api, roles: [ ROLE_ADMIN, ROLE_SUPER_ADMIN ] }

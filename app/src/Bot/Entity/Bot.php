@@ -51,8 +51,14 @@ class Bot
     private ?string $bot_code = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['bot:read', 'bot:write'])]
+    #[Groups(['bot:write'])]
     private ?string $api_key = null;
+
+    /**
+     * Temporary field to store plain API key before hashing
+     * This is not persisted to database.
+     */
+    private ?string $plainApiKey = null;
 
     public function getId(): ?int
     {
@@ -91,6 +97,18 @@ class Bot
     public function setApiKey(string $api_key): static
     {
         $this->api_key = $api_key;
+
+        return $this;
+    }
+
+    public function getPlainApiKey(): ?string
+    {
+        return $this->plainApiKey;
+    }
+
+    public function setPlainApiKey(?string $plainApiKey): static
+    {
+        $this->plainApiKey = $plainApiKey;
 
         return $this;
     }

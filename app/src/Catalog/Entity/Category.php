@@ -19,8 +19,10 @@ use App\Catalog\Repository\CategoryRepository;
 use App\Catalog\Validator\ValidCategoryChildren;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
@@ -51,6 +53,24 @@ class Category
     #[Groups(['category:read', 'category:write', 'product:read'])]
     private ?string $name = null;
 
+    #[ORM\Column(type: Types::INTEGER, options: ['default' => 0])]
+    #[Groups(['category:read', 'category:write'])]
+    #[SerializedName('sortOrder')]
+    private int $sort_order = 0;
+
+    #[ORM\Column(type: Types::BOOLEAN, options: ['default' => 0])]
+    #[Groups(['category:read', 'category:write'])]
+    #[SerializedName('isRoot')]
+    private bool $is_root = false;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['category:read', 'category:write'])]
+    private ?string $image = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['category:read', 'category:write'])]
+    private ?string $image_file_id = null;
+
     #[ORM\Column(length: 255)]
     #[Groups(['category:read'])]
     private ?string $bot_identifier = null;
@@ -68,7 +88,7 @@ class Category
     #[ORM\ManyToMany(targetEntity: self::class)]
     #[ORM\JoinTable(name: 'category_children')]
     #[Groups(['category:read', 'category:write'])]
-    #[Assert\Count(max: 10, maxMessage: 'A category cannot have more than {{ limit }} children.')]
+    #[Assert\Count(max: 20, maxMessage: 'A category cannot have more than {{ limit }} children.')]
     #[ValidCategoryChildren]
     private Collection $childCategories;
 
@@ -91,6 +111,54 @@ class Category
     public function setName(string $name): static
     {
         $this->name = $name;
+
+        return $this;
+    }
+
+    public function getSortOrder(): int
+    {
+        return $this->sort_order;
+    }
+
+    public function setSortOrder(int $sort_order): static
+    {
+        $this->sort_order = $sort_order;
+
+        return $this;
+    }
+
+    public function isRoot(): bool
+    {
+        return $this->is_root;
+    }
+
+    public function setIsRoot(bool $is_root): static
+    {
+        $this->is_root = $is_root;
+
+        return $this;
+    }
+
+    public function getImage(): ?string
+    {
+        return $this->image;
+    }
+
+    public function setImage(?string $image): static
+    {
+        $this->image = $image;
+
+        return $this;
+    }
+
+    public function getImageFileId(): ?string
+    {
+        return $this->image_file_id;
+    }
+
+    public function setImageFileId(?string $image_file_id): static
+    {
+        $this->image_file_id = $image_file_id;
 
         return $this;
     }

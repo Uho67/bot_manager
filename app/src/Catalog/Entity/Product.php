@@ -21,6 +21,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
@@ -58,6 +59,15 @@ class Product
     #[ORM\Column(length: 255, nullable: true)]
     #[Groups(['product:read', 'product:write'])]
     private ?string $image = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['product:read', 'product:write'])]
+    private ?string $image_file_id = null;
+
+    #[ORM\Column(type: Types::INTEGER, options: ['default' => 0])]
+    #[Groups(['product:read', 'product:write'])]
+    #[SerializedName('sortOrder')]
+    private int $sort_order = 0;
 
     #[ORM\Column(length: 255)]
     #[Groups(['product:read'])]
@@ -114,6 +124,31 @@ class Product
     public function setImage(?string $image): static
     {
         $this->image = $image;
+
+        return $this;
+    }
+
+    public function getImageFileId(): ?string
+    {
+        return $this->image_file_id;
+    }
+
+    public function setImageFileId(?string $image_file_id): static
+    {
+        $this->image_file_id = $image_file_id;
+
+        return $this;
+    }
+
+    public function getSortOrder(): int
+    {
+        return $this->sort_order;
+    }
+
+    public function setSortOrder(int $sort_order): static
+    {
+        $this->sort_order = $sort_order;
+
 
         return $this;
     }

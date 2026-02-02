@@ -75,17 +75,6 @@
                 </p>
               </div>
             </div>
-            <div class="flex items-start">
-              <svg class="h-5 w-5 text-gray-400 mr-3 mt-0.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-              </svg>
-              <div class="flex-1 min-w-0">
-                <p class="text-xs text-gray-500 mb-1">API Key</p>
-                <p class="text-sm font-mono text-gray-900 truncate">
-                  {{ bot.api_key.substring(0, 20) }}...
-                </p>
-              </div>
-            </div>
             <div class="flex justify-end pt-2">
               <button @click="openEditModal(bot)" class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors duration-200">Edit</button>
             </div>
@@ -122,10 +111,12 @@
               <input
                 v-model="formData.api_key"
                 type="text"
-                required
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                placeholder="your-api-key-here"
+                placeholder="Leave empty to keep current key"
               />
+              <p class="text-xs text-gray-500 mt-1">
+                API keys are securely hashed. Leave empty to keep current key.
+              </p>
             </div>
             <div class="flex gap-3 pt-4">
               <button
@@ -198,7 +189,10 @@ function goBack() {
 }
 
 function openEditModal(bot: Bot) {
-  formData.value = { ...bot };
+  formData.value = {
+    ...bot,
+    api_key: '', // Don't pre-fill API key (it's hashed in DB)
+  };
   showModal.value = true;
 }
 
@@ -211,10 +205,13 @@ async function saveBot() {
   saving.value = true;
   error.value = '';
   try {
-    const payload = {
+    const payload: any = {
       bot_code: formData.value.bot_code,
-      api_key: formData.value.api_key,
     };
+    // Only include api_key if it's provided
+    if (formData.value.api_key) {
+      payload.api_key = formData.value.api_key;
+    }
     await api.patch('/api/my-bot', payload, {
       headers: { 'Content-Type': 'application/merge-patch+json' }
     });
