@@ -27,7 +27,7 @@
       <input v-if="isEdit" type="hidden" name="id" :value="form.id" />
       <div>
         <label class="block mb-1 font-medium">Name</label>
-        <input v-model="form.name" maxlength="10" required class="w-full border rounded px-3 py-2" />
+        <input v-model="form.name" maxlength="50" required class="w-full border rounded px-3 py-2" />
       </div>
       <div>
         <label class="block mb-1 font-medium">Sort Order</label>
@@ -35,11 +35,25 @@
         <div class="text-xs text-gray-500">Lower numbers appear first</div>
       </div>
       <div>
+        <label class="block mb-1 font-medium">Is Root</label>
+        <select v-model="form.isRoot" class="w-full border rounded px-3 py-2">
+          <option :value="false">No</option>
+          <option :value="true">Yes</option>
+        </select>
+      </div>
+      <div>
         <label class="block mb-1 font-medium">Children Categories</label>
         <select v-model="form.childCategories" multiple class="w-full border rounded px-3 py-2">
           <option v-for="cat in allCategories" :key="cat.id" :value="`/api/categories/${cat.id}`">{{ cat.name }}</option>
         </select>
         <div class="text-xs text-gray-500">Select up to 10 children</div>
+      </div>
+      <div>
+        <label class="block mb-1 font-medium">Image</label>
+        <input type="file" accept="image/*" @change="onImageChange" class="w-full border rounded px-3 py-2" />
+        <div v-if="imagePreview" class="mt-2">
+          <img :src="imagePreview" alt="Preview" class="max-h-32 rounded border" />
+        </div>
       </div>
       <div class="flex gap-2 mt-4">
         <button type="submit" :disabled="isSubmitting" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">
@@ -64,13 +78,16 @@ interface Category {
 const route = useRoute();
 const router = useRouter();
 const isEdit = computed(() => !!route.params.id);
-const form = ref<{ id?: string; name: string; childCategories: string[]; sortOrder?: number }>({
+const form = ref<{ id?: string; name: string; childCategories: string[]; sortOrder?: number; isRoot?: boolean; image?: string }>({
   id: '',
   name: '',
   childCategories: [],
   sortOrder: 0,
+  isRoot: false,
+  image: '',
 });
 const allCategories = ref<Category[]>([]);
+const imagePreview = ref<string | null>(null);
 const errorMessage = ref('');
 const isSubmitting = ref(false);
 
@@ -92,9 +109,52 @@ const fetchCategory = async () => {
         name: data.name,
         childCategories: (data.childCategories || []).map((cat: Category) => `/api/categories/${cat.id}`),
         sortOrder: data.sortOrder || 0,
+        isRoot: data.isRoot || false,
+        image: data.image || '',
       };
+      // Set image preview with full URL if image exists
+      if (data.image) {
+        imagePreview.value = data.image.startsWith('http')
+          ? data.image
+          : `${import.meta.env.VITE_API_URL}${data.image}`;
+      }
     } catch (error: any) {
       errorMessage.value = error.response?.data?.description || error.response?.data?.detail || 'Failed to load category';
+    }
+  }
+};
+
+const onImageChange = async (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  if (target.files && target.files.length > 0) {
+    const file = target.files[0];
+
+    // Show preview immediately
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      imagePreview.value = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+
+    // Upload file to backend
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const response = await api.post('/api/category/upload-image', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      if (response.data.success) {
+        form.value.image = response.data.path;
+      } else {
+        errorMessage.value = 'Failed to upload image';
+      }
+    } catch (error: any) {
+      console.error('Image upload error:', error);
+      errorMessage.value = error.response?.data?.description || error.response?.data?.detail || 'Failed to upload image';
     }
   }
 };

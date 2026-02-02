@@ -34,11 +34,15 @@ class CategoryController extends AbstractController
             'id' => $category->getId(),
             'name' => $category->getName(),
             'sort_order' => $category->getSortOrder(),
+            'is_root' => $category->isRoot(),
+            'image' => $request->getSchemeAndHttpHost() . '/' . \ltrim($category->getImage() ?? '', '/'),
+            'image_file_id' => $category->getImageFileId(),
             'child_categories' => array_map(function ($child) {
                 return [
                     'id' => $child->getId(),
                     'name' => $child->getName(),
                     'sort_order' => $child->getSortOrder(),
+                    'is_root' => $child->isRoot(),
                 ];
             }, $category->getChildCategories()->toArray()),
             'products' => array_map(function ($product) {
@@ -48,6 +52,32 @@ class CategoryController extends AbstractController
                     'sort_order' => $product->getSortOrder(),
                 ];
             }, $category->getProducts()->toArray()),
+        ]);
+    }
+
+    #[Route('/categories/{id}/image-file-id', name: 'telegram_catalog_category_update_image_file_id', methods: ['PATCH'])]
+    public function updateImageFileId(int $id, Request $request): JsonResponse
+    {
+        $botIdentifier = $request->attributes->get('bot_identifier') ?? '';
+        $category = $this->categoryRepository->findByIdAndBotIdentifier($id, $botIdentifier);
+
+        if (!$category) {
+            return new JsonResponse(['error' => 'Category not found'], 404);
+        }
+
+        $data = json_decode($request->getContent(), true);
+
+        if (!isset($data['image_file_id'])) {
+            return new JsonResponse(['error' => 'image_file_id is required'], 400);
+        }
+
+        $category->setImageFileId($data['image_file_id']);
+        $this->categoryRepository->save($category, true);
+
+        return new JsonResponse([
+            'id' => $category->getId(),
+            'image_file_id' => $category->getImageFileId(),
+            'message' => 'Image file ID updated successfully',
         ]);
     }
 
