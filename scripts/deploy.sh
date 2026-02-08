@@ -103,10 +103,18 @@ docker compose --env-file .env -f docker/docker-compose.prod.yml exec -T php sh 
 "
 echo -e "${GREEN}✓ Media permissions configured${NC}"
 
-# Step 9: Clear cache
+# Step 9: Clear cache and fix permissions
 echo ""
 echo "Clearing cache..."
-docker compose --env-file .env -f docker/docker-compose.prod.yml exec -T php php bin/console cache:clear || true
+docker compose --env-file .env -f docker/docker-compose.prod.yml exec -T php php bin/console cache:clear --env=prod || true
+
+echo ""
+echo "Fixing cache permissions..."
+docker compose --env-file .env -f docker/docker-compose.prod.yml exec -T php sh -c "
+    chmod -R 775 var && \
+    chown -R www-data:www-data var
+"
+echo -e "${GREEN}✓ Cache permissions configured${NC}"
 
 # Done
 DOMAIN=$(grep "^DOMAIN=" .env.prod | cut -d'=' -f2 || echo "localhost")
