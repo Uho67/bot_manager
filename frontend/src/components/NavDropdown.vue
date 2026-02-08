@@ -17,6 +17,7 @@
         <button v-if="user && (user.roles?.includes('ROLE_ADMIN') || user.roles?.includes('ROLE_SUPER_ADMIN'))" @click="goTo('/my-bots')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">My Bots</button>
         <button v-if="!isSuperAdmin && user?.roles?.indexOf('ROLE_ADMIN') !== -1" @click="goTo('/products')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Products</button>
         <button v-if="!isSuperAdmin && user?.roles?.indexOf('ROLE_ADMIN') !== -1" @click="goTo('/categories')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Categories</button>
+        <button v-if="!isSuperAdmin && user?.roles?.indexOf('ROLE_ADMIN') !== -1" @click="goTo('/buttons')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Buttons</button>
         <div class="border-t my-1"></div>
         <button @click="logoutAndGoLogin" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100" role="menuitem">Logout</button>
       </div>

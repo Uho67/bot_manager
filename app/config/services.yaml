@@ -29,6 +29,12 @@ services:
     App\Catalog\Doctrine\CategoryCollectionExtension:
         tags:
             - { name: api_platform.doctrine.orm.query_extension.collection, entity: App\Catalog\Entity\Category }
+    App\Button\Doctrine\ButtonCollectionExtension:
+        tags:
+            - { name: api_platform.doctrine.orm.query_extension.collection, entity: App\Button\Entity\Button }
+    App\Template\Doctrine\TemplateCollectionExtension:
+        tags:
+            - { name: api_platform.doctrine.orm.query_extension.collection, entity: App\Template\Entity\Template }
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
@@ -61,6 +67,16 @@ services:
             - { name: doctrine.orm.entity_listener, event: preUpdate, entity: App\Catalog\Entity\Product }
             - { name: doctrine.orm.entity_listener, event: prePersist, entity: App\Catalog\Entity\Category }
             - { name: doctrine.orm.entity_listener, event: preUpdate, entity: App\Catalog\Entity\Category }
+
+    App\Button\EventListener\ButtonEntityListener:
+        tags:
+            - { name: doctrine.orm.entity_listener, event: prePersist, entity: App\Button\Entity\Button }
+            - { name: doctrine.orm.entity_listener, event: preUpdate, entity: App\Button\Entity\Button }
+
+    App\Template\EventListener\TemplateEntityListener:
+        tags:
+            - { name: doctrine.orm.entity_listener, event: prePersist, entity: App\Template\Entity\Template }
+            - { name: doctrine.orm.entity_listener, event: preUpdate, entity: App\Template\Entity\Template }
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

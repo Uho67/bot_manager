@@ -10,6 +10,10 @@ import ProductListPage from '../views/ProductListPage.vue';
 import ProductEditPage from '../views/ProductEditPage.vue';
 import CategoryListPage from '../views/CategoryListPage.vue';
 import CategoryEditPage from '../views/CategoryEditPage.vue';
+import ButtonListPage from '../views/ButtonListPage.vue';
+import ButtonEditPage from '../views/ButtonEditPage.vue';
+import TemplateListPage from '../views/TemplateListPage.vue';
+import TemplateEditPage from '../views/TemplateEditPage.vue';
 import { useAuth } from '../composables/useAuth';
 
 const routes = [
@@ -26,6 +30,12 @@ const routes = [
   { path: '/categories', name: 'CategoryList', component: CategoryListPage, meta: { requiresAuth: true, requiresAdmin: true } },
   { path: '/categories/create', name: 'CategoryCreate', component: CategoryEditPage, meta: { requiresAuth: true, requiresAdmin: true } },
   { path: '/categories/:id/edit', name: 'CategoryEdit', component: CategoryEditPage, meta: { requiresAuth: true, requiresAdmin: true } },
+  { path: '/buttons', name: 'ButtonList', component: ButtonListPage, meta: { requiresAuth: true, requiresAdmin: true } },
+  { path: '/buttons/create', name: 'ButtonCreate', component: ButtonEditPage, meta: { requiresAuth: true, requiresAdmin: true } },
+  { path: '/buttons/:id/edit', name: 'ButtonEdit', component: ButtonEditPage, meta: { requiresAuth: true, requiresAdmin: true } },
+  { path: '/templates', name: 'TemplateList', component: TemplateListPage, meta: { requiresAuth: true, requiresAdmin: true } },
+  { path: '/templates/create', name: 'TemplateCreate', component: TemplateEditPage, meta: { requiresAuth: true, requiresAdmin: true } },
+  { path: '/templates/:id/edit', name: 'TemplateEdit', component: TemplateEditPage, meta: { requiresAuth: true, requiresAdmin: true } },
 ];
 
 const router = createRouter({

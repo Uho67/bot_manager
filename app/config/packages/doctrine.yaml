@@ -37,6 +37,18 @@ doctrine:
                 dir: '%kernel.project_dir%/src/Catalog/Entity'
                 prefix: 'App\Catalog\Entity'
                 alias: Catalog
+            Button:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Button/Entity'
+                prefix: 'App\Button\Entity'
+                alias: Button
+            Template:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Template/Entity'
+                prefix: 'App\Template\Entity'
+                alias: Template
         controller_resolver:
             auto_mapping: false
 
