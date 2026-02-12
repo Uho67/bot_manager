@@ -7,7 +7,6 @@
           <tr>
             <th class="px-4 py-2 border-b text-center">ID</th>
             <th class="px-4 py-2 border-b text-center">Name</th>
-            <th class="px-4 py-2 border-b text-center">Sort Order</th>
             <th class="px-4 py-2 border-b text-center">Image</th>
             <th class="px-4 py-2 border-b text-center">Actions</th>
           </tr>
@@ -16,7 +15,6 @@
           <tr v-for="product in products" :key="product.id">
             <td class="px-4 py-2 border-b text-center">{{ product.id }}</td>
             <td class="px-4 py-2 border-b text-center">{{ product.name }}</td>
-            <td class="px-4 py-2 border-b text-center">{{ product.sortOrder || 0 }}</td>
             <td class="px-4 py-2 border-b text-center">
               <img v-if="product.image" :src="getImageUrl(product.image)" alt="Product Image" class="w-16 h-16 object-cover rounded mx-auto">
               <span v-else class="text-gray-400 text-sm">No image</span>

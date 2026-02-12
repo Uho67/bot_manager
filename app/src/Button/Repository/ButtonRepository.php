@@ -59,7 +59,6 @@ class ButtonRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('b')
             ->where('b.bot_identifier = :botIdentifier')
             ->setParameter('botIdentifier', $botIdentifier)
-            ->orderBy('b.sort_order', 'ASC')
             ->getQuery()
             ->getResult();
     }

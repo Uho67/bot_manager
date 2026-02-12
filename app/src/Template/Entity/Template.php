@@ -41,12 +41,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 class Template
 {
-    public const TYPE_POST = 'post';
-    public const TYPE_START = 'start';
-    public const TYPE_CATEGORY = 'category';
-    public const TYPE_PRODUCT = 'product';
+    public const string TYPE_POST = 'post';
+    public const string TYPE_START = 'start';
+    public const string TYPE_PRODUCT = 'product';
 
-    public const MAX_BUTTONS_PER_LINE = 8;
+    public const int MAX_BUTTONS_PER_LINE = 8;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -67,7 +66,7 @@ class Template
     #[ORM\Column(length: 20)]
     #[Groups(['template:read', 'template:write'])]
     #[Assert\NotBlank]
-    #[Assert\Choice(choices: [self::TYPE_POST, self::TYPE_START, self::TYPE_CATEGORY, self::TYPE_PRODUCT])]
+    #[Assert\Choice(choices: [self::TYPE_POST, self::TYPE_START, self::TYPE_PRODUCT])]
     private ?string $type = null;
 
     #[ORM\Column(type: Types::JSON)]

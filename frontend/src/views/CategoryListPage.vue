@@ -7,7 +7,6 @@
           <tr>
             <th class="px-4 py-2 border-b text-center">ID</th>
             <th class="px-4 py-2 border-b text-center">Name</th>
-            <th class="px-4 py-2 border-b text-center">Sort Order</th>
             <th class="px-4 py-2 border-b text-center">Children</th>
             <th class="px-4 py-2 border-b text-center">Actions</th>
           </tr>
@@ -16,7 +15,6 @@
           <tr v-for="category in categories" :key="category.id">
             <td class="px-4 py-2 border-b text-center">{{ category.id }}</td>
             <td class="px-4 py-2 border-b text-center">{{ category.name }}</td>
-            <td class="px-4 py-2 border-b text-center">{{ category.sortOrder || 0 }}</td>
             <td class="px-4 py-2 border-b text-center">
               <span v-if="category.childCategories.length === 0" class="text-gray-400 text-sm">No children</span>
               <span v-else>

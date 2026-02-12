@@ -37,9 +37,8 @@ class ProductController extends AbstractController
             'id' => $product->getId(),
             'name' => $product->getName(),
             'description' => $product->getDescription(),
-            'image' => $request->getSchemeAndHttpHost() . '/' . \ltrim($product->getImage(), '/'),
+            'image' => $request->getSchemeAndHttpHost().'/'.\ltrim($product->getImage(), '/'),
             'image_file_id' => $product->getImageFileId(),
-            'sort_order' => $product->getSortOrder(),
         ]);
     }
 

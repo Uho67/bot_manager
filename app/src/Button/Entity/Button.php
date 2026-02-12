@@ -65,16 +65,15 @@ class Button
     #[Assert\Length(max: 60)]
     private ?string $label = null;
 
-    #[ORM\Column(type: Types::INTEGER, options: ['default' => 0])]
-    #[Groups(['button:read', 'button:write'])]
-    #[SerializedName('sortOrder')]
-    private int $sort_order = 0;
 
     #[ORM\Column(length: 20)]
     #[Groups(['button:read', 'button:write'])]
     #[SerializedName('buttonType')]
     #[Assert\NotBlank]
-    #[Assert\Choice(choices: [self::TYPE_URL, self::TYPE_CALLBACK], message: 'Button type must be either "url" or "callback".')]
+    #[Assert\Choice(
+        choices: [self::TYPE_URL, self::TYPE_CALLBACK],
+        message: 'Button type must be either "url" or "callback".'
+    )]
     private ?string $button_type = null;
 
     #[ORM\Column(length: 60)]
@@ -121,17 +120,6 @@ class Button
     {
         $this->label = $label;
 
-        return $this;
-    }
-
-    public function getSortOrder(): int
-    {
-        return $this->sort_order;
-    }
-
-    public function setSortOrder(int $sort_order): static
-    {
-        $this->sort_order = $sort_order;
 
         return $this;
     }

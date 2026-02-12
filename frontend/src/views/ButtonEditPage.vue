@@ -49,11 +49,6 @@
         <input v-model="form.value" maxlength="60" required class="w-full border rounded px-3 py-2" :placeholder="form.buttonType === 'url' ? 'https://example.com' : 'callback_data'" />
         <div class="text-xs text-gray-500">{{ form.buttonType === 'url' ? 'URL to open when clicked' : 'Callback data sent to the bot' }} (max 60 characters)</div>
       </div>
-      <div>
-        <label class="block mb-1 font-medium">Sort Order</label>
-        <input v-model.number="form.sortOrder" type="number" min="0" class="w-full border rounded px-3 py-2" />
-        <div class="text-xs text-gray-500">Lower numbers appear first</div>
-      </div>
       <div class="flex gap-2 mt-4">
         <button type="submit" :disabled="isSubmitting" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">
           {{ isSubmitting ? 'Saving...' : 'Save' }}
@@ -72,13 +67,12 @@ import api from '../api';
 const route = useRoute();
 const router = useRouter();
 const isEdit = computed(() => !!route.params.id);
-const form = ref<{ id?: string; code: string; label: string; buttonType: string; value: string; sortOrder?: number }>({
+const form = ref<{ id?: string; code: string; label: string; buttonType: string; value: string }>({
   id: '',
   code: '',
   label: '',
   buttonType: '',
   value: '',
-  sortOrder: 0,
 });
 const errorMessage = ref('');
 const isSubmitting = ref(false);
@@ -93,7 +87,6 @@ const fetchButton = async () => {
         label: data.label,
         buttonType: data.buttonType,
         value: data.value,
-        sortOrder: data.sortOrder || 0,
       };
     } catch (error: any) {
       errorMessage.value = error.response?.data?.description || error.response?.data?.detail || 'Failed to load button';
@@ -107,7 +100,6 @@ const fetchButton = async () => {
         label: data.label + ' (Copy)',
         buttonType: data.buttonType,
         value: data.value,
-        sortOrder: data.sortOrder || 0,
       };
     } catch (error: any) {
       errorMessage.value = error.response?.data?.description || error.response?.data?.detail || 'Failed to load button for duplication';

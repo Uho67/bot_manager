@@ -64,10 +64,6 @@ class Product
     #[Groups(['product:read', 'product:write'])]
     private ?string $image_file_id = null;
 
-    #[ORM\Column(type: Types::INTEGER, options: ['default' => 0])]
-    #[Groups(['product:read', 'product:write'])]
-    #[SerializedName('sortOrder')]
-    private int $sort_order = 0;
 
     #[ORM\Column(length: 255)]
     #[Groups(['product:read'])]
@@ -140,18 +136,6 @@ class Product
         return $this;
     }
 
-    public function getSortOrder(): int
-    {
-        return $this->sort_order;
-    }
-
-    public function setSortOrder(int $sort_order): static
-    {
-        $this->sort_order = $sort_order;
-
-
-        return $this;
-    }
 
     public function getBotIdentifier(): ?string
     {

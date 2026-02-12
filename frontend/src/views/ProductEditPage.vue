@@ -34,11 +34,6 @@
         <textarea v-model="form.description" rows="5" required class="w-full border rounded px-3 py-2"></textarea>
       </div>
       <div>
-        <label class="block mb-1 font-medium">Sort Order</label>
-        <input v-model.number="form.sortOrder" type="number" min="0" class="w-full border rounded px-3 py-2" />
-        <div class="text-xs text-gray-500">Lower numbers appear first</div>
-      </div>
-      <div>
         <label class="block mb-1 font-medium">Categories</label>
         <select v-model="form.categories" multiple class="w-full border rounded px-3 py-2">
           <option v-for="cat in categories" :key="cat.id" :value="`/api/categories/${cat.id}`">{{ cat.name }}</option>
@@ -75,18 +70,16 @@ interface Category {
 const route = useRoute();
 const router = useRouter();
 const isEdit = computed(() => !!route.params.id);
-const form = ref<{ id?: string; name: string; description: string; categories: string[]; image?: string; sortOrder?: number }>({
+const form = ref<{ id?: string; name: string; description: string; categories: string[]; image?: string }>({
   id: '',
   name: '',
   description: '',
   categories: [],
   image: '',
-  sortOrder: 0,
 });
 const categories = ref<Category[]>([]);
 const imagePreview = ref<string | null>(null);
 const errorMessage = ref('');
-const isSubmitting = ref(false);
 
 const fetchCategories = async () => {
   try {
@@ -107,7 +100,6 @@ const fetchProduct = async () => {
         description: data.description,
         categories: (data.categories || []).map((cat: Category) => `/api/categories/${cat.id}`),
         image: data.image || '',
-        sortOrder: data.sortOrder || 0,
       };
       // Set image preview with full URL if image exists
       if (data.image) {

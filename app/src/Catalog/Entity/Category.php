@@ -53,10 +53,6 @@ class Category
     #[Groups(['category:read', 'category:write', 'product:read'])]
     private ?string $name = null;
 
-    #[ORM\Column(type: Types::INTEGER, options: ['default' => 0])]
-    #[Groups(['category:read', 'category:write'])]
-    #[SerializedName('sortOrder')]
-    private int $sort_order = 0;
 
     #[ORM\Column(type: Types::BOOLEAN, options: ['default' => 0])]
     #[Groups(['category:read', 'category:write'])]
@@ -74,6 +70,11 @@ class Category
     #[ORM\Column(length: 255)]
     #[Groups(['category:read'])]
     private ?string $bot_identifier = null;
+
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    #[Groups(['category:read', 'category:write'])]
+    #[SerializedName('layout')]
+    private ?array $layout = null;
 
     /**
      * @var Collection<int, Product>
@@ -115,17 +116,6 @@ class Category
         return $this;
     }
 
-    public function getSortOrder(): int
-    {
-        return $this->sort_order;
-    }
-
-    public function setSortOrder(int $sort_order): static
-    {
-        $this->sort_order = $sort_order;
-
-        return $this;
-    }
 
     public function isRoot(): bool
     {
@@ -222,6 +212,18 @@ class Category
     public function removeChildCategory(self $childCategory): static
     {
         $this->childCategories->removeElement($childCategory);
+
+        return $this;
+    }
+
+    public function getLayout(): ?array
+    {
+        return $this->layout;
+    }
+
+    public function setLayout(?array $layout): static
+    {
+        $this->layout = $layout;
 
         return $this;
     }

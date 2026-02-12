@@ -10,7 +10,6 @@
             <th class="px-4 py-2 border-b text-center">Label</th>
             <th class="px-4 py-2 border-b text-center">Type</th>
             <th class="px-4 py-2 border-b text-center">Value</th>
-            <th class="px-4 py-2 border-b text-center">Sort Order</th>
             <th class="px-4 py-2 border-b text-center">Actions</th>
           </tr>
         </thead>
@@ -25,7 +24,6 @@
               </span>
             </td>
             <td class="px-4 py-2 border-b text-center text-sm truncate max-w-xs" :title="button.value">{{ button.value }}</td>
-            <td class="px-4 py-2 border-b text-center">{{ button.sortOrder || 0 }}</td>
             <td class="px-4 py-2 border-b text-center">
               <div class="relative inline-block text-left">
                 <button @click="openDropdown(button.id)" class="px-2 py-1 bg-gray-100 rounded hover:bg-gray-200">Actions</button>

@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace App\Catalog\Controller;
 
 use App\Catalog\Repository\CategoryRepository;
+use App\Catalog\Service\CategoryButtonFormatter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,44 +19,46 @@ class CategoryController extends AbstractController
 {
     public function __construct(
         private readonly CategoryRepository $categoryRepository,
+        private readonly CategoryButtonFormatter $buttonFormatter,
     ) {
     }
 
-    #[Route('/categories/{id}', name: 'telegram_catalog_category_get', methods: ['GET'])]
-    public function getCategory(int $id, Request $request): JsonResponse
-    {
-        $botIdentifier = $request->attributes->get('bot_identifier') ?? '';
-        $category = $this->categoryRepository->findByIdAndBotIdentifier($id, $botIdentifier);
-        if (empty($category)) {
-            return new JsonResponse(['error' => 'Category not found'], 404);
-        }
+//    #[Route('/categories/{id}', name: 'telegram_catalog_category_get', methods: ['GET'])]
+//    public function getCategory(int $id, Request $request): JsonResponse
+//    {
+//        $botIdentifier = $request->attributes->get('bot_identifier') ?? '';
+//        $category = $this->categoryRepository->findByIdAndBotIdentifier($id, $botIdentifier);
+//        if (empty($category)) {
+//            return new JsonResponse(['error' => 'Category not found'], 404);
+//        }
+//
+//        return new JsonResponse([
+//            'id' => $category->getId(),
+//            'name' => $category->getName(),
+//            'is_root' => $category->isRoot(),
+//            'image' => $request->getSchemeAndHttpHost() . '/' . \ltrim($category->getImage() ?? '', '/'),
+//            'image_file_id' => $category->getImageFileId(),
+//            'child_categories' => array_map(function ($child) {
+//                return [
+//                    'id' => $child->getId(),
+//                    'name' => $child->getName(),
+//                    'is_root' => $child->isRoot(),
+//                ];
+//            }, $category->getChildCategories()->toArray()),
+//            'products' => array_map(function ($product) {
+//                return [
+//                    'id' => $product->getId(),
+//                    'name' => $product->getName(),
+//                ];
+//            }, $category->getProducts()->toArray()),
+//        ]);
+//    }
 
-        return new JsonResponse([
-            'id' => $category->getId(),
-            'name' => $category->getName(),
-            'sort_order' => $category->getSortOrder(),
-            'is_root' => $category->isRoot(),
-            'image' => $request->getSchemeAndHttpHost() . '/' . \ltrim($category->getImage() ?? '', '/'),
-            'image_file_id' => $category->getImageFileId(),
-            'child_categories' => array_map(function ($child) {
-                return [
-                    'id' => $child->getId(),
-                    'name' => $child->getName(),
-                    'sort_order' => $child->getSortOrder(),
-                    'is_root' => $child->isRoot(),
-                ];
-            }, $category->getChildCategories()->toArray()),
-            'products' => array_map(function ($product) {
-                return [
-                    'id' => $product->getId(),
-                    'name' => $product->getName(),
-                    'sort_order' => $product->getSortOrder(),
-                ];
-            }, $category->getProducts()->toArray()),
-        ]);
-    }
-
-    #[Route('/categories/{id}/image-file-id', name: 'telegram_catalog_category_update_image_file_id', methods: ['PATCH'])]
+    #[Route(
+        '/categories/{id}/image-file-id',
+        name: 'telegram_catalog_category_update_image_file_id',
+        methods: ['PATCH']
+    )]
     public function updateImageFileId(int $id, Request $request): JsonResponse
     {
         $botIdentifier = $request->attributes->get('bot_identifier') ?? '';
@@ -95,8 +98,22 @@ class CategoryController extends AbstractController
             return [
                 'id' => $category->getId(),
                 'name' => $category->getName(),
-                'sort_order' => $category->getSortOrder(),
             ];
         }, $categories));
+    }
+
+    #[Route('/categories/{id}', name: 'telegram_catalog_category_get', methods: ['GET'])]
+    public function getCategoryWithButtons(int $id, Request $request): JsonResponse
+    {
+        $botIdentifier = $request->attributes->get('bot_identifier') ?? '';
+        $category = $this->categoryRepository->findByIdAndBotIdentifier($id, $botIdentifier);
+
+        if (!$category) {
+            return new JsonResponse(['error' => 'Category not found'], 404);
+        }
+
+        $formattedData = $this->buttonFormatter->format($category, $request, $botIdentifier);
+
+        return new JsonResponse($formattedData);
     }
 }
