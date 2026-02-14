@@ -49,6 +49,12 @@ doctrine:
                 dir: '%kernel.project_dir%/src/Template/Entity'
                 prefix: 'App\Template\Entity'
                 alias: Template
+            Post:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Post/Entity'
+                prefix: 'App\Post\Entity'
+                alias: Post
         controller_resolver:
             auto_mapping: false
 

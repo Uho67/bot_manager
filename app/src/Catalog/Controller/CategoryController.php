@@ -23,37 +23,6 @@ class CategoryController extends AbstractController
     ) {
     }
 
-//    #[Route('/categories/{id}', name: 'telegram_catalog_category_get', methods: ['GET'])]
-//    public function getCategory(int $id, Request $request): JsonResponse
-//    {
-//        $botIdentifier = $request->attributes->get('bot_identifier') ?? '';
-//        $category = $this->categoryRepository->findByIdAndBotIdentifier($id, $botIdentifier);
-//        if (empty($category)) {
-//            return new JsonResponse(['error' => 'Category not found'], 404);
-//        }
-//
-//        return new JsonResponse([
-//            'id' => $category->getId(),
-//            'name' => $category->getName(),
-//            'is_root' => $category->isRoot(),
-//            'image' => $request->getSchemeAndHttpHost() . '/' . \ltrim($category->getImage() ?? '', '/'),
-//            'image_file_id' => $category->getImageFileId(),
-//            'child_categories' => array_map(function ($child) {
-//                return [
-//                    'id' => $child->getId(),
-//                    'name' => $child->getName(),
-//                    'is_root' => $child->isRoot(),
-//                ];
-//            }, $category->getChildCategories()->toArray()),
-//            'products' => array_map(function ($product) {
-//                return [
-//                    'id' => $product->getId(),
-//                    'name' => $product->getName(),
-//                ];
-//            }, $category->getProducts()->toArray()),
-//        ]);
-//    }
-
     #[Route(
         '/categories/{id}/image-file-id',
         name: 'telegram_catalog_category_update_image_file_id',

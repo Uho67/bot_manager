@@ -14,6 +14,8 @@ import ButtonListPage from '../views/ButtonListPage.vue';
 import ButtonEditPage from '../views/ButtonEditPage.vue';
 import TemplateListPage from '../views/TemplateListPage.vue';
 import TemplateEditPage from '../views/TemplateEditPage.vue';
+import PostListPage from '../views/PostListPage.vue';
+import PostEditPage from '../views/PostEditPage.vue';
 import { useAuth } from '../composables/useAuth';
 
 const routes = [
@@ -36,6 +38,9 @@ const routes = [
   { path: '/templates', name: 'TemplateList', component: TemplateListPage, meta: { requiresAuth: true, requiresAdmin: true } },
   { path: '/templates/create', name: 'TemplateCreate', component: TemplateEditPage, meta: { requiresAuth: true, requiresAdmin: true } },
   { path: '/templates/:id/edit', name: 'TemplateEdit', component: TemplateEditPage, meta: { requiresAuth: true, requiresAdmin: true } },
+  { path: '/posts', name: 'PostList', component: PostListPage, meta: { requiresAuth: true, requiresAdmin: true } },
+  { path: '/posts/create', name: 'PostCreate', component: PostEditPage, meta: { requiresAuth: true, requiresAdmin: true } },
+  { path: '/posts/:id/edit', name: 'PostEdit', component: PostEditPage, meta: { requiresAuth: true, requiresAdmin: true } },
 ];
 
 const router = createRouter({

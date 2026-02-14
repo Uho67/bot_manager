@@ -64,6 +64,14 @@
           Templates
         </router-link>
       </li>
+      <li v-if="!isSuperAdmin && user?.roles?.indexOf('ROLE_ADMIN') !== -1">
+        <router-link
+          to="/posts"
+          class="block w-full text-center py-3 rounded-lg bg-teal-600 text-white font-semibold shadow hover:bg-teal-700 transition"
+        >
+          Posts
+        </router-link>
+      </li>
       <li v-if="!isSuperAdmin && (!user?.roles || user?.roles.indexOf('ROLE_ADMIN') === -1)">
         <div class="text-center text-gray-500">
           <p>No menu items available for your role.</p>
