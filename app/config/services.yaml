@@ -38,6 +38,12 @@ services:
     App\Post\Doctrine\PostCollectionExtension:
         tags:
             - { name: api_platform.doctrine.orm.query_extension.collection, entity: App\Post\Entity\Post }
+    App\User\Doctrine\UserCollectionExtension:
+        tags:
+            - { name: api_platform.doctrine.orm.query_extension.collection, entity: App\User\Entity\User }
+    App\Mailout\Doctrine\MailoutCollectionExtension:
+        tags:
+            - { name: api_platform.doctrine.orm.query_extension.collection, entity: App\Mailout\Entity\Mailout }
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
@@ -85,6 +91,11 @@ services:
         tags:
             - { name: doctrine.orm.entity_listener, event: prePersist, entity: App\Post\Entity\Post }
             - { name: doctrine.orm.entity_listener, event: preUpdate, entity: App\Post\Entity\Post }
+
+    App\User\EventListener\UserEntityListener:
+        tags:
+            - { name: doctrine.orm.entity_listener, event: prePersist, entity: App\User\Entity\User }
+            - { name: doctrine.orm.entity_listener, event: preUpdate, entity: App\User\Entity\User }
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

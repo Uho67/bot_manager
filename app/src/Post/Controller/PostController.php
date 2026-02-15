@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace App\Post\Controller;
 
+use App\Catalog\Repository\ProductRepository;
 use App\Post\Entity\Post;
 use App\Post\Repository\PostRepository;
 use App\Template\Entity\Template;
@@ -25,6 +26,7 @@ class PostController extends AbstractController
         private readonly PostRepository $postRepository,
         private readonly TemplateRepository $templateRepository,
         private readonly TemplateFormatterService $templateFormatter,
+        private readonly ProductRepository $productRepository,
     ) {
     }
 
@@ -78,6 +80,34 @@ class PostController extends AbstractController
             'id' => $post->getId(),
             'image_file_id' => $post->getImageFileId(),
             'message' => 'Image file ID updated successfully',
+        ]);
+    }
+
+    #[Route('/post/product/{id}', name: 'telegram_post_get_product', methods: ['GET'])]
+    public function getProductWithPostLayout(int $id, Request $request): JsonResponse
+    {
+        $botIdentifier = $request->attributes->get('bot_identifier') ?? '';
+
+        // Get product
+        $product = $this->productRepository->findByIdAndBotIdentifier($id, $botIdentifier);
+
+        if (!$product) {
+            return new JsonResponse(['error' => 'Product not found'], 404);
+        }
+
+        $template = $this->templateRepository->findFirstByTypeAndBotIdentifier('post', $botIdentifier);
+        $formattedTemplate = $template ? $this->templateFormatter->formatTemplate($template, $botIdentifier) : null;
+
+        return new JsonResponse([
+            'post' => [
+                'id' => $product->getId(),
+                'name' => $product->getName(),
+                'description' => $product->getDescription(),
+                'image' => $this->getImageUrl($product->getImage(), $request),
+                'image_file_id' => $product->getImageFileId(),
+                'template_type' => $template->getType(),
+                'template' => $formattedTemplate,
+            ],
         ]);
     }
 

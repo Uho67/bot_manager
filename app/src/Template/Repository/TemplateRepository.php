@@ -64,6 +64,18 @@ class TemplateRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    public function findFirstByTypeAndBotIdentifier(string $type, string $botIdentifier): ?Template
+    {
+        return $this->createQueryBuilder('t')
+            ->where('t.type = :type')
+            ->andWhere('t.bot_identifier = :botIdentifier')
+            ->setParameter('type', $type)
+            ->setParameter('botIdentifier', $botIdentifier)
+            ->orderBy('t.name', 'ASC')
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
     /**
      * @return Template[]
      */

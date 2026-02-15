@@ -28,6 +28,11 @@ class ConfigSchema
                 'name' => 'Order Welcome Message',
                 'value' => '',
             ],
+            'telegram.cache.clean.endpoint' => [
+                'path' => 'telegram.cache.clean.endpoint',
+                'name' => 'Telegram Bot Cache Clean Endpoint',
+                'value' => '',
+            ],
         ];
     }
 }

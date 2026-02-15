@@ -9,6 +9,9 @@ declare(strict_types=1);
 namespace App\Catalog\Controller;
 
 use App\Catalog\Repository\ProductRepository;
+use App\Template\Entity\Template;
+use App\Template\Repository\TemplateRepository;
+use App\Template\Service\TemplateFormatterService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,6 +22,8 @@ class ProductController extends AbstractController
 {
     public function __construct(
         private readonly ProductRepository $productRepository,
+        private readonly TemplateRepository $templateRepository,
+        private readonly TemplateFormatterService $templateFormatter,
     ) {
     }
 
@@ -33,12 +38,16 @@ class ProductController extends AbstractController
             return new JsonResponse(['error' => 'Product not found'], 404);
         }
 
+        $template = $this->getTemplateForProduct($botIdentifier);
+        $formattedTemplate = $template ? $this->templateFormatter->formatTemplate($template, $botIdentifier) : null;
+
         return new JsonResponse([
             'id' => $product->getId(),
             'name' => $product->getName(),
             'description' => $product->getDescription(),
             'image' => $request->getSchemeAndHttpHost().'/'.\ltrim($product->getImage(), '/'),
             'image_file_id' => $product->getImageFileId(),
+            'template' => $formattedTemplate,
         ]);
     }
 
@@ -67,5 +76,15 @@ class ProductController extends AbstractController
             'image_file_id' => $product->getImageFileId(),
             'message' => 'Image file ID updated successfully',
         ]);
+    }
+
+    private function getTemplateForProduct(string $botIdentifier): ?Template
+    {
+        $templates = $this->templateRepository->findByTypeAndBotIdentifier(
+            'product',
+            $botIdentifier
+        );
+
+        return $templates[0] ?? null;
     }
 }

@@ -9,12 +9,19 @@ declare(strict_types=1);
 namespace App\Template\Service;
 
 use App\Button\Repository\ButtonRepository;
+use App\Catalog\Constants\ButtonConstants;
+use App\Catalog\Entity\Category;
+use App\Catalog\Entity\Product;
+use App\Catalog\Repository\CategoryRepository;
+use App\Catalog\Repository\ProductRepository;
 use App\Template\Entity\Template;
 
 readonly class TemplateFormatterService
 {
     public function __construct(
         private ButtonRepository $buttonRepository,
+        private CategoryRepository $categoryRepository,
+        private ProductRepository $productRepository,
     ) {
     }
 
@@ -36,36 +43,126 @@ readonly class TemplateFormatterService
      */
     public function formatLayout(array $layout, string $botIdentifier): array
     {
-        $formattedLayout = [];
+        if (empty($layout)) {
+            return [];
+        }
 
-        foreach ($layout as $line) {
-            $formattedLine = $this->formatLayoutLine($line, $botIdentifier);
-            if (!empty($formattedLine)) {
-                $formattedLayout[] = $formattedLine;
+        $buttonMap = array_merge(
+            $this->getRegularButtons($botIdentifier),
+            $this->getCategoryButtons($botIdentifier),
+            $this->getProductButtons($botIdentifier)
+        );
+
+        // Add backward compatibility: also map numeric IDs (both int and string) for old templates
+        $buttons = $this->buttonRepository->findAllByBotIdentifier($botIdentifier);
+        foreach ($buttons as $button) {
+            $buttonId = $button->getId();
+            $formattedButton = $this->formatRegularButton($button);
+            // Add both integer and string keys for backward compatibility
+            if (!isset($buttonMap[$buttonId])) {
+                $buttonMap[$buttonId] = $formattedButton;
+            }
+            $numericIdString = (string) $buttonId;
+            if (!isset($buttonMap[$numericIdString])) {
+                $buttonMap[$numericIdString] = $formattedButton;
             }
         }
 
-        return $formattedLayout;
+        return $this->transformLayoutToButtons($layout, $buttonMap);
     }
 
-    /**
-     * Format a single layout line (array of button IDs) to array of button details
-     */
-    private function formatLayoutLine(array $line, string $botIdentifier): array
+    private function getRegularButtons(string $botIdentifier): array
     {
-        $formattedLine = [];
+        $buttons = $this->buttonRepository->findAllByBotIdentifier($botIdentifier);
 
-        foreach ($line as $buttonId) {
-            $button = $this->buttonRepository->findByIdAndBotIdentifier($buttonId, $botIdentifier);
-            if ($button) {
-                $formattedLine[] = [
-                    'label' => $button->getLabel(),
-                    'button_type' => $button->getButtonType(),
-                    'value' => $button->getValue(),
-                ];
+        return array_reduce(
+            $buttons,
+            fn (array $carry, $button) => array_merge($carry, [
+                ButtonConstants::PREFIX_BUTTON . $button->getId() => $this->formatRegularButton($button),
+            ]),
+            []
+        );
+    }
+
+    private function getCategoryButtons(string $botIdentifier): array
+    {
+        $categories = $this->categoryRepository->findAllByBotIdentifier($botIdentifier);
+
+        return array_reduce(
+            $categories,
+            fn (array $carry, Category $category) => array_merge($carry, [
+                ButtonConstants::PREFIX_CATEGORY.$category->getId() => $this->formatCategoryButton($category),
+            ]),
+            []
+        );
+    }
+
+    private function getProductButtons(string $botIdentifier): array
+    {
+        $products = $this->productRepository->findAllByBotIdentifier($botIdentifier);
+
+        return array_reduce(
+            $products,
+            fn (array $carry, Product $product) => array_merge($carry, [
+                ButtonConstants::PREFIX_PRODUCT.$product->getId() => $this->formatProductButton($product),
+            ]),
+            []
+        );
+    }
+
+    private function transformLayoutToButtons(array $layout, array $buttonMap): array
+    {
+        $result = [];
+
+        foreach ($layout as $line) {
+            $formattedLine = $this->transformLineToButtons($line, $buttonMap);
+            if (!empty($formattedLine)) {
+                $result[] = $formattedLine;
             }
         }
 
-        return $formattedLine;
+        return $result;
+    }
+
+    private function transformLineToButtons(array $line, array $buttonMap): array
+    {
+        return array_values(
+            array_filter(
+                array_map(
+                    fn ($buttonId) => $buttonMap[$buttonId] ?? null,
+                    $line
+                )
+            )
+        );
+    }
+
+    private function formatRegularButton($button): array
+    {
+        return [
+            'id' => $button->getId(),
+            'label' => $button->getLabel(),
+            'button_type' => $button->getButtonType(),
+            'value' => $button->getValue(),
+        ];
+    }
+
+    private function formatCategoryButton(Category $category): array
+    {
+        return [
+            'id' => $category->getId(),
+            'label' => $category->getName(),
+            'button_type' => ButtonConstants::TYPE_CALLBACK,
+            'value' => sprintf(ButtonConstants::VALUE_FORMAT_CATEGORY, $category->getId()),
+        ];
+    }
+
+    private function formatProductButton(Product $product): array
+    {
+        return [
+            'id' => $product->getId(),
+            'label' => $product->getName(),
+            'button_type' => ButtonConstants::TYPE_CALLBACK,
+            'value' => sprintf(ButtonConstants::VALUE_FORMAT_PRODUCT, $product->getId()),
+        ];
     }
 }

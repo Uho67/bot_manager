@@ -82,9 +82,21 @@
                 <span class="text-sm font-medium text-gray-600 w-8">{{ buttonIndex }}.</span>
                 <select v-model="form.layout[lineIndex][buttonIndex - 1]" required class="flex-1 border rounded px-2 py-1 text-sm">
                   <option value="">Select button...</option>
-                  <option v-for="button in availableButtons" :key="button.id" :value="button.id">
-                    {{ button.label }} ({{ button.code }})
-                  </option>
+                  <optgroup label="Regular Buttons">
+                    <option v-for="button in availableButtons" :key="`button_${button.id}`" :value="`button_${button.id}`">
+                      {{ button.label }} ({{ button.code }})
+                    </option>
+                  </optgroup>
+                  <optgroup label="Categories">
+                    <option v-for="category in allCategories" :key="`category_${category.id}`" :value="`category_${category.id}`">
+                      {{ category.name }} (Category)
+                    </option>
+                  </optgroup>
+                  <optgroup label="Products">
+                    <option v-for="product in allProducts" :key="`product_${product.id}`" :value="`product_${product.id}`">
+                      {{ product.name }} (Product)
+                    </option>
+                  </optgroup>
                 </select>
                 <button type="button" @click="moveButtonUp(lineIndex, buttonIndex - 1)" :disabled="buttonIndex === 1" class="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300 text-xs disabled:opacity-50 disabled:cursor-not-allowed">
                   ↑
@@ -120,6 +132,16 @@ import { useRoute, useRouter } from 'vue-router';
 import api from '../api';
 import type { Button } from '../types/Button';
 
+interface Category {
+  id: number;
+  name: string;
+}
+
+interface Product {
+  id: number;
+  name: string;
+}
+
 const route = useRoute();
 const router = useRouter();
 const isEdit = computed(() => !!route.params.id);
@@ -127,7 +149,7 @@ const isEdit = computed(() => !!route.params.id);
 const form = ref<{
   name: string;
   type: string;
-  layout: number[][];
+  layout: (string | number)[][];
 }>({
   name: '',
   type: '',
@@ -135,6 +157,8 @@ const form = ref<{
 });
 
 const availableButtons = ref<Button[]>([]);
+const allCategories = ref<Category[]>([]);
+const allProducts = ref<Product[]>([]);
 const errorMessage = ref('');
 const isSubmitting = ref(false);
 
@@ -145,7 +169,7 @@ const isFormValid = computed(() => {
   for (const line of form.value.layout) {
     if (line.length === 0) return false;
     for (const buttonId of line) {
-      if (!buttonId || buttonId === 0) return false;
+      if (!buttonId || buttonId === 0 || buttonId === '') return false;
     }
   }
 
@@ -161,6 +185,38 @@ const fetchButtons = async () => {
   }
 };
 
+const fetchCategories = async () => {
+  try {
+    const { data } = await api.get('/api/categories');
+    allCategories.value = data['member'] || [];
+  } catch (error: any) {
+    console.error('Failed to load categories:', error);
+  }
+};
+
+const fetchProducts = async () => {
+  try {
+    const { data } = await api.get('/api/products');
+    allProducts.value = data['member'] || [];
+  } catch (error: any) {
+    console.error('Failed to load products:', error);
+  }
+};
+
+// Normalize layout: convert old numeric button IDs to "button_" prefix format
+const normalizeLayout = (layout: (string | number)[][]): (string | number)[][] => {
+  return layout.map(line => 
+    line.map(buttonId => {
+      // If it's a number, convert to "button_" prefix format for backward compatibility
+      if (typeof buttonId === 'number' && buttonId > 0) {
+        return `button_${buttonId}`;
+      }
+      // If it's already a string, keep it as is
+      return buttonId;
+    })
+  );
+};
+
 const fetchTemplate = async () => {
   if (isEdit.value) {
     try {
@@ -168,7 +224,7 @@ const fetchTemplate = async () => {
       form.value = {
         name: data.name,
         type: data.type,
-        layout: data.layout || [],
+        layout: normalizeLayout(data.layout || []),
       };
     } catch (error: any) {
       errorMessage.value = error.response?.data?.description || error.response?.data?.detail || 'Failed to load template';
@@ -180,7 +236,7 @@ const fetchTemplate = async () => {
       form.value = {
         name: data.name + ' (Copy)',
         type: data.type,
-        layout: data.layout || [],
+        layout: normalizeLayout(data.layout || []),
       };
     } catch (error: any) {
       errorMessage.value = error.response?.data?.description || error.response?.data?.detail || 'Failed to load template for duplication';
@@ -198,7 +254,7 @@ const removeLine = (lineIndex: number) => {
 
 const addButtonToLine = (lineIndex: number) => {
   if (form.value.layout[lineIndex].length < 8) {
-    form.value.layout[lineIndex].push(0);
+    form.value.layout[lineIndex].push('');
   }
 };
 
@@ -248,6 +304,8 @@ const goBack = () => {
 
 onMounted(async () => {
   await fetchButtons();
+  await fetchCategories();
+  await fetchProducts();
   await fetchTemplate();
 });
 </script>

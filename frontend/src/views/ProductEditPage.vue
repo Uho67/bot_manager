@@ -51,6 +51,15 @@
         <button type="submit" :disabled="isSubmitting" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">
           {{ isSubmitting ? 'Saving...' : 'Save' }}
         </button>
+        <button 
+          v-if="isEdit" 
+          type="button" 
+          @click="sendToAllUsers" 
+          :disabled="isSending"
+          class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {{ isSending ? 'Sending...' : 'Send to All Users' }}
+        </button>
         <button type="button" @click="goBack" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Cancel</button>
       </div>
     </form>
@@ -80,6 +89,8 @@ const form = ref<{ id?: string; name: string; description: string; categories: s
 const categories = ref<Category[]>([]);
 const imagePreview = ref<string | null>(null);
 const errorMessage = ref('');
+const isSubmitting = ref(false);
+const isSending = ref(false);
 
 const fetchCategories = async () => {
   try {
@@ -176,6 +187,30 @@ const submitForm = async () => {
 
 const goBack = () => {
   router.push({ name: 'ProductList' });
+};
+
+const sendToAllUsers = async () => {
+  if (!isEdit.value || !form.value.id) {
+    return;
+  }
+
+  if (!confirm('Are you sure you want to send this product to all active users? This will create mailout records for all active users.')) {
+    return;
+  }
+
+  isSending.value = true;
+  errorMessage.value = '';
+
+  try {
+    const response = await api.post(`/api/mailout/send-product/${form.value.id}`);
+    alert(`Successfully created ${response.data.created} mailout records for ${response.data.total_users} active users.`);
+  } catch (error: any) {
+    const apiError = error.response?.data;
+    errorMessage.value = apiError?.error || apiError?.message || 'Failed to send product to users';
+    console.error('Send error:', error.response?.data);
+  } finally {
+    isSending.value = false;
+  }
 };
 
 onMounted(() => {

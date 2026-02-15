@@ -15,6 +15,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\Catalog\Constants\ButtonConstants;
 use App\Template\Repository\TemplateRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -154,9 +155,34 @@ class Template
             }
 
             foreach ($line as $buttonIndex => $buttonId) {
-                if (!is_int($buttonId) || $buttonId <= 0) {
+                $isValid = false;
+
+                // Accept positive integers (backward compatibility)
+                if (is_int($buttonId) && $buttonId > 0) {
+                    $isValid = true;
+                }
+                // Accept strings with valid prefixes (button_, category_, product_) followed by positive integer
+                elseif (is_string($buttonId) && $buttonId !== '') {
+                    $validPrefixes = [
+                        ButtonConstants::PREFIX_BUTTON,
+                        ButtonConstants::PREFIX_CATEGORY,
+                        ButtonConstants::PREFIX_PRODUCT,
+                    ];
+
+                    foreach ($validPrefixes as $prefix) {
+                        if (str_starts_with($buttonId, $prefix)) {
+                            $numericPart = substr($buttonId, strlen($prefix));
+                            if (is_numeric($numericPart) && (int) $numericPart > 0) {
+                                $isValid = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (!$isValid) {
                     $context
-                        ->buildViolation('Button ID must be a positive integer.')
+                        ->buildViolation('Button ID must be a positive integer or a string with prefix (button_, category_, product_) followed by a positive integer.')
                         ->atPath('layout[' . $lineIndex . '][' . $buttonIndex . ']')
                         ->addViolation();
                 }

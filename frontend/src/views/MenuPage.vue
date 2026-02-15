@@ -72,6 +72,22 @@
           Posts
         </router-link>
       </li>
+      <li v-if="!isSuperAdmin && user?.roles?.indexOf('ROLE_ADMIN') !== -1">
+        <router-link
+          to="/users"
+          class="block w-full text-center py-3 rounded-lg bg-yellow-600 text-white font-semibold shadow hover:bg-yellow-700 transition"
+        >
+          Users
+        </router-link>
+      </li>
+      <li v-if="!isSuperAdmin && user?.roles?.indexOf('ROLE_ADMIN') !== -1">
+        <router-link
+          to="/mailout"
+          class="block w-full text-center py-3 rounded-lg bg-red-600 text-white font-semibold shadow hover:bg-red-700 transition"
+        >
+          Mailout Status
+        </router-link>
+      </li>
       <li v-if="!isSuperAdmin && (!user?.roles || user?.roles.indexOf('ROLE_ADMIN') === -1)">
         <div class="text-center text-gray-500">
           <p>No menu items available for your role.</p>

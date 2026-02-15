@@ -68,10 +68,8 @@ class PostRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('p')
             ->where('p.template_type = :templateType')
             ->andWhere('p.bot_identifier = :botIdentifier')
-            ->andWhere('p.enabled = :enabled')
             ->setParameter('templateType', $templateType)
             ->setParameter('botIdentifier', $botIdentifier)
-            ->setParameter('enabled', true)
             ->getQuery()
             ->getOneOrNullResult();
     }

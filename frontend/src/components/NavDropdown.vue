@@ -18,6 +18,14 @@
         <button v-if="!isSuperAdmin && user?.roles?.indexOf('ROLE_ADMIN') !== -1" @click="goTo('/products')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Products</button>
         <button v-if="!isSuperAdmin && user?.roles?.indexOf('ROLE_ADMIN') !== -1" @click="goTo('/categories')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Categories</button>
         <button v-if="!isSuperAdmin && user?.roles?.indexOf('ROLE_ADMIN') !== -1" @click="goTo('/buttons')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Buttons</button>
+        <button v-if="!isSuperAdmin && user?.roles?.indexOf('ROLE_ADMIN') !== -1" @click="goTo('/templates')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Templates</button>
+        <button v-if="!isSuperAdmin && user?.roles?.indexOf('ROLE_ADMIN') !== -1" @click="goTo('/posts')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Posts</button>
+        <button v-if="!isSuperAdmin && user?.roles?.indexOf('ROLE_ADMIN') !== -1" @click="goTo('/users')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Users</button>
+        <button v-if="!isSuperAdmin && user?.roles?.indexOf('ROLE_ADMIN') !== -1" @click="goTo('/mailout')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Mailout Status</button>
+        <div class="border-t my-1"></div>
+        <button v-if="user && (user.roles?.includes('ROLE_ADMIN') || user.roles?.includes('ROLE_SUPER_ADMIN'))" @click="handleCacheClean" :disabled="cacheCleaning" class="block w-full text-left px-4 py-2 text-sm bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed" role="menuitem">
+          {{ cacheCleaning ? 'Cleaning...' : 'Cache Clean' }}
+        </button>
         <div class="border-t my-1"></div>
         <button @click="logoutAndGoLogin" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100" role="menuitem">Logout</button>
       </div>
@@ -29,10 +37,12 @@
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuth } from '../composables/useAuth';
+import api from '../api';
 
 const { user, logout } = useAuth();
 const router = useRouter();
 const open = ref(false);
+const cacheCleaning = ref(false);
 
 const isSuperAdmin = computed(() => {
   if (!user.value?.roles) return false;
@@ -52,6 +62,27 @@ function logoutAndGoLogin() {
   open.value = false;
   logout();
   router.push('/login');
+}
+
+async function handleCacheClean() {
+  if (cacheCleaning.value) return;
+  
+  if (!confirm('Are you sure you want to clean the cache?')) {
+    return;
+  }
+
+  cacheCleaning.value = true;
+  open.value = false;
+
+  try {
+    const response = await api.post('/api/admin-user/cache-clean');
+    alert(response.data.message || 'Cache cleaned successfully');
+  } catch (error: any) {
+    const errorMessage = error.response?.data?.error || error.response?.data?.message || 'Failed to clean cache';
+    alert(`Error: ${errorMessage}`);
+  } finally {
+    cacheCleaning.value = false;
+  }
 }
 
 // Close dropdown on outside click
