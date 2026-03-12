@@ -26,6 +26,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
+#[ORM\UniqueConstraint(name: 'unique_user_chat_bot', columns: ['chat_id', 'bot_identifier'])]
 #[ORM\Index(name: 'idx_user_bot_identifier', columns: ['bot_identifier'])]
 #[ORM\Index(name: 'idx_user_chat_id', columns: ['chat_id'])]
 #[ORM\Index(name: 'idx_user_status', columns: ['status'])]
@@ -46,7 +47,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     denormalizationContext: ['groups' => ['user:write']],
     security: "is_granted('ROLE_ADMIN')",
 )]
-#[ApiFilter(SearchFilter::class, properties: ['status' => 'exact'])]
+#[ApiFilter(SearchFilter::class, properties: ['status' => 'exact', 'username' => 'partial'])]
 #[ApiFilter(DateFilter::class, properties: ['created_at', 'updated_at'])]
 class User
 {

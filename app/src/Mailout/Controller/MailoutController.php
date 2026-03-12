@@ -78,6 +78,20 @@ class MailoutController extends AbstractController
         return new JsonResponse($statistics);
     }
 
+    #[Route('/clean/{postId}', name: 'api_mailout_clean', methods: ['DELETE'])]
+    public function cleanByPostId(int $postId): JsonResponse
+    {
+        $user = $this->getUserFromAuth();
+        $botIdentifier = $user->getBotIdentifier();
+
+        $deleted = $this->postMailoutRepository->deleteAllByPostAndBotIdentifier($postId, $botIdentifier);
+
+        return new JsonResponse([
+            'message' => 'Mailouts cleaned successfully',
+            'deleted' => $deleted,
+        ]);
+    }
+
     private function getUserFromAuth()
     {
         $token = $this->tokenStorage->getToken();

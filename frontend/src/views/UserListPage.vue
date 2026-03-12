@@ -61,10 +61,22 @@
           />
         </div>
 
+        <!-- Username Filter -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+          <input
+            type="text"
+            v-model="filters.username"
+            @input="applyFilters"
+            placeholder="Search by username..."
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
         <!-- Clear Filters Button -->
         <div class="flex items-end">
-          <button 
-            @click="clearFilters" 
+          <button
+            @click="clearFilters"
             class="w-full px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
           >
             Clear Filters
@@ -78,12 +90,52 @@
       <span class="text-sm font-medium text-blue-800">
         {{ selectedUsers.length }} user(s) selected
       </span>
-      <button 
-        @click="massDelete" 
-        class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 text-sm font-medium"
-      >
-        Delete Selected
-      </button>
+      <div class="flex gap-2">
+        <button
+          @click="showSendPostModal = true"
+          class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm font-medium"
+        >
+          Send Post
+        </button>
+        <button
+          @click="massDelete"
+          class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 text-sm font-medium"
+        >
+          Delete Selected
+        </button>
+      </div>
+    </div>
+
+    <!-- Send Post Modal -->
+    <div v-if="showSendPostModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-lg p-6 w-full max-w-sm shadow-xl">
+        <h2 class="text-lg font-semibold mb-4">Send Post to {{ selectedUsers.length }} user(s)</h2>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Post ID</label>
+          <input
+            type="number"
+            v-model.number="sendPostId"
+            min="1"
+            placeholder="Enter post ID..."
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+          />
+        </div>
+        <div class="flex gap-2 justify-end">
+          <button
+            @click="showSendPostModal = false; sendPostId = null"
+            class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 text-sm font-medium"
+          >
+            Cancel
+          </button>
+          <button
+            @click="massSendPost"
+            :disabled="!sendPostId"
+            class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+          >
+            Send
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Users Grid -->
@@ -182,8 +234,11 @@ import type { User } from '../types/User';
 
 const users = ref<User[]>([]);
 const selectedUsers = ref<number[]>([]);
+const showSendPostModal = ref(false);
+const sendPostId = ref<number | null>(null);
 const filters = ref({
   status: '',
+  username: '',
   created_at_from: '',
   created_at_to: '',
   updated_at_from: '',
@@ -203,6 +258,9 @@ const fetchUsers = async () => {
     const params = new URLSearchParams();
     if (filters.value.status) {
       params.append('status', filters.value.status);
+    }
+    if (filters.value.username) {
+      params.append('username', filters.value.username);
     }
     if (filters.value.created_at_from) {
       params.append('created_at[gte]', filters.value.created_at_from);
@@ -264,6 +322,7 @@ const applyFilters = () => {
 const clearFilters = () => {
   filters.value = {
     status: '',
+    username: '',
     created_at_from: '',
     created_at_to: '',
     updated_at_from: '',
@@ -313,6 +372,27 @@ const massDelete = async () => {
     alert('Users deleted successfully');
   } catch (error: any) {
     const errorMessage = error.response?.data?.error || 'Failed to delete users';
+    alert(`Error: ${errorMessage}`);
+  }
+};
+
+const massSendPost = async () => {
+  if (selectedUsers.value.length === 0 || !sendPostId.value) {
+    return;
+  }
+
+  try {
+    const { data } = await api.post('/api/users/mass-send-post', {
+      ids: selectedUsers.value,
+      post_id: sendPostId.value,
+    });
+
+    showSendPostModal.value = false;
+    sendPostId.value = null;
+    selectedUsers.value = [];
+    alert(`Success: ${data.created} mailout(s) created`);
+  } catch (error: any) {
+    const errorMessage = error.response?.data?.error || 'Failed to create mailouts';
     alert(`Error: ${errorMessage}`);
   }
 };

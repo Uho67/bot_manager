@@ -37,6 +37,7 @@
               <th class="px-4 py-2 border-b text-center">Pending</th>
               <th class="px-4 py-2 border-b text-center">Failed</th>
               <th class="px-4 py-2 border-b text-center">Progress</th>
+              <th class="px-4 py-2 border-b text-center">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -54,16 +55,24 @@
               </td>
               <td class="px-4 py-2 border-b text-center">
                 <div class="w-full bg-gray-200 rounded-full h-2">
-                  <div 
-                    class="bg-blue-600 h-2 rounded-full" 
+                  <div
+                    class="bg-blue-600 h-2 rounded-full"
                     :style="{ width: `${getProgressPercentage(stat)}%` }"
                   ></div>
                 </div>
                 <span class="text-xs text-gray-600 mt-1">{{ getProgressPercentage(stat) }}%</span>
               </td>
+              <td class="px-4 py-2 border-b text-center">
+                <button
+                  @click="cleanMailouts(stat.post_id)"
+                  class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-xs font-medium"
+                >
+                  Clean
+                </button>
+              </td>
             </tr>
             <tr v-if="statistics.length === 0">
-              <td colspan="6" class="px-4 py-8 text-center text-gray-500">No mailout records found</td>
+              <td colspan="7" class="px-4 py-8 text-center text-gray-500">No mailout records found</td>
             </tr>
           </tbody>
         </table>
@@ -127,6 +136,21 @@ const fetchStatistics = async () => {
     statistics.value = [];
   } finally {
     loading.value = false;
+  }
+};
+
+const cleanMailouts = async (postId: number) => {
+  if (!confirm(`Clean all mailout records for post ${postId}?`)) {
+    return;
+  }
+
+  try {
+    const { data } = await api.delete(`/api/mailout/clean/${postId}`);
+    alert(`Cleaned: ${data.deleted} record(s) removed`);
+    fetchStatistics();
+  } catch (error: any) {
+    const errorMessage = error.response?.data?.error || 'Failed to clean mailouts';
+    alert(`Error: ${errorMessage}`);
   }
 };
 

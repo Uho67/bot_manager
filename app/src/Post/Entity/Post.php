@@ -20,6 +20,7 @@ use App\Template\Entity\Template;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
+use App\Common\Validator\TelegramSafeHtml;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: PostRepository::class)]
@@ -55,6 +56,7 @@ class Post
     #[ORM\Column(type: Types::TEXT)]
     #[Groups(['post:read', 'post:write'])]
     #[Assert\NotBlank]
+    #[TelegramSafeHtml]
     private ?string $description = null;
 
     #[ORM\Column(length: 255, nullable: true)]

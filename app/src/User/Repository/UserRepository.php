@@ -136,6 +136,27 @@ class UserRepository extends ServiceEntityRepository
     }
 
     /**
+     * Find users by IDs for a specific bot
+     *
+     * @param array<int> $ids
+     * @return User[]
+     */
+    public function findByIdsAndBotIdentifier(array $ids, string $botIdentifier): array
+    {
+        if (empty($ids)) {
+            return [];
+        }
+
+        return $this->createQueryBuilder('u')
+            ->where('u.id IN (:ids)')
+            ->andWhere('u.bot_identifier = :botIdentifier')
+            ->setParameter('ids', $ids)
+            ->setParameter('botIdentifier', $botIdentifier)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
      * Bulk upsert users using native SQL for better performance
      * Requires unique constraint on (chat_id, bot_identifier)
      * 

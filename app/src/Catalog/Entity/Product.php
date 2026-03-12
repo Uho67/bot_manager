@@ -22,6 +22,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Serializer\Attribute\SerializedName;
+use App\Common\Validator\TelegramSafeHtml;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
@@ -54,6 +55,7 @@ class Product
 
     #[ORM\Column(type: Types::TEXT)]
     #[Groups(['product:read', 'product:write'])]
+    #[TelegramSafeHtml]
     private ?string $description = null;
 
     #[ORM\Column(length: 255, nullable: true)]

@@ -31,7 +31,7 @@
       </div>
       <div>
         <label class="block mb-1 font-medium">Description</label>
-        <textarea v-model="form.description" rows="5" required class="w-full border rounded px-3 py-2" placeholder="Post description text"></textarea>
+        <RichTextarea v-model="form.description" :rows="5" required placeholder="Post description text" />
       </div>
       <div>
         <label class="block mb-1 font-medium">Template Type</label>
@@ -83,6 +83,7 @@ import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import api from '../api';
 import type { Post } from '../types/Post';
+import RichTextarea from '../components/RichTextarea.vue';
 
 const route = useRoute();
 const router = useRouter();

@@ -144,6 +144,23 @@ class PostMailoutRepository extends ServiceEntityRepository
     }
 
     /**
+     * Delete all post mailouts for a specific post and bot
+     *
+     * @return int Number of deleted mailouts
+     */
+    public function deleteAllByPostAndBotIdentifier(int $postId, string $botIdentifier): int
+    {
+        return $this->createQueryBuilder('m')
+            ->delete()
+            ->where('m.post_id = :postId')
+            ->andWhere('m.bot_identifier = :botIdentifier')
+            ->setParameter('postId', $postId)
+            ->setParameter('botIdentifier', $botIdentifier)
+            ->getQuery()
+            ->execute();
+    }
+
+    /**
      * Bulk delete post mailouts by IDs for a specific bot
      *
      * @param array<int> $mailoutIds
