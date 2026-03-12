@@ -11,28 +11,28 @@ namespace App\Mailout\Entity;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Get;
-use App\Mailout\Repository\MailoutRepository;
+use App\Mailout\Repository\PostMailoutRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
 
-#[ORM\Entity(repositoryClass: MailoutRepository::class)]
-#[ORM\Table(name: 'mailout')]
-#[ORM\Index(name: 'idx_mailout_bot_identifier', columns: ['bot_identifier'])]
-#[ORM\Index(name: 'idx_mailout_product_id', columns: ['product_id'])]
-#[ORM\Index(name: 'idx_mailout_chat_id', columns: ['chat_id'])]
-#[ORM\Index(name: 'idx_mailout_status', columns: ['status'])]
+#[ORM\Entity(repositoryClass: PostMailoutRepository::class)]
+#[ORM\Table(name: 'post_mailout')]
+#[ORM\Index(name: 'idx_post_mailout_bot_identifier', columns: ['bot_identifier'])]
+#[ORM\Index(name: 'idx_post_mailout_post_id', columns: ['post_id'])]
+#[ORM\Index(name: 'idx_post_mailout_chat_id', columns: ['chat_id'])]
+#[ORM\Index(name: 'idx_post_mailout_status', columns: ['status'])]
 #[ORM\HasLifecycleCallbacks]
 #[ApiResource(
-    shortName: 'Mailout',
+    shortName: 'PostMailout',
     operations: [
         new GetCollection(),
         new Get(),
     ],
-    normalizationContext: ['groups' => ['mailout:read']],
+    normalizationContext: ['groups' => ['post_mailout:read']],
     security: "is_granted('ROLE_ADMIN')",
 )]
-class Mailout
+class PostMailout
 {
     public const STATUS_PENDING = 'pending';
     public const STATUS_SENT = 'sent';
@@ -41,31 +41,31 @@ class Mailout
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['mailout:read'])]
+    #[Groups(['post_mailout:read'])]
     private ?int $id = null;
 
     #[ORM\Column(type: Types::BIGINT)]
-    #[Groups(['mailout:read'])]
+    #[Groups(['post_mailout:read'])]
     private ?string $chat_id = null;
 
     #[ORM\Column(type: Types::INTEGER)]
-    #[Groups(['mailout:read'])]
-    private ?int $product_id = null;
+    #[Groups(['post_mailout:read'])]
+    private ?int $post_id = null;
 
     #[ORM\Column(length: 50, options: ['default' => self::STATUS_PENDING])]
-    #[Groups(['mailout:read'])]
+    #[Groups(['post_mailout:read'])]
     private string $status = self::STATUS_PENDING;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['mailout:read'])]
+    #[Groups(['post_mailout:read'])]
     private ?string $bot_identifier = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
-    #[Groups(['mailout:read'])]
+    #[Groups(['post_mailout:read'])]
     private ?\DateTimeImmutable $created_at = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
-    #[Groups(['mailout:read'])]
+    #[Groups(['post_mailout:read'])]
     private ?\DateTimeImmutable $sent_at = null;
 
     public function getId(): ?int
@@ -85,14 +85,14 @@ class Mailout
         return $this;
     }
 
-    public function getProductId(): ?int
+    public function getPostId(): ?int
     {
-        return $this->product_id;
+        return $this->post_id;
     }
 
-    public function setProductId(int $product_id): static
+    public function setPostId(int $post_id): static
     {
-        $this->product_id = $product_id;
+        $this->post_id = $post_id;
 
         return $this;
     }

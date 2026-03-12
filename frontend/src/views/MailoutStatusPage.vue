@@ -31,7 +31,7 @@
         <table class="min-w-full bg-white border border-gray-200 rounded-lg">
           <thead>
             <tr>
-              <th class="px-4 py-2 border-b text-center">Product ID</th>
+              <th class="px-4 py-2 border-b text-center">Post ID</th>
               <th class="px-4 py-2 border-b text-center">Total</th>
               <th class="px-4 py-2 border-b text-center">Sent</th>
               <th class="px-4 py-2 border-b text-center">Pending</th>
@@ -40,8 +40,8 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="stat in statistics" :key="stat.product_id">
-              <td class="px-4 py-2 border-b text-center">{{ stat.product_id }}</td>
+            <tr v-for="stat in statistics" :key="stat.post_id">
+              <td class="px-4 py-2 border-b text-center">{{ stat.post_id }}</td>
               <td class="px-4 py-2 border-b text-center">{{ stat.total }}</td>
               <td class="px-4 py-2 border-b text-center">
                 <span class="px-2 py-1 bg-green-100 text-green-800 rounded text-sm">{{ stat.sent }}</span>
@@ -77,7 +77,7 @@ import { ref, onMounted, computed } from 'vue';
 import api from '../api';
 
 interface MailoutStatistic {
-  product_id: number;
+  post_id: number;
   total: number;
   sent: number;
   pending: number;
@@ -116,10 +116,10 @@ const fetchStatistics = async () => {
     // Otherwise it's an array/object of product stats
     if (Array.isArray(data)) {
       statistics.value = data;
-    } else if (data.product_id !== undefined) {
+    } else if (data.post_id !== undefined) {
       statistics.value = [data];
     } else {
-      // Convert object with product_id keys to array
+      // Convert object with post_id keys to array
       statistics.value = Object.values(data);
     }
   } catch (error) {

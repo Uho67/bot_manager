@@ -1,10 +1,29 @@
 <template>
   <div class="p-4">
     <h1 class="text-xl font-bold mb-4">Posts</h1>
+
+    <!-- Mass action banner -->
+    <div v-if="selectedPosts.length > 0" class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center gap-4">
+      <span class="text-blue-800 text-sm font-medium">{{ selectedPosts.length }} пост(ов) выбрано</span>
+      <button
+        @click="sendSelectedToAllUsers"
+        :disabled="isSendingAll"
+        class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        {{ isSendingAll ? 'Отправка...' : 'Отправить всем' }}
+      </button>
+      <button @click="selectedPosts = []" class="px-3 py-2 bg-gray-200 rounded hover:bg-gray-300 text-sm">
+        Сбросить
+      </button>
+    </div>
+
     <div class="overflow-x-auto">
       <table class="min-w-full bg-white border border-gray-200 rounded-lg">
         <thead>
           <tr>
+            <th class="px-4 py-2 border-b text-center w-10">
+              <input type="checkbox" :checked="allSelected" @change="toggleSelectAll" class="w-4 h-4" />
+            </th>
             <th class="px-4 py-2 border-b text-center">ID</th>
             <th class="px-4 py-2 border-b text-center">Name</th>
             <th class="px-4 py-2 border-b text-center">Template Type</th>
@@ -15,6 +34,9 @@
         </thead>
         <tbody>
           <tr v-for="post in posts" :key="post.id">
+            <td class="px-4 py-2 border-b text-center">
+              <input type="checkbox" :value="post.id" v-model="selectedPosts" class="w-4 h-4" />
+            </td>
             <td class="px-4 py-2 border-b text-center">{{ post.id }}</td>
             <td class="px-4 py-2 border-b text-center">{{ post.name }}</td>
             <td class="px-4 py-2 border-b text-center">
@@ -47,14 +69,28 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import api from '../api';
 import type { Post } from '../types/Post';
 
 const posts = ref<Post[]>([]);
 const dropdownOpen = ref<number|null>(null);
+const selectedPosts = ref<number[]>([]);
+const isSendingAll = ref(false);
 const router = useRouter();
+
+const allSelected = computed(() =>
+  posts.value.length > 0 && selectedPosts.value.length === posts.value.length
+);
+
+const toggleSelectAll = () => {
+  if (allSelected.value) {
+    selectedPosts.value = [];
+  } else {
+    selectedPosts.value = posts.value.map(p => p.id);
+  }
+};
 
 const fetchPosts = async () => {
   const { data } = await api.get('/api/posts');
@@ -80,12 +116,28 @@ const createPost = () => {
   router.push({ name: 'PostCreate' });
 };
 
+const sendSelectedToAllUsers = async () => {
+  if (!confirm(`Отправить ${selectedPosts.value.length} пост(ов) всем активным пользователям?`)) return;
+  isSendingAll.value = true;
+  let totalCreated = 0;
+  try {
+    for (const id of selectedPosts.value) {
+      const { data } = await api.post(`/api/mailout/send-post/${id}`);
+      totalCreated += data.created ?? 0;
+    }
+    alert(`Создано рассылок: ${totalCreated}`);
+    selectedPosts.value = [];
+  } catch (error: any) {
+    alert(error.response?.data?.description || error.response?.data?.detail || 'Ошибка при создании рассылки');
+  } finally {
+    isSendingAll.value = false;
+  }
+};
+
 const getImageUrl = (path: string) => {
-  // If path already starts with http, return as is
   if (path.startsWith('http')) {
     return path;
   }
-  // Otherwise, prepend the API base URL
   return `${import.meta.env.VITE_API_URL}${path}`;
 };
 

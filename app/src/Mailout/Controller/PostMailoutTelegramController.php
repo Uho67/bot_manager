@@ -8,55 +8,55 @@ declare(strict_types=1);
 
 namespace App\Mailout\Controller;
 
-use App\Mailout\Repository\MailoutRepository;
+use App\Mailout\Repository\PostMailoutRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/telegram/mailout')]
-class MailoutTelegramController extends AbstractController
+#[Route('/telegram/post-mailout')]
+class PostMailoutTelegramController extends AbstractController
 {
     public function __construct(
-        private readonly MailoutRepository $mailoutRepository,
+        private readonly PostMailoutRepository $postMailoutRepository,
     ) {
     }
 
-    #[Route('/products', name: 'telegram_mailout_products', methods: ['GET'])]
-    public function getProductIds(Request $request): JsonResponse
+    #[Route('/posts', name: 'telegram_post_mailout_posts', methods: ['GET'])]
+    public function getPostIds(Request $request): JsonResponse
     {
         $botIdentifier = $request->attributes->get('bot_identifier') ?? '';
 
-        $productIds = $this->mailoutRepository->getProductIdsByBotIdentifier($botIdentifier);
+        $postIds = $this->postMailoutRepository->getPostIdsByBotIdentifier($botIdentifier);
 
         return new JsonResponse([
-            'product_ids' => $productIds,
+            'post_ids' => $postIds,
         ]);
     }
 
-    #[Route('/by-products', name: 'telegram_mailout_by_products', methods: ['GET'])]
-    public function getMailoutsByProductIds(Request $request): JsonResponse
+    #[Route('/by-posts', name: 'telegram_post_mailout_by_posts', methods: ['GET'])]
+    public function getMailoutsByPostIds(Request $request): JsonResponse
     {
         $botIdentifier = $request->attributes->get('bot_identifier') ?? '';
 
-        $productIdsParam = $request->query->get('product_ids', '');
+        $postIdsParam = $request->query->get('post_ids', '');
         $limit = $request->query->getInt('limit', 100);
 
-        if (empty($productIdsParam)) {
-            return new JsonResponse(['error' => 'product_ids parameter is required'], 400);
+        if (empty($postIdsParam)) {
+            return new JsonResponse(['error' => 'post_ids parameter is required'], 400);
         }
 
-        // Parse product_ids - can be comma-separated string or array
-        $productIds = is_array($productIdsParam) 
-            ? $productIdsParam 
-            : array_filter(array_map('intval', explode(',', $productIdsParam)));
+        // Parse post_ids - can be comma-separated string or array
+        $postIds = is_array($postIdsParam)
+            ? $postIdsParam
+            : array_filter(array_map('intval', explode(',', $postIdsParam)));
 
-        if (empty($productIds)) {
-            return new JsonResponse(['error' => 'Invalid product_ids'], 400);
+        if (empty($postIds)) {
+            return new JsonResponse(['error' => 'Invalid post_ids'], 400);
         }
 
-        $mailouts = $this->mailoutRepository->findByProductIdsAndBotIdentifier(
-            $productIds,
+        $mailouts = $this->postMailoutRepository->findByPostIdsAndBotIdentifier(
+            $postIds,
             $botIdentifier,
             $limit
         );
@@ -66,7 +66,7 @@ class MailoutTelegramController extends AbstractController
                 return [
                     'id' => $mailout->getId(),
                     'chat_id' => $mailout->getChatId(),
-                    'product_id' => $mailout->getProductId(),
+                    'post_id' => $mailout->getPostId(),
                     'status' => $mailout->getStatus(),
                     'created_at' => $mailout->getCreatedAt()?->format('Y-m-d H:i:s'),
                     'sent_at' => $mailout->getSentAt()?->format('Y-m-d H:i:s'),
@@ -75,7 +75,7 @@ class MailoutTelegramController extends AbstractController
         ]);
     }
 
-    #[Route('/delete', name: 'telegram_mailout_delete', methods: ['POST'])]
+    #[Route('/delete', name: 'telegram_post_mailout_delete', methods: ['POST'])]
     public function deleteMailouts(Request $request): JsonResponse
     {
         $botIdentifier = $request->attributes->get('bot_identifier') ?? '';
@@ -90,10 +90,10 @@ class MailoutTelegramController extends AbstractController
             return new JsonResponse(['error' => 'No mailout IDs provided.'], 400);
         }
 
-        $deleted = $this->mailoutRepository->bulkDeleteMailouts($botIdentifier, $data['ids']);
+        $deleted = $this->postMailoutRepository->bulkDeletePostMailouts($botIdentifier, $data['ids']);
 
         return new JsonResponse([
-            'message' => 'Mailouts deleted successfully',
+            'message' => 'Post mailouts deleted successfully',
             'deleted' => $deleted,
         ]);
     }
