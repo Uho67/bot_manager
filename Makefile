@@ -82,7 +82,7 @@ ps: ## Show container status
 # ===================
 
 db-update: ## Update database schema
-	docker compose --env-file $(ENV_FILE) -f $(COMPOSE_PROD) exec php php bin/console doctrine:schema:update --force
+	docker compose --env-file $(ENV_FILE) -f $(COMPOSE_PROD) exec php php bin/console doctrine:migrations:migrate --no-interaction
 
 cache-clear: ## Clear Symfony cache
 	docker compose --env-file $(ENV_FILE) -f $(COMPOSE_PROD) exec php php bin/console cache:clear

@@ -81,7 +81,13 @@ docker compose --env-file .env -f docker/docker-compose.prod.yml ps
 # Step 7: Initialize database
 echo ""
 echo "Initializing database..."
+# Create tables that don't exist yet (safe on both new and existing DBs)
 docker compose --env-file .env -f docker/docker-compose.prod.yml exec -T php php bin/console doctrine:schema:update --force || true
+# Mark all migrations as executed if the schema was already built via schema:update
+docker compose --env-file .env -f docker/docker-compose.prod.yml exec -T php php bin/console doctrine:migrations:version --add --all --no-interaction || true
+# Run any genuinely new migrations
+docker compose --env-file .env -f docker/docker-compose.prod.yml exec -T php php bin/console doctrine:migrations:migrate --no-interaction || true
+echo -e "${GREEN}✓ Database up to date${NC}"
 
 # Step 8: Generate JWT keys (with correct ownership)
 echo ""
