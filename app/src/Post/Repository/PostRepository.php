@@ -11,14 +11,17 @@ namespace App\Post\Repository;
 use App\Post\Entity\Post;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Psr\Log\LoggerInterface;
 
 /**
  * @extends ServiceEntityRepository<Post>
  */
 class PostRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
-    {
+    public function __construct(
+        ManagerRegistry $registry,
+        private readonly LoggerInterface $logger,
+    ) {
         parent::__construct($registry, Post::class);
     }
 
@@ -65,13 +68,23 @@ class PostRepository extends ServiceEntityRepository
 
     public function findByTemplateTypeAndBotIdentifier(string $templateType, string $botIdentifier): ?Post
     {
-        return $this->createQueryBuilder('p')
+        $results = $this->createQueryBuilder('p')
             ->where('p.template_type = :templateType')
             ->andWhere('p.bot_identifier = :botIdentifier')
             ->setParameter('templateType', $templateType)
             ->setParameter('botIdentifier', $botIdentifier)
             ->getQuery()
-            ->getOneOrNullResult();
+            ->getResult();
+
+        if (count($results) > 1) {
+            $this->logger->warning('Multiple posts found for template_type and bot_identifier, returning first result', [
+                'template_type' => $templateType,
+                'bot_identifier' => $botIdentifier,
+                'count' => count($results),
+            ]);
+        }
+
+        return $results[0] ?? null;
     }
 
     public function findEnabledByIdAndBotIdentifier(int $id, string $botIdentifier): ?Post
