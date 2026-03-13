@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Restore unique constraint on (chat_id, bot_identifier) and remove duplicate users
  */
-final class Version20260312200000 extends AbstractMigration
+final class Version20260312200001 extends AbstractMigration
 {
     public function getDescription(): string
     {
