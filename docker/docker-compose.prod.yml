@@ -76,25 +76,6 @@ services:
       redis:
         condition: service_healthy
 
-  # phpMyAdmin - Database Management
-  phpmyadmin:
-    image: phpmyadmin:latest
-    container_name: bot_api_phpmyadmin
-    restart: unless-stopped
-    ports:
-      - "${PMA_PORT:-8080}:80"
-    environment:
-      PMA_HOST: database
-      PMA_PORT: 3306
-      PMA_USER: root
-      PMA_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
-      UPLOAD_LIMIT: 100M
-    networks:
-      - bot_api_network
-    depends_on:
-      database:
-        condition: service_healthy
-
   # Nginx Web Server
   nginx:
     build:

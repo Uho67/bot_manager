@@ -16,6 +16,7 @@ app/vendor/
 app/var/
 app/public/bundles/
 app/config/secrets/prod/prod.decrypt.private.php
+.php-cs-fixer.cache
 
 # SSL certificates
 docker/nginx/ssl/*.pem
