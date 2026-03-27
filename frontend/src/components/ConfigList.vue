@@ -1,16 +1,16 @@
 <template>
   <div>
-    <div v-for="(config, index) in configs" :key="config.id || `new-${index}`" class="mb-4 flex items-center gap-2">
-      <label class="w-48 font-medium">{{ config.name }}</label>
+    <div v-for="(config, index) in configs" :key="config.id || `new-${index}`" class="config-row">
+      <label class="config-label">{{ config.name }}</label>
       <input
         v-model="editValues[getConfigKey(config, index)]"
         type="text"
-        class="border rounded px-2 py-1 flex-1"
+        class="config-input"
         :placeholder="config.id ? '' : 'Enter value'"
       />
       <button
         v-if="config.id"
-        class="ml-2 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+        class="btn btn-primary btn-sm ml-2"
         @click="saveConfig(config, index)"
         :disabled="loading[getConfigKey(config, index)]"
       >
@@ -19,7 +19,7 @@
       </button>
       <button
         v-else
-        class="ml-2 px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+        class="btn btn-success btn-sm ml-2"
         @click="addConfig(config, index)"
         :disabled="loading[getConfigKey(config, index)] || !editValues[getConfigKey(config, index)]"
       >
@@ -72,3 +72,5 @@ const addConfig = async (config: ConfigItem, index: number) => {
   loading.value[key] = false;
 };
 </script>
+
+

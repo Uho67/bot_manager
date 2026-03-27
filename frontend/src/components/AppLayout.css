@@ -1,0 +1,9 @@
+@layer components {
+  .app-layout {
+    @apply relative min-h-screen bg-gray-50;
+  }
+
+  .nav-dropdown-container {
+    @apply absolute top-4 right-4 z-50;
+  }
+}

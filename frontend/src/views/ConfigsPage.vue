@@ -1,8 +1,8 @@
 <template>
-  <div class="p-4 max-w-2xl mx-auto">
-    <h1 class="text-xl font-bold mb-4">Configs</h1>
+  <div class="page-content-sm">
+    <h1 class="page-title">Configs</h1>
     <div v-if="isSuperAdmin">
-      <div v-for="(configs, botId) in groupedConfigs" :key="botId" class="mb-8 border rounded p-4">
+      <div v-for="(configs, botId) in groupedConfigs" :key="botId" class="section-card">
         <h2 class="font-semibold mb-2">Bot: {{ botId }}</h2>
         <ConfigList :configs="configs" @update="onUpdate" @add="onAdd" />
       </div>

@@ -18,6 +18,7 @@ import PostListPage from '../views/PostListPage.vue';
 import PostEditPage from '../views/PostEditPage.vue';
 import UserListPage from '../views/UserListPage.vue';
 import MailoutStatusPage from '../views/MailoutStatusPage.vue';
+import SentPostsPage from '../views/SentPostsPage.vue';
 import { useAuth } from '../composables/useAuth';
 
 const routes = [
@@ -45,6 +46,7 @@ const routes = [
   { path: '/posts/:id/edit', name: 'PostEdit', component: PostEditPage, meta: { requiresAuth: true, requiresAdmin: true } },
   { path: '/users', name: 'UserList', component: UserListPage, meta: { requiresAuth: true, requiresAdmin: true } },
   { path: '/mailout', name: 'MailoutStatus', component: MailoutStatusPage, meta: { requiresAuth: true, requiresAdmin: true } },
+  { path: '/sent-posts', name: 'SentPosts', component: SentPostsPage, meta: { requiresAuth: true, requiresAdmin: true } },
 ];
 
 const router = createRouter({

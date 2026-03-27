@@ -1,4 +1,25 @@
+/* shared design system */
+@import './assets/css/base.css';
+@import './assets/css/buttons.css';
+@import './assets/css/forms.css';
+@import './assets/css/cards.css';
+@import './assets/css/tables.css';
+@import './assets/css/badges.css';
+@import './assets/css/layout.css';
+@import './assets/css/spinners.css';
+
+/* component-specific */
+@import './views/LoginView.css';
+@import './views/MenuPage.css';
+@import './views/AdminUsersPage.css';
+@import './views/BotsPage.css';
+@import './components/HelloWorld.css';
+@import './components/AppLayout.css';
+@import './components/NavDropdown.css';
+@import './components/ConfirmDeleteModal.css';
+@import './components/ConfigList.css';
+@import './components/RichTextarea.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-

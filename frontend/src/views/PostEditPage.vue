@@ -1,9 +1,9 @@
 <template>
-  <div class="p-4 max-w-lg mx-auto">
-    <h1 class="text-xl font-bold mb-4">{{ isEdit ? 'Edit Post' : 'Create Post' }}</h1>
+  <div class="page-content-sm">
+    <h1 class="page-title">{{ isEdit ? 'Edit Post' : 'Create Post' }}</h1>
 
     <!-- Error Message Display -->
-    <div v-if="errorMessage" class="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+    <div v-if="errorMessage" class="form-error-box">
       <div class="flex items-start">
         <div class="flex-shrink-0">
           <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
@@ -25,43 +25,43 @@
 
     <form @submit.prevent="submitForm" class="space-y-4">
       <input v-if="isEdit" type="hidden" name="id" :value="form.id" />
-      <div>
-        <label class="block mb-1 font-medium">Name</label>
-        <input v-model="form.name" required class="w-full border rounded px-3 py-2" placeholder="e.g., Welcome Post" />
+      <div class="form-group">
+        <label class="form-label">Name</label>
+        <input v-model="form.name" required class="form-input" placeholder="e.g., Welcome Post" />
       </div>
-      <div>
-        <label class="block mb-1 font-medium">Description</label>
+      <div class="form-group">
+        <label class="form-label">Description</label>
         <RichTextarea v-model="form.description" :rows="5" required placeholder="Post description text" />
       </div>
-      <div>
-        <label class="block mb-1 font-medium">Template Type</label>
-        <select v-model="form.template_type" required class="w-full border rounded px-3 py-2">
+      <div class="form-group">
+        <label class="form-label">Template Type</label>
+        <select v-model="form.template_type" required class="form-select">
           <option value="">Select template type...</option>
           <option value="start">Start</option>
           <option value="product">Product</option>
           <option value="post">Post</option>
         </select>
-        <div class="text-xs text-gray-500 mt-1">Select the template type this post will use</div>
+        <div class="form-hint">Select the template type this post will use</div>
       </div>
-      <div>
+      <div class="form-group">
         <label class="flex items-center gap-2">
-          <input type="checkbox" v-model="form.enabled" class="w-4 h-4" />
+          <input type="checkbox" v-model="form.enabled" class="form-checkbox" />
           <span class="font-medium">Enabled</span>
         </label>
-        <div class="text-xs text-gray-500 mt-1">Only enabled posts are accessible via API</div>
+        <div class="form-hint">Only enabled posts are accessible via API</div>
       </div>
-      <div>
-        <label class="block mb-1 font-medium">Image</label>
-        <input type="file" accept="image/*" @change="onImageChange" class="w-full border rounded px-3 py-2" />
+      <div class="form-group">
+        <label class="form-label">Image</label>
+        <input type="file" accept="image/*" @change="onImageChange" class="form-input" />
         <div v-if="imagePreview" class="mt-2">
           <img :src="imagePreview" alt="Preview" class="max-h-32 rounded border" />
         </div>
       </div>
       <div class="flex gap-2 mt-4">
-        <button type="submit" :disabled="isSubmitting" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">
+        <button type="submit" :disabled="isSubmitting" class="btn btn-primary">
           {{ isSubmitting ? 'Saving...' : 'Save' }}
         </button>
-        <button type="button" @click="goBack" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Cancel</button>
+        <button type="button" @click="goBack" class="btn btn-secondary">Cancel</button>
       </div>
     </form>
 
@@ -70,7 +70,7 @@
         type="button"
         @click="sendToAllUsers"
         :disabled="isSending"
-        class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        class="btn btn-success"
       >
         {{ isSending ? 'Отправка...' : 'Отправить всем' }}
       </button>

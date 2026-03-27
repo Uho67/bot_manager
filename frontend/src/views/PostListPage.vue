@@ -1,59 +1,59 @@
 <template>
   <div class="p-4">
-    <h1 class="text-xl font-bold mb-4">Posts</h1>
+    <h1 class="page-title">Posts</h1>
 
     <!-- Mass action banner -->
-    <div v-if="selectedPosts.length > 0" class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center gap-4">
+    <div v-if="selectedPosts.length > 0" class="alert-info mb-4 flex items-center gap-4">
       <span class="text-blue-800 text-sm font-medium">{{ selectedPosts.length }} пост(ов) выбрано</span>
       <button
         @click="sendSelectedToAllUsers"
         :disabled="isSendingAll"
-        class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+        class="btn btn-success btn-sm"
       >
         {{ isSendingAll ? 'Отправка...' : 'Отправить всем' }}
       </button>
-      <button @click="selectedPosts = []" class="px-3 py-2 bg-gray-200 rounded hover:bg-gray-300 text-sm">
+      <button @click="selectedPosts = []" class="btn btn-secondary btn-sm">
         Сбросить
       </button>
     </div>
 
-    <div class="overflow-x-auto">
-      <table class="min-w-full bg-white border border-gray-200 rounded-lg">
+    <div class="table-wrapper">
+      <table class="data-table rounded-lg">
         <thead>
           <tr>
-            <th class="px-4 py-2 border-b text-center w-10">
-              <input type="checkbox" :checked="allSelected" @change="toggleSelectAll" class="w-4 h-4" />
+            <th class="table-th w-10">
+              <input type="checkbox" :checked="allSelected" @change="toggleSelectAll" class="form-checkbox" />
             </th>
-            <th class="px-4 py-2 border-b text-center">ID</th>
-            <th class="px-4 py-2 border-b text-center">Name</th>
-            <th class="px-4 py-2 border-b text-center">Template Type</th>
-            <th class="px-4 py-2 border-b text-center">Status</th>
-            <th class="px-4 py-2 border-b text-center">Image</th>
-            <th class="px-4 py-2 border-b text-center">Actions</th>
+            <th class="table-th">ID</th>
+            <th class="table-th">Name</th>
+            <th class="table-th">Template Type</th>
+            <th class="table-th">Status</th>
+            <th class="table-th">Image</th>
+            <th class="table-th">Actions</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="post in posts" :key="post.id">
-            <td class="px-4 py-2 border-b text-center">
-              <input type="checkbox" :value="post.id" v-model="selectedPosts" class="w-4 h-4" />
+          <tr v-for="post in posts" :key="post.id" class="table-row-hover">
+            <td class="table-td">
+              <input type="checkbox" :value="post.id" v-model="selectedPosts" class="form-checkbox" />
             </td>
-            <td class="px-4 py-2 border-b text-center">{{ post.id }}</td>
-            <td class="px-4 py-2 border-b text-center">{{ post.name }}</td>
-            <td class="px-4 py-2 border-b text-center">
-              <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm">{{ post.template_type }}</span>
+            <td class="table-td">{{ post.id }}</td>
+            <td class="table-td">{{ post.name }}</td>
+            <td class="table-td">
+              <span class="badge badge-blue">{{ post.template_type }}</span>
             </td>
-            <td class="px-4 py-2 border-b text-center">
-              <span :class="post.enabled ? 'px-2 py-1 bg-green-100 text-green-800' : 'px-2 py-1 bg-red-100 text-red-800'" class="rounded text-sm">
+            <td class="table-td">
+              <span :class="post.enabled ? 'badge-green' : 'badge-red'" class="badge">
                 {{ post.enabled ? 'Enabled' : 'Disabled' }}
               </span>
             </td>
-            <td class="px-4 py-2 border-b text-center">
+            <td class="table-td">
               <img v-if="post.image" :src="getImageUrl(post.image)" alt="Post Image" class="w-16 h-16 object-cover rounded mx-auto">
               <span v-else class="text-gray-400 text-sm">No image</span>
             </td>
-            <td class="px-4 py-2 border-b text-center">
+            <td class="table-td">
               <div class="relative inline-block text-left">
-                <button @click="openDropdown(post.id)" class="px-2 py-1 bg-gray-100 rounded hover:bg-gray-200">Actions</button>
+                <button @click="openDropdown(post.id)" class="btn btn-secondary btn-sm">Actions</button>
                 <div v-if="dropdownOpen === post.id" class="absolute z-10 w-32 bg-white border rounded shadow-lg right-0 bottom-full mb-1">
                   <button @click="editPost(post.id)" class="block w-full text-left px-4 py-2 hover:bg-gray-100">Edit</button>
                   <button @click="deletePost(post.id)" class="block w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600">Delete</button>
@@ -64,7 +64,7 @@
         </tbody>
       </table>
     </div>
-    <button @click="createPost" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Create Post</button>
+    <button @click="createPost" class="btn btn-primary mt-4">Create Post</button>
   </div>
 </template>
 

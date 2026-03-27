@@ -1,32 +1,32 @@
 <template>
   <div class="p-4 h-screen flex flex-col">
-    <h1 class="text-xl font-bold mb-4">Buttons</h1>
-    <div class="overflow-x-auto flex-1 flex flex-col">
-      <table class="min-w-full bg-white border border-gray-200 rounded-lg h-full">
+    <h1 class="page-title">Buttons</h1>
+    <div class="table-wrapper flex-1 flex flex-col">
+      <table class="data-table h-full">
         <thead>
           <tr>
-            <th class="px-4 py-2 border-b text-center">ID</th>
-            <th class="px-4 py-2 border-b text-center">Code</th>
-            <th class="px-4 py-2 border-b text-center">Label</th>
-            <th class="px-4 py-2 border-b text-center">Type</th>
-            <th class="px-4 py-2 border-b text-center">Value</th>
-            <th class="px-4 py-2 border-b text-center">Actions</th>
+            <th class="table-th">ID</th>
+            <th class="table-th">Code</th>
+            <th class="table-th">Label</th>
+            <th class="table-th">Type</th>
+            <th class="table-th">Value</th>
+            <th class="table-th">Actions</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="button in buttons" :key="button.id">
-            <td class="px-4 py-2 border-b text-center">{{ button.id }}</td>
-            <td class="px-4 py-2 border-b text-center">{{ button.code }}</td>
-            <td class="px-4 py-2 border-b text-center">{{ button.label }}</td>
-            <td class="px-4 py-2 border-b text-center">
-              <span :class="button.buttonType === 'url' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'" class="px-2 py-1 rounded text-xs font-medium">
+          <tr v-for="button in buttons" :key="button.id" class="table-row-hover">
+            <td class="table-td">{{ button.id }}</td>
+            <td class="table-td">{{ button.code }}</td>
+            <td class="table-td">{{ button.label }}</td>
+            <td class="table-td">
+              <span :class="button.buttonType === 'url' ? 'badge-blue' : 'badge-green'" class="badge">
                 {{ button.buttonType }}
               </span>
             </td>
-            <td class="px-4 py-2 border-b text-center text-sm truncate max-w-xs" :title="button.value">{{ button.value }}</td>
-            <td class="px-4 py-2 border-b text-center">
+            <td class="table-td text-sm truncate max-w-xs" :title="button.value">{{ button.value }}</td>
+            <td class="table-td">
               <div class="relative inline-block text-left">
-                <button @click="openDropdown(button.id)" class="px-2 py-1 bg-gray-100 rounded hover:bg-gray-200">Actions</button>
+                <button @click="openDropdown(button.id)" class="btn btn-secondary btn-sm">Actions</button>
                 <div v-if="dropdownOpen === button.id" class="absolute z-10 w-32 bg-white border rounded shadow-lg right-0 top-full mt-1">
                   <button @click="editButton(button.id)" class="block w-full text-left px-4 py-2 hover:bg-gray-100">Edit</button>
                   <button @click="duplicateButton(button.id)" class="block w-full text-left px-4 py-2 hover:bg-gray-100">Duplicate</button>
@@ -38,7 +38,7 @@
         </tbody>
       </table>
     </div>
-    <button @click="createButton" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Create Button</button>
+    <button @click="createButton" class="btn btn-primary mt-4">Create Button</button>
   </div>
 </template>
 

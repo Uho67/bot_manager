@@ -21,6 +21,11 @@ readonly class ConfigService
     ) {
     }
 
+    public function getBotUrl(string $botIdentifier): string
+    {
+        return $this->get($botIdentifier, 'bot.url', '');
+    }
+
     public function get(string $botIdentifier, string $path, string $default = '0'): string
     {
         $config = $this->configRepository->findByBotIdentifierAndPath($botIdentifier, $path);

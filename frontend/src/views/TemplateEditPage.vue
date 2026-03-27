@@ -1,8 +1,8 @@
 <template>
   <div class="p-4 max-w-4xl mx-auto">
-    <h1 class="text-xl font-bold mb-4">{{ isEdit ? 'Edit Template' : 'Create Template' }}</h1>
+    <h1 class="page-title">{{ isEdit ? 'Edit Template' : 'Create Template' }}</h1>
 
-    <div v-if="errorMessage" class="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+    <div v-if="errorMessage" class="form-error-box">
       <div class="flex items-start">
         <div class="flex-shrink-0">
           <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
@@ -23,39 +23,39 @@
     </div>
 
     <form @submit.prevent="submitForm" class="space-y-6">
-      <div class="bg-white p-6 rounded-lg border border-gray-200">
+      <div class="section-card">
         <h2 class="text-lg font-semibold mb-4">Basic Information</h2>
 
         <div class="space-y-4">
-          <div>
-            <label class="block mb-1 font-medium">Name</label>
-            <input v-model="form.name" maxlength="100" required class="w-full border rounded px-3 py-2" placeholder="e.g., Main Menu Template" />
-            <div class="text-xs text-gray-500">Template name (max 100 characters)</div>
+          <div class="form-group">
+            <label class="form-label">Name</label>
+            <input v-model="form.name" maxlength="100" required class="form-input" placeholder="e.g., Main Menu Template" />
+            <div class="form-hint">Template name (max 100 characters)</div>
           </div>
 
-          <div>
-            <label class="block mb-1 font-medium">Type</label>
-            <select v-model="form.type" required class="w-full border rounded px-3 py-2">
+          <div class="form-group">
+            <label class="form-label">Type</label>
+            <select v-model="form.type" required class="form-select">
               <option value="">Select type...</option>
               <option value="post">Post</option>
               <option value="start">Start</option>
               <option value="category">Category</option>
               <option value="product">Product</option>
             </select>
-            <div class="text-xs text-gray-500">Template type defines where it will be used</div>
+            <div class="form-hint">Template type defines where it will be used</div>
           </div>
         </div>
       </div>
 
-      <div class="bg-white p-6 rounded-lg border border-gray-200">
+      <div class="section-card">
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-lg font-semibold">Button Layout</h2>
-          <button type="button" @click="addLine" class="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-sm">
+          <button type="button" @click="addLine" class="btn btn-success btn-sm">
             + Add Line
           </button>
         </div>
 
-        <div v-if="form.layout.length === 0" class="text-center py-8 text-gray-500">
+        <div v-if="form.layout.length === 0" class="empty-state py-8">
           <p>No lines added yet. Click "Add Line" to start building your template.</p>
         </div>
 
@@ -64,10 +64,10 @@
             <div class="flex justify-between items-center mb-3">
               <h3 class="font-medium text-gray-700">Line {{ lineIndex + 1 }}</h3>
               <div class="flex gap-2">
-                <button type="button" @click="addButtonToLine(lineIndex)" :disabled="line.length >= 8" class="px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-xs disabled:opacity-50 disabled:cursor-not-allowed">
+                <button type="button" @click="addButtonToLine(lineIndex)" :disabled="line.length >= 8" class="btn btn-primary btn-sm">
                   + Add Button
                 </button>
-                <button type="button" @click="removeLine(lineIndex)" class="px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-xs">
+                <button type="button" @click="removeLine(lineIndex)" class="btn btn-danger btn-sm">
                   Remove Line
                 </button>
               </div>
@@ -80,7 +80,7 @@
             <div v-else class="space-y-2">
               <div v-for="buttonIndex in line.length" :key="buttonIndex" class="flex items-center gap-2 bg-white p-2 rounded border border-gray-200">
                 <span class="text-sm font-medium text-gray-600 w-8">{{ buttonIndex }}.</span>
-                <select v-model="form.layout[lineIndex][buttonIndex - 1]" required class="flex-1 border rounded px-2 py-1 text-sm">
+                <select v-model="form.layout[lineIndex][buttonIndex - 1]" required class="form-select flex-1 text-sm">
                   <option value="">Select button...</option>
                   <optgroup label="Regular Buttons">
                     <option v-for="button in availableButtons" :key="`button_${button.id}`" :value="`button_${button.id}`">
@@ -98,15 +98,9 @@
                     </option>
                   </optgroup>
                 </select>
-                <button type="button" @click="moveButtonUp(lineIndex, buttonIndex - 1)" :disabled="buttonIndex === 1" class="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300 text-xs disabled:opacity-50 disabled:cursor-not-allowed">
-                  ↑
-                </button>
-                <button type="button" @click="moveButtonDown(lineIndex, buttonIndex - 1)" :disabled="buttonIndex === line.length" class="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300 text-xs disabled:opacity-50 disabled:cursor-not-allowed">
-                  ↓
-                </button>
-                <button type="button" @click="removeButton(lineIndex, buttonIndex - 1)" class="px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-xs">
-                  Remove
-                </button>
+                <button type="button" @click="moveButtonUp(lineIndex, buttonIndex - 1)" :disabled="buttonIndex === 1" class="btn btn-secondary btn-sm">↑</button>
+                <button type="button" @click="moveButtonDown(lineIndex, buttonIndex - 1)" :disabled="buttonIndex === line.length" class="btn btn-secondary btn-sm">↓</button>
+                <button type="button" @click="removeButton(lineIndex, buttonIndex - 1)" class="btn btn-danger btn-sm">Remove</button>
               </div>
               <div v-if="line.length >= 8" class="text-xs text-orange-600 mt-2">
                 ⚠ Maximum 8 buttons per line reached
@@ -117,10 +111,10 @@
       </div>
 
       <div class="flex gap-2 mt-4">
-        <button type="submit" :disabled="isSubmitting || !isFormValid" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">
+        <button type="submit" :disabled="isSubmitting || !isFormValid" class="btn btn-primary">
           {{ isSubmitting ? 'Saving...' : 'Save' }}
         </button>
-        <button type="button" @click="goBack" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Cancel</button>
+        <button type="button" @click="goBack" class="btn btn-secondary">Cancel</button>
       </div>
     </form>
   </div>
@@ -205,7 +199,7 @@ const fetchProducts = async () => {
 
 // Normalize layout: convert old numeric button IDs to "button_" prefix format
 const normalizeLayout = (layout: (string | number)[][]): (string | number)[][] => {
-  return layout.map(line => 
+  return layout.map(line =>
     line.map(buttonId => {
       // If it's a number, convert to "button_" prefix format for backward compatibility
       if (typeof buttonId === 'number' && buttonId > 0) {
@@ -309,4 +303,3 @@ onMounted(async () => {
   await fetchTemplate();
 });
 </script>
-

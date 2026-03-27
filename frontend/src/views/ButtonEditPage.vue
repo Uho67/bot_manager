@@ -1,9 +1,9 @@
 <template>
-  <div class="p-4 max-w-lg mx-auto">
-    <h1 class="text-xl font-bold mb-4">{{ isEdit ? 'Edit Button' : 'Create Button' }}</h1>
+  <div class="page-content-sm">
+    <h1 class="page-title">{{ isEdit ? 'Edit Button' : 'Create Button' }}</h1>
 
     <!-- Error Message Display -->
-    <div v-if="errorMessage" class="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+    <div v-if="errorMessage" class="form-error-box">
       <div class="flex items-start">
         <div class="flex-shrink-0">
           <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
@@ -25,35 +25,35 @@
 
     <form @submit.prevent="submitForm" class="space-y-4">
       <input v-if="isEdit" type="hidden" name="id" :value="form.id" />
-      <div>
-        <label class="block mb-1 font-medium">Code</label>
-        <input v-model="form.code" maxlength="20" required class="w-full border rounded px-3 py-2" placeholder="e.g., welcome_catalog" />
-        <div class="text-xs text-gray-500">Unique identifier for the button (max 20 characters)</div>
+      <div class="form-group">
+        <label class="form-label">Code</label>
+        <input v-model="form.code" maxlength="20" required class="form-input" placeholder="e.g., welcome_catalog" />
+        <div class="form-hint">Unique identifier for the button (max 20 characters)</div>
       </div>
-      <div>
-        <label class="block mb-1 font-medium">Label</label>
-        <input v-model="form.label" maxlength="60" required class="w-full border rounded px-3 py-2" placeholder="e.g., Browse Catalog" />
-        <div class="text-xs text-gray-500">Text displayed on the button (max 60 characters)</div>
+      <div class="form-group">
+        <label class="form-label">Label</label>
+        <input v-model="form.label" maxlength="60" required class="form-input" placeholder="e.g., Browse Catalog" />
+        <div class="form-hint">Text displayed on the button (max 60 characters)</div>
       </div>
-      <div>
-        <label class="block mb-1 font-medium">Button Type</label>
-        <select v-model="form.buttonType" required class="w-full border rounded px-3 py-2">
+      <div class="form-group">
+        <label class="form-label">Button Type</label>
+        <select v-model="form.buttonType" required class="form-select">
           <option value="">Select type...</option>
           <option value="url">URL</option>
           <option value="callback">Callback</option>
         </select>
-        <div class="text-xs text-gray-500">URL opens a link, Callback triggers a bot action</div>
+        <div class="form-hint">URL opens a link, Callback triggers a bot action</div>
       </div>
-      <div>
-        <label class="block mb-1 font-medium">Value</label>
-        <input v-model="form.value" maxlength="60" required class="w-full border rounded px-3 py-2" :placeholder="form.buttonType === 'url' ? 'https://example.com' : 'callback_data'" />
-        <div class="text-xs text-gray-500">{{ form.buttonType === 'url' ? 'URL to open when clicked' : 'Callback data sent to the bot' }} (max 60 characters)</div>
+      <div class="form-group">
+        <label class="form-label">Value</label>
+        <input v-model="form.value" maxlength="60" required class="form-input" :placeholder="form.buttonType === 'url' ? 'https://example.com' : 'callback_data'" />
+        <div class="form-hint">{{ form.buttonType === 'url' ? 'URL to open when clicked' : 'Callback data sent to the bot' }} (max 60 characters)</div>
       </div>
       <div class="flex gap-2 mt-4">
-        <button type="submit" :disabled="isSubmitting" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">
+        <button type="submit" :disabled="isSubmitting" class="btn btn-primary">
           {{ isSubmitting ? 'Saving...' : 'Save' }}
         </button>
-        <button type="button" @click="goBack" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Cancel</button>
+        <button type="button" @click="goBack" class="btn btn-secondary">Cancel</button>
       </div>
     </form>
   </div>

@@ -1,0 +1,13 @@
+@layer components {
+  .rich-toolbar {
+    @apply flex gap-1 mb-1;
+  }
+
+  .rich-toolbar-btn {
+    @apply px-2 py-0.5 text-sm font-bold border rounded hover:bg-gray-100 cursor-pointer;
+  }
+
+  .rich-hint {
+    @apply text-xs text-gray-400 mt-0.5;
+  }
+}

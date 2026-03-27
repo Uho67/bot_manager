@@ -28,9 +28,9 @@ class ConfigSchema
                 'name' => 'Order Welcome Message',
                 'value' => '',
             ],
-            'telegram.cache.clean.endpoint' => [
-                'path' => 'telegram.cache.clean.endpoint',
-                'name' => 'Telegram Bot Cache Clean Endpoint',
+            'bot.url' => [
+                'path' => 'bot.url',
+                'name' => 'Telegram Bot Base URL',
                 'value' => '',
             ],
         ];
