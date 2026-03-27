@@ -1,10 +1,10 @@
 <template>
   <div class="p-4">
-    <h1 class="text-xl font-bold mb-4">Mailout Status</h1>
-    
+    <h1 class="page-title">Mailout Status</h1>
+
     <!-- Statistics Summary -->
-    <div v-if="loading" class="text-center py-8 text-gray-500">Loading...</div>
-    
+    <div v-if="loading" class="empty-state">Loading...</div>
+
     <div v-else class="space-y-4">
       <!-- Overall Statistics -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
@@ -26,34 +26,34 @@
         </div>
       </div>
 
-      <!-- Product Statistics Table -->
-      <div class="overflow-x-auto">
-        <table class="min-w-full bg-white border border-gray-200 rounded-lg">
+      <!-- Statistics Table -->
+      <div class="table-wrapper">
+        <table class="data-table rounded-lg">
           <thead>
             <tr>
-              <th class="px-4 py-2 border-b text-center">Post ID</th>
-              <th class="px-4 py-2 border-b text-center">Total</th>
-              <th class="px-4 py-2 border-b text-center">Sent</th>
-              <th class="px-4 py-2 border-b text-center">Pending</th>
-              <th class="px-4 py-2 border-b text-center">Failed</th>
-              <th class="px-4 py-2 border-b text-center">Progress</th>
-              <th class="px-4 py-2 border-b text-center">Actions</th>
+              <th class="table-th">Post ID</th>
+              <th class="table-th">Total</th>
+              <th class="table-th">Sent</th>
+              <th class="table-th">Pending</th>
+              <th class="table-th">Failed</th>
+              <th class="table-th">Progress</th>
+              <th class="table-th">Actions</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="stat in statistics" :key="stat.post_id">
-              <td class="px-4 py-2 border-b text-center">{{ stat.post_id }}</td>
-              <td class="px-4 py-2 border-b text-center">{{ stat.total }}</td>
-              <td class="px-4 py-2 border-b text-center">
-                <span class="px-2 py-1 bg-green-100 text-green-800 rounded text-sm">{{ stat.sent }}</span>
+            <tr v-for="stat in statistics" :key="stat.post_id" class="table-row-hover">
+              <td class="table-td">{{ stat.post_id }}</td>
+              <td class="table-td">{{ stat.total }}</td>
+              <td class="table-td">
+                <span class="badge badge-green">{{ stat.sent }}</span>
               </td>
-              <td class="px-4 py-2 border-b text-center">
-                <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-sm">{{ stat.pending }}</span>
+              <td class="table-td">
+                <span class="badge badge-yellow">{{ stat.pending }}</span>
               </td>
-              <td class="px-4 py-2 border-b text-center">
-                <span class="px-2 py-1 bg-red-100 text-red-800 rounded text-sm">{{ stat.failed }}</span>
+              <td class="table-td">
+                <span class="badge badge-red">{{ stat.failed }}</span>
               </td>
-              <td class="px-4 py-2 border-b text-center">
+              <td class="table-td">
                 <div class="w-full bg-gray-200 rounded-full h-2">
                   <div
                     class="bg-blue-600 h-2 rounded-full"
@@ -62,10 +62,10 @@
                 </div>
                 <span class="text-xs text-gray-600 mt-1">{{ getProgressPercentage(stat) }}%</span>
               </td>
-              <td class="px-4 py-2 border-b text-center">
+              <td class="table-td">
                 <button
                   @click="cleanMailouts(stat.post_id)"
-                  class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-xs font-medium"
+                  class="btn btn-danger btn-sm"
                 >
                   Clean
                 </button>

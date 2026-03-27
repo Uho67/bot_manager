@@ -1,0 +1,46 @@
+@layer components {
+  /* Full page wrapper */
+  .page-wrapper {
+    @apply min-h-screen bg-gray-50;
+  }
+
+  /* Page content area */
+  .page-content {
+    @apply max-w-7xl mx-auto px-4 py-6;
+  }
+
+  /* Page content (small) */
+  .page-content-sm {
+    @apply max-w-lg mx-auto p-4;
+  }
+
+  /* Page title */
+  .page-title {
+    @apply text-2xl font-bold text-gray-900 mb-6;
+  }
+
+  /* Section card */
+  .section-card {
+    @apply bg-white p-6 rounded-lg border border-gray-200 mb-6;
+  }
+
+  /* Empty state */
+  .empty-state {
+    @apply text-center py-16 text-gray-400;
+  }
+
+  /* Error alert banner */
+  .alert-error {
+    @apply bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded-r-lg;
+  }
+
+  /* Info / selection banner */
+  .alert-info {
+    @apply bg-blue-50 border border-blue-200 p-3 rounded-lg;
+  }
+
+  /* Page header row */
+  .page-header {
+    @apply flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6;
+  }
+}

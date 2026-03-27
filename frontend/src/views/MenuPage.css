@@ -1,0 +1,69 @@
+@layer components {
+  .menu-page {
+    @apply min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4;
+  }
+
+  .menu-header {
+    @apply text-center mb-8;
+  }
+
+  .menu-title {
+    @apply text-2xl font-bold text-gray-800;
+  }
+
+  .menu-subtitle {
+    @apply text-gray-600 mt-2;
+  }
+
+  .menu-logout-btn {
+    @apply mt-4 text-sm text-red-600 hover:text-red-700 underline cursor-pointer;
+  }
+
+  .menu-list {
+    @apply w-full max-w-xs space-y-4;
+  }
+
+  .menu-link {
+    @apply block w-full text-center py-3 rounded-lg text-white font-semibold shadow transition;
+  }
+
+  .menu-link-blue {
+    @apply menu-link bg-blue-600 hover:bg-blue-700;
+  }
+
+  .menu-link-green {
+    @apply menu-link bg-green-600 hover:bg-green-700;
+  }
+
+  .menu-link-indigo {
+    @apply menu-link bg-indigo-600 hover:bg-indigo-700;
+  }
+
+  .menu-link-purple {
+    @apply menu-link bg-purple-600 hover:bg-purple-700;
+  }
+
+  .menu-link-pink {
+    @apply menu-link bg-pink-600 hover:bg-pink-700;
+  }
+
+  .menu-link-orange {
+    @apply menu-link bg-orange-600 hover:bg-orange-700;
+  }
+
+  .menu-link-cyan {
+    @apply menu-link bg-cyan-600 hover:bg-cyan-700;
+  }
+
+  .menu-link-teal {
+    @apply menu-link bg-teal-600 hover:bg-teal-700;
+  }
+
+  .menu-link-yellow {
+    @apply menu-link bg-yellow-600 hover:bg-yellow-700;
+  }
+
+  .menu-link-red {
+    @apply menu-link bg-red-600 hover:bg-red-700;
+  }
+}

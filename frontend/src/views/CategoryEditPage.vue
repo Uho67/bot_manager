@@ -1,9 +1,9 @@
 <template>
-  <div class="p-4 max-w-lg mx-auto">
-    <h1 class="text-xl font-bold mb-4">{{ isEdit ? 'Edit Category' : 'Create Category' }}</h1>
+  <div class="page-content-sm">
+    <h1 class="page-title">{{ isEdit ? 'Edit Category' : 'Create Category' }}</h1>
 
     <!-- Error Message Display -->
-    <div v-if="errorMessage" class="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+    <div v-if="errorMessage" class="form-error-box">
       <div class="flex items-start">
         <div class="flex-shrink-0">
           <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
@@ -25,42 +25,42 @@
 
     <form @submit.prevent="submitForm" class="space-y-4">
       <input v-if="isEdit" type="hidden" name="id" :value="form.id" />
-      <div>
-        <label class="block mb-1 font-medium">Name</label>
-        <input v-model="form.name" maxlength="50" required class="w-full border rounded px-3 py-2" />
+      <div class="form-group">
+        <label class="form-label">Name</label>
+        <input v-model="form.name" maxlength="50" required class="form-input" />
       </div>
-      <div>
-        <label class="block mb-1 font-medium">Is Root</label>
-        <select v-model="form.isRoot" class="w-full border rounded px-3 py-2">
+      <div class="form-group">
+        <label class="form-label">Is Root</label>
+        <select v-model="form.isRoot" class="form-select">
           <option :value="false">No</option>
           <option :value="true">Yes</option>
         </select>
       </div>
-      <div>
-        <label class="block mb-1 font-medium">Children Categories</label>
-        <select v-model="form.childCategories" multiple class="w-full border rounded px-3 py-2">
+      <div class="form-group">
+        <label class="form-label">Children Categories</label>
+        <select v-model="form.childCategories" multiple class="form-select">
           <option v-for="cat in allCategories" :key="cat.id" :value="`/api/categories/${cat.id}`">{{ cat.name }}</option>
         </select>
-        <div class="text-xs text-gray-500">Select up to 10 children</div>
+        <div class="form-hint">Select up to 10 children</div>
       </div>
-      <div>
-        <label class="block mb-1 font-medium">Image</label>
-        <input type="file" accept="image/*" @change="onImageChange" class="w-full border rounded px-3 py-2" />
+      <div class="form-group">
+        <label class="form-label">Image</label>
+        <input type="file" accept="image/*" @change="onImageChange" class="form-input" />
         <div v-if="imagePreview" class="mt-2">
           <img :src="imagePreview" alt="Preview" class="max-h-32 rounded border" />
         </div>
       </div>
 
       <!-- Button Layout Section -->
-      <div class="bg-white p-6 rounded-lg border border-gray-200 mt-6">
+      <div class="section-card mt-6">
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-lg font-semibold">Button Layout</h2>
-          <button type="button" @click="addLine" class="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-sm">
+          <button type="button" @click="addLine" class="btn btn-success btn-sm">
             + Add Line
           </button>
         </div>
 
-        <div v-if="!form.layout || form.layout.length === 0" class="text-center py-8 text-gray-500">
+        <div v-if="!form.layout || form.layout.length === 0" class="empty-state py-8">
           <p>No lines added yet. Click "Add Line" to start building your category layout.</p>
         </div>
 
@@ -69,10 +69,10 @@
             <div class="flex justify-between items-center mb-3">
               <h3 class="font-medium text-gray-700">Line {{ lineIndex + 1 }}</h3>
               <div class="flex gap-2">
-                <button type="button" @click="addButtonToLine(lineIndex)" :disabled="line.length >= 8" class="px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-xs disabled:opacity-50 disabled:cursor-not-allowed">
+                <button type="button" @click="addButtonToLine(lineIndex)" :disabled="line.length >= 8" class="btn btn-primary btn-sm">
                   + Add Button
                 </button>
-                <button type="button" @click="removeLine(lineIndex)" class="px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-xs">
+                <button type="button" @click="removeLine(lineIndex)" class="btn btn-danger btn-sm">
                   Remove Line
                 </button>
               </div>
@@ -85,7 +85,7 @@
             <div v-else class="space-y-2">
               <div v-for="buttonIndex in line.length" :key="buttonIndex" class="flex items-center gap-2 bg-white p-2 rounded border border-gray-200">
                 <span class="text-sm font-medium text-gray-600 w-8">{{ buttonIndex }}.</span>
-                <select v-model="form.layout![lineIndex][buttonIndex - 1]" required class="flex-1 border rounded px-2 py-1 text-sm">
+                <select v-model="form.layout![lineIndex][buttonIndex - 1]" required class="form-select flex-1 text-sm">
                   <option value="">Select button...</option>
                   <optgroup label="Regular Buttons">
                     <option v-for="button in availableButtons" :key="`button_${button.id}`" :value="`button_${button.id}`">
@@ -103,15 +103,9 @@
                     </option>
                   </optgroup>
                 </select>
-                <button type="button" @click="moveButtonUp(lineIndex, buttonIndex - 1)" :disabled="buttonIndex === 1" class="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300 text-xs disabled:opacity-50 disabled:cursor-not-allowed">
-                  ↑
-                </button>
-                <button type="button" @click="moveButtonDown(lineIndex, buttonIndex - 1)" :disabled="buttonIndex === line.length" class="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300 text-xs disabled:opacity-50 disabled:cursor-not-allowed">
-                  ↓
-                </button>
-                <button type="button" @click="removeButton(lineIndex, buttonIndex - 1)" class="px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-xs">
-                  Remove
-                </button>
+                <button type="button" @click="moveButtonUp(lineIndex, buttonIndex - 1)" :disabled="buttonIndex === 1" class="btn btn-secondary btn-sm">↑</button>
+                <button type="button" @click="moveButtonDown(lineIndex, buttonIndex - 1)" :disabled="buttonIndex === line.length" class="btn btn-secondary btn-sm">↓</button>
+                <button type="button" @click="removeButton(lineIndex, buttonIndex - 1)" class="btn btn-danger btn-sm">Remove</button>
               </div>
               <div v-if="line.length >= 8" class="text-xs text-orange-600 mt-2">
                 ⚠ Maximum 8 buttons per line reached
@@ -122,10 +116,10 @@
       </div>
 
       <div class="flex gap-2 mt-4">
-        <button type="submit" :disabled="isSubmitting" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">
+        <button type="submit" :disabled="isSubmitting" class="btn btn-primary">
           {{ isSubmitting ? 'Saving...' : 'Save' }}
         </button>
-        <button type="button" @click="goBack" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Cancel</button>
+        <button type="button" @click="goBack" class="btn btn-secondary">Cancel</button>
       </div>
     </form>
   </div>

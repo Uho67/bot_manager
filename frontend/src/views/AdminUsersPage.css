@@ -1,0 +1,29 @@
+@layer components {
+  .admin-card {
+    @apply card-hover overflow-hidden hover:border-blue-300;
+  }
+
+  .admin-card-header {
+    @apply card-header bg-gradient-to-r from-blue-500 to-blue-600;
+  }
+
+  .admin-card-avatar {
+    @apply w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-lg;
+  }
+
+  .admin-card-actions {
+    @apply card-footer flex gap-2;
+  }
+
+  .admin-card-action-edit {
+    @apply flex-1 text-center text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors py-2 hover:bg-blue-50 rounded cursor-pointer;
+  }
+
+  .admin-card-action-delete {
+    @apply flex-1 text-center text-sm text-red-600 hover:text-red-800 font-medium transition-colors py-2 hover:bg-red-50 rounded cursor-pointer;
+  }
+
+  .stats-card {
+    @apply bg-white rounded-lg shadow-md p-6 mt-8;
+  }
+}

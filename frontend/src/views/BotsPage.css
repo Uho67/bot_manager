@@ -1,0 +1,13 @@
+@layer components {
+  .bot-card {
+    @apply card-hover overflow-hidden hover:border-green-300;
+  }
+
+  .bot-card-header {
+    @apply card-header bg-gradient-to-r from-green-500 to-green-600;
+  }
+
+  .bot-card-avatar {
+    @apply w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-lg;
+  }
+}

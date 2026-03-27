@@ -1,0 +1,13 @@
+@layer components {
+  .config-row {
+    @apply mb-4 flex items-center gap-2;
+  }
+
+  .config-label {
+    @apply w-48 font-medium;
+  }
+
+  .config-input {
+    @apply border rounded px-2 py-1 flex-1;
+  }
+}

@@ -1,10 +1,10 @@
 <template>
   <div>
-    <div class="flex gap-1 mb-1">
+    <div class="rich-toolbar">
       <button
         type="button"
         @click="wrapBold"
-        class="px-2 py-0.5 text-sm font-bold border rounded hover:bg-gray-100"
+        class="rich-toolbar-btn"
         title="Bold"
       >B</button>
     </div>
@@ -14,10 +14,10 @@
       :rows="rows"
       :required="required"
       :placeholder="placeholder"
-      class="w-full border rounded px-3 py-2"
+      class="form-textarea"
       @input="onInput"
     ></textarea>
-    <div class="text-xs text-gray-400 mt-0.5">Use &lt;b&gt;word&lt;/b&gt; for bold text</div>
+    <div class="rich-hint">Use &lt;b&gt;word&lt;/b&gt; for bold text</div>
   </div>
 </template>
 
@@ -74,3 +74,5 @@ const wrapBold = () => {
   }, 0);
 };
 </script>
+
+

@@ -1,20 +1,17 @@
 <template>
-  <div v-if="isOpen" class="fixed inset-0 z-50 overflow-y-auto" @click.self="closeModal">
-    <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+  <div v-if="isOpen" class="modal-overlay" @click.self="closeModal">
+    <div class="modal-wrapper">
       <!-- Overlay -->
-      <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" @click="closeModal"></div>
+      <div class="modal-backdrop" @click="closeModal"></div>
 
       <!-- Modal -->
-      <div class="inline-block w-full max-w-md p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
+      <div class="modal-content">
         <!-- Header -->
         <div class="flex items-center justify-between mb-4">
           <h3 class="text-xl font-bold text-gray-900">
             {{ editMode ? 'Edit Admin User' : 'Create Admin User' }}
           </h3>
-          <button
-            @click="closeModal"
-            class="text-gray-400 hover:text-gray-600 transition-colors"
-          >
+          <button @click="closeModal" class="text-gray-400 hover:text-gray-600 transition-colors">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -24,24 +21,22 @@
         <!-- Form -->
         <form @submit.prevent="handleSubmit" class="space-y-4">
           <!-- Admin Name -->
-          <div>
-            <label for="admin_name" class="block text-sm font-medium text-gray-700 mb-1">
-              Admin Name *
-            </label>
+          <div class="form-group">
+            <label for="admin_name" class="form-label">Admin Name *</label>
             <input
               id="admin_name"
               v-model="formData.admin_name"
               type="text"
               required
               maxlength="20"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              class="form-input"
               placeholder="Enter admin name"
             />
           </div>
 
           <!-- Password -->
-          <div v-if="!editMode || showPasswordField">
-            <label for="admin_password" class="block text-sm font-medium text-gray-700 mb-1">
+          <div v-if="!editMode || showPasswordField" class="form-group">
+            <label for="admin_password" class="form-label">
               Password {{ editMode ? '' : '*' }}
             </label>
             <input
@@ -50,7 +45,7 @@
               type="password"
               :required="!editMode"
               minlength="6"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              class="form-input"
               placeholder="Enter password"
             />
           </div>
@@ -60,38 +55,34 @@
             <button
               type="button"
               @click="showPasswordField = true"
-              class="text-sm text-blue-600 hover:text-blue-800"
+              class="text-sm text-blue-600 hover:text-blue-800 cursor-pointer"
             >
               Change Password
             </button>
           </div>
 
           <!-- Bot Code -->
-          <div>
-            <label for="bot_code" class="block text-sm font-medium text-gray-700 mb-1">
-              Bot Code
-            </label>
+          <div class="form-group">
+            <label for="bot_code" class="form-label">Bot Code</label>
             <input
               id="bot_code"
               v-model="formData.bot_code"
               type="text"
               maxlength="50"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              class="form-input"
               placeholder="Enter bot code"
             />
           </div>
 
           <!-- Bot Identifier -->
-          <div>
-            <label for="bot_identifier" class="block text-sm font-medium text-gray-700 mb-1">
-              Bot Identifier
-            </label>
+          <div class="form-group">
+            <label for="bot_identifier" class="form-label">Bot Identifier</label>
             <input
               id="bot_identifier"
               v-model="formData.bot_identifier"
               type="text"
               maxlength="50"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              class="form-input"
               placeholder="Enter bot identifier"
             />
           </div>
@@ -103,17 +94,13 @@
 
           <!-- Actions -->
           <div class="flex justify-end gap-3 pt-4">
-            <button
-              type="button"
-              @click="closeModal"
-              class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-            >
+            <button type="button" @click="closeModal" class="btn btn-secondary">
               Cancel
             </button>
             <button
               type="submit"
               :disabled="submitting"
-              class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              class="btn btn-primary flex items-center gap-2"
             >
               <svg v-if="submitting" class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -214,4 +201,3 @@ const handleSubmit = async () => {
   }
 };
 </script>
-

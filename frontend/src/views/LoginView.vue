@@ -1,15 +1,14 @@
 <template>
-  <div class="flex flex-col min-h-screen justify-center items-center bg-gray-100 p-4">
-    <form @submit.prevent="onLogin" class="w-full max-w-xs bg-white rounded shadow p-6 flex flex-col gap-4">
-      <h1 class="text-xl font-bold text-center">Admin Login</h1>
-      <input v-model="admin_name" type="text" placeholder="Admin Name" class="input input-bordered w-full" required/>
-      <input v-model="admin_password" type="password" placeholder="Password" class="input input-bordered w-full"
-             required/>
+  <div class="login-page">
+    <form @submit.prevent="onLogin" class="login-form">
+      <h1 class="login-title">Admin Login</h1>
+      <input v-model="admin_name" type="text" placeholder="Admin Name" class="form-input" required/>
+      <input v-model="admin_password" type="password" placeholder="Password" class="form-input" required/>
       <button type="submit" class="btn btn-primary w-full" :disabled="loading">
         <span v-if="loading">Logging in...</span>
         <span v-else>Login</span>
       </button>
-      <div v-if="error" class="text-red-500 text-center">{{ error }}</div>
+      <div v-if="error" class="form-error text-center">{{ error }}</div>
     </form>
   </div>
 </template>
@@ -53,13 +52,4 @@ async function onLogin() {
 }
 </script>
 
-<style scoped>
-.input {
-  @apply border border-gray-300 rounded px-3 py-2;
-}
-
-.btn {
-  @apply bg-blue-600 text-white rounded px-4 py-2 font-semibold hover:bg-blue-700 transition;
-}
-</style>
 

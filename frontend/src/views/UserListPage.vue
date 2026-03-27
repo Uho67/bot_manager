@@ -1,15 +1,15 @@
 <template>
   <div class="p-4">
-    <h1 class="text-xl font-bold mb-4">Users</h1>
-    
+    <h1 class="page-title">Users</h1>
+
     <!-- Filters -->
-    <div class="mb-4 p-4 bg-gray-50 rounded-lg">
+    <div class="section-card">
       <h2 class="text-lg font-semibold mb-3">Filters</h2>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <!-- Status Filter -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-          <select v-model="filters.status" @change="applyFilters" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select v-model="filters.status" @change="applyFilters" class="form-select">
             <option value="">All</option>
             <option value="active">Active</option>
             <option value="inactive">Inactive</option>
@@ -18,169 +18,150 @@
         </div>
 
         <!-- Created At From -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Created At From</label>
-          <input 
-            type="datetime-local" 
-            v-model="filters.created_at_from" 
+        <div class="form-group">
+          <label class="form-label">Created At From</label>
+          <input
+            type="datetime-local"
+            v-model="filters.created_at_from"
             @change="applyFilters"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="form-input"
           />
         </div>
 
         <!-- Created At To -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Created At To</label>
-          <input 
-            type="datetime-local" 
-            v-model="filters.created_at_to" 
+        <div class="form-group">
+          <label class="form-label">Created At To</label>
+          <input
+            type="datetime-local"
+            v-model="filters.created_at_to"
             @change="applyFilters"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="form-input"
           />
         </div>
 
         <!-- Updated At From -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Updated At From</label>
-          <input 
-            type="datetime-local" 
-            v-model="filters.updated_at_from" 
+        <div class="form-group">
+          <label class="form-label">Updated At From</label>
+          <input
+            type="datetime-local"
+            v-model="filters.updated_at_from"
             @change="applyFilters"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="form-input"
           />
         </div>
 
         <!-- Updated At To -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Updated At To</label>
-          <input 
-            type="datetime-local" 
-            v-model="filters.updated_at_to" 
+        <div class="form-group">
+          <label class="form-label">Updated At To</label>
+          <input
+            type="datetime-local"
+            v-model="filters.updated_at_to"
             @change="applyFilters"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="form-input"
           />
         </div>
 
         <!-- Username Filter -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+        <div class="form-group">
+          <label class="form-label">Username</label>
           <input
             type="text"
             v-model="filters.username"
             @input="applyFilters"
             placeholder="Search by username..."
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="form-input"
           />
         </div>
 
         <!-- Clear Filters Button -->
         <div class="flex items-end">
-          <button
-            @click="clearFilters"
-            class="w-full px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-          >
-            Clear Filters
-          </button>
+          <button @click="clearFilters" class="btn btn-secondary w-full">Clear Filters</button>
         </div>
       </div>
     </div>
 
     <!-- Mass Actions -->
-    <div v-if="selectedUsers.length > 0" class="mb-4 p-3 bg-blue-50 rounded-lg flex items-center justify-between">
+    <div v-if="selectedUsers.length > 0" class="alert-info mb-4 flex items-center justify-between">
       <span class="text-sm font-medium text-blue-800">
         {{ selectedUsers.length }} user(s) selected
       </span>
       <div class="flex gap-2">
-        <button
-          @click="showSendPostModal = true"
-          class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm font-medium"
-        >
-          Send Post
-        </button>
-        <button
-          @click="massDelete"
-          class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 text-sm font-medium"
-        >
-          Delete Selected
-        </button>
+        <button @click="showSendPostModal = true" class="btn btn-success btn-sm">Send Post</button>
+        <button @click="massDelete" class="btn btn-danger btn-sm">Delete Selected</button>
       </div>
     </div>
 
     <!-- Send Post Modal -->
-    <div v-if="showSendPostModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white rounded-lg p-6 w-full max-w-sm shadow-xl">
-        <h2 class="text-lg font-semibold mb-4">Send Post to {{ selectedUsers.length }} user(s)</h2>
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-1">Post ID</label>
-          <input
-            type="number"
-            v-model.number="sendPostId"
-            min="1"
-            placeholder="Enter post ID..."
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-          />
-        </div>
-        <div class="flex gap-2 justify-end">
-          <button
-            @click="showSendPostModal = false; sendPostId = null"
-            class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 text-sm font-medium"
-          >
-            Cancel
-          </button>
-          <button
-            @click="massSendPost"
-            :disabled="!sendPostId"
-            class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
-          >
-            Send
-          </button>
+    <div v-if="showSendPostModal" class="modal-overlay">
+      <div class="modal-wrapper">
+        <div class="modal-backdrop" @click="showSendPostModal = false; sendPostId = null"></div>
+        <div class="modal-content max-w-sm">
+          <h2 class="text-lg font-semibold mb-4">Send Post to {{ selectedUsers.length }} user(s)</h2>
+          <div class="form-group">
+            <label class="form-label">Post ID</label>
+            <input
+              type="number"
+              v-model.number="sendPostId"
+              min="1"
+              placeholder="Enter post ID..."
+              class="form-input"
+            />
+          </div>
+          <div class="flex gap-2 justify-end">
+            <button
+              @click="showSendPostModal = false; sendPostId = null"
+              class="btn btn-secondary"
+            >
+              Cancel
+            </button>
+            <button
+              @click="massSendPost"
+              :disabled="!sendPostId"
+              class="btn btn-success"
+            >
+              Send
+            </button>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Users Grid -->
-    <div class="overflow-x-auto">
-      <table class="min-w-full bg-white border border-gray-200 rounded-lg">
+    <!-- Users Table -->
+    <div class="table-wrapper">
+      <table class="data-table rounded-lg">
         <thead>
           <tr>
-            <th class="px-4 py-2 border-b text-center">
-              <input 
-                type="checkbox" 
-                @change="toggleSelectAll" 
+            <th class="table-th">
+              <input
+                type="checkbox"
+                @change="toggleSelectAll"
                 :checked="selectedUsers.length === users.length && users.length > 0"
-                class="cursor-pointer"
+                class="form-checkbox"
               />
             </th>
-            <th class="px-4 py-2 border-b text-center">ID</th>
-            <th class="px-4 py-2 border-b text-center">Name</th>
-            <th class="px-4 py-2 border-b text-center">Username</th>
-            <th class="px-4 py-2 border-b text-center">Chat ID</th>
-            <th class="px-4 py-2 border-b text-center">Status</th>
-            <th class="px-4 py-2 border-b text-center">Created At</th>
-            <th class="px-4 py-2 border-b text-center">Updated At</th>
+            <th class="table-th">ID</th>
+            <th class="table-th">Name</th>
+            <th class="table-th">Username</th>
+            <th class="table-th">Chat ID</th>
+            <th class="table-th">Status</th>
+            <th class="table-th">Created At</th>
+            <th class="table-th">Updated At</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="user in users" :key="user.id">
-            <td class="px-4 py-2 border-b text-center">
-              <input 
-                type="checkbox" 
-                :value="user.id" 
-                v-model="selectedUsers"
-                class="cursor-pointer"
-              />
+          <tr v-for="user in users" :key="user.id" class="table-row-hover">
+            <td class="table-td">
+              <input type="checkbox" :value="user.id" v-model="selectedUsers" class="form-checkbox" />
             </td>
-            <td class="px-4 py-2 border-b text-center">{{ user.id }}</td>
-            <td class="px-4 py-2 border-b text-center">{{ user.name }}</td>
-            <td class="px-4 py-2 border-b text-center">{{ user.username }}</td>
-            <td class="px-4 py-2 border-b text-center">{{ user.chat_id }}</td>
-            <td class="px-4 py-2 border-b text-center">
-              <span :class="getStatusClass(user.status)" class="px-2 py-1 rounded text-sm">
-                {{ user.status }}
-              </span>
+            <td class="table-td">{{ user.id }}</td>
+            <td class="table-td">{{ user.name }}</td>
+            <td class="table-td">{{ user.username }}</td>
+            <td class="table-td">{{ user.chat_id }}</td>
+            <td class="table-td">
+              <span :class="getStatusClass(user.status)" class="badge">{{ user.status }}</span>
             </td>
-            <td class="px-4 py-2 border-b text-center">{{ formatDate(user.created_at) }}</td>
-            <td class="px-4 py-2 border-b text-center">{{ formatDate(user.updated_at) }}</td>
+            <td class="table-td">{{ formatDate(user.created_at) }}</td>
+            <td class="table-td">{{ formatDate(user.updated_at) }}</td>
           </tr>
           <tr v-if="users.length === 0">
             <td colspan="8" class="px-4 py-8 text-center text-gray-500">No users found</td>
@@ -195,27 +176,27 @@
         Showing {{ pagination.firstItem }} to {{ pagination.lastItem }} of {{ pagination.totalItems }} users
       </div>
       <div class="flex items-center gap-2">
-        <button 
-          @click="goToPage(pagination.currentPage - 1)" 
+        <button
+          @click="goToPage(pagination.currentPage - 1)"
           :disabled="pagination.currentPage === 1"
-          class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="btn btn-secondary btn-sm"
         >
           Previous
         </button>
         <span class="text-sm text-gray-700">
           Page {{ pagination.currentPage }} of {{ pagination.totalPages }}
         </span>
-        <button 
-          @click="goToPage(pagination.currentPage + 1)" 
+        <button
+          @click="goToPage(pagination.currentPage + 1)"
           :disabled="pagination.currentPage >= pagination.totalPages"
-          class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="btn btn-secondary btn-sm"
         >
           Next
         </button>
-        <select 
-          v-model="pagination.itemsPerPage" 
+        <select
+          v-model="pagination.itemsPerPage"
           @change="changeItemsPerPage"
-          class="px-2 py-1 border border-gray-300 rounded text-sm"
+          class="form-select w-auto text-sm"
         >
           <option :value="10">10 per page</option>
           <option :value="20">20 per page</option>
@@ -274,26 +255,26 @@ const fetchUsers = async () => {
     if (filters.value.updated_at_to) {
       params.append('updated_at[lte]', filters.value.updated_at_to);
     }
-    
+
     // Add pagination parameters
     params.append('page', pagination.value.currentPage.toString());
     params.append('itemsPerPage', pagination.value.itemsPerPage.toString());
 
     const { data } = await api.get(`/api/users?${params.toString()}`);
     users.value = data['hydra:member'] || data['member'] || [];
-    
+
     // Update pagination info from API Platform response
     if (data['hydra:totalItems'] !== undefined) {
       pagination.value.totalItems = data['hydra:totalItems'];
     }
-    
+
     // Calculate total pages
     if (pagination.value.totalItems > 0) {
       pagination.value.totalPages = Math.ceil(pagination.value.totalItems / pagination.value.itemsPerPage);
     } else {
       pagination.value.totalPages = 0;
     }
-    
+
     // Calculate first and last item numbers
     if (pagination.value.totalItems > 0) {
       pagination.value.firstItem = (pagination.value.currentPage - 1) * pagination.value.itemsPerPage + 1;
@@ -305,7 +286,7 @@ const fetchUsers = async () => {
       pagination.value.firstItem = 0;
       pagination.value.lastItem = 0;
     }
-    
+
     // Clear selection when data changes
     selectedUsers.value = [];
   } catch (error) {
@@ -366,7 +347,7 @@ const massDelete = async () => {
     await api.post('/api/users/mass-delete', {
       ids: selectedUsers.value
     });
-    
+
     selectedUsers.value = [];
     fetchUsers();
     alert('Users deleted successfully');
@@ -400,13 +381,13 @@ const massSendPost = async () => {
 const getStatusClass = (status: string) => {
   switch (status?.toLowerCase()) {
     case 'active':
-      return 'bg-green-100 text-green-800';
+      return 'badge-green';
     case 'inactive':
-      return 'bg-gray-100 text-gray-800';
+      return 'badge-gray';
     case 'blocked':
-      return 'bg-red-100 text-red-800';
+      return 'badge-red';
     default:
-      return 'bg-blue-100 text-blue-800';
+      return 'badge-blue';
   }
 };
 

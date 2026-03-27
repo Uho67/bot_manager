@@ -1,6 +1,6 @@
 <template>
-  <div class="relative min-h-screen bg-gray-50">
-    <div class="absolute top-4 right-4 z-50">
+  <div class="app-layout">
+    <div class="nav-dropdown-container">
       <NavDropdown />
     </div>
     <slot />
@@ -11,6 +11,4 @@
 import NavDropdown from './NavDropdown.vue';
 </script>
 
-<style scoped>
-</style>
 

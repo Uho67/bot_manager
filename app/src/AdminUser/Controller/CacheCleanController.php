@@ -20,8 +20,6 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 readonly class CacheCleanController
 {
-    private const string CONFIG_PATH = 'telegram.cache.clean.endpoint';
-
     public function __construct(
         private TokenStorageInterface $tokenStorage,
         private EntityManagerInterface $entityManager,
@@ -46,12 +44,12 @@ readonly class CacheCleanController
             return new JsonResponse(['error' => 'Bot identifier not found for user'], 400);
         }
 
-        $endpoint = $this->configService->get($botIdentifier, self::CONFIG_PATH, '');
+        $endpoint = $this->configService->getBotUrl($botIdentifier);
 
         if (empty($endpoint)) {
             return new JsonResponse([
                 'error' => 'Cache clean endpoint not configured',
-                'message' => \sprintf('Please configure the endpoint at path: %s', self::CONFIG_PATH),
+                'message' => 'Please configure the endpoint at path: bot.url',
             ], 400);
         }
 
@@ -72,7 +70,7 @@ readonly class CacheCleanController
 
         try {
             // Send DELETE request with Bearer authorization using hashed API key
-            $response = $this->httpClient->request('DELETE', $endpoint, [
+            $response = $this->httpClient->request('DELETE', $endpoint . '/cache', [
                 'headers' => [
                     'Authorization' => \sprintf('Bearer %s', $apiKey),
                 ],

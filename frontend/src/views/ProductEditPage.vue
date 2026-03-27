@@ -1,9 +1,9 @@
 <template>
-  <div class="p-4 max-w-lg mx-auto">
-    <h1 class="text-xl font-bold mb-4">{{ isEdit ? 'Edit Product' : 'Create Product' }}</h1>
+  <div class="page-content-sm">
+    <h1 class="page-title">{{ isEdit ? 'Edit Product' : 'Create Product' }}</h1>
 
     <!-- Error Message Display -->
-    <div v-if="errorMessage" class="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+    <div v-if="errorMessage" class="form-error-box">
       <div class="flex items-start">
         <div class="flex-shrink-0">
           <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
@@ -25,33 +25,33 @@
 
     <form @submit.prevent="submitForm" class="space-y-4">
       <input v-if="isEdit" type="hidden" name="id" :value="form.id" />
-      <div>
-        <label class="block mb-1 font-medium">Name</label>
-        <input v-model="form.name" maxlength="50" required class="w-full border rounded px-3 py-2" />
+      <div class="form-group">
+        <label class="form-label">Name</label>
+        <input v-model="form.name" maxlength="50" required class="form-input" />
       </div>
-      <div>
-        <label class="block mb-1 font-medium">Description</label>
+      <div class="form-group">
+        <label class="form-label">Description</label>
         <RichTextarea v-model="form.description" :rows="5" required />
       </div>
-      <div>
-        <label class="block mb-1 font-medium">Categories</label>
-        <select v-model="form.categories" multiple class="w-full border rounded px-3 py-2">
+      <div class="form-group">
+        <label class="form-label">Categories</label>
+        <select v-model="form.categories" multiple class="form-select">
           <option v-for="cat in categories" :key="cat.id" :value="`/api/categories/${cat.id}`">{{ cat.name }}</option>
         </select>
-        <div class="text-xs text-gray-500">Select up to 3 categories</div>
+        <div class="form-hint">Select up to 3 categories</div>
       </div>
-      <div>
-        <label class="block mb-1 font-medium">Image</label>
-        <input type="file" accept="image/*" @change="onImageChange" class="w-full border rounded px-3 py-2" />
+      <div class="form-group">
+        <label class="form-label">Image</label>
+        <input type="file" accept="image/*" @change="onImageChange" class="form-input" />
         <div v-if="imagePreview" class="mt-2">
           <img :src="imagePreview" alt="Preview" class="max-h-32 rounded border" />
         </div>
       </div>
       <div class="flex gap-2 mt-4">
-        <button type="submit" :disabled="isSubmitting" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">
+        <button type="submit" :disabled="isSubmitting" class="btn btn-primary">
           {{ isSubmitting ? 'Saving...' : 'Save' }}
         </button>
-        <button type="button" @click="goBack" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Cancel</button>
+        <button type="button" @click="goBack" class="btn btn-secondary">Cancel</button>
       </div>
     </form>
   </div>

@@ -1,0 +1,13 @@
+@layer components {
+  .login-page {
+    @apply flex flex-col min-h-screen justify-center items-center bg-gray-100 p-4;
+  }
+
+  .login-form {
+    @apply w-full max-w-xs bg-white rounded shadow p-6 flex flex-col gap-4;
+  }
+
+  .login-title {
+    @apply text-xl font-bold text-center;
+  }
+}
