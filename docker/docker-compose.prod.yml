@@ -97,6 +97,23 @@ services:
     depends_on:
       - php
 
+  # phpMyAdmin - localhost only (access via SSH tunnel)
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: bot_api_phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: database
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+    ports:
+      - "127.0.0.1:${PMA_PORT:-8080}:80"
+    networks:
+      - bot_api_network
+    depends_on:
+      database:
+        condition: service_healthy
+
 networks:
   bot_api_network:
     driver: bridge
