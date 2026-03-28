@@ -1,9 +1,9 @@
 <template>
   <div class="page-content-sm">
-    <h1 class="page-title">Configs</h1>
+    <h1 class="page-title">{{ t('configs.title') }}</h1>
     <div v-if="isSuperAdmin">
       <div v-for="(configs, botId) in groupedConfigs" :key="botId" class="section-card">
-        <h2 class="font-semibold mb-2">Bot: {{ botId }}</h2>
+        <h2 class="font-semibold mb-2">{{ t('configs.bot', { id: botId }) }}</h2>
         <ConfigList :configs="configs" @update="onUpdate" @add="onAdd" />
       </div>
     </div>
@@ -16,8 +16,11 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
+import { useI18n } from 'vue-i18n';
 import { useAuth } from '../composables/useAuth';
 import ConfigList from '../components/ConfigList.vue';
+
+const { t } = useI18n();
 
 interface ConfigItem {
   id?: number;
@@ -54,8 +57,6 @@ const groupedConfigs = computed(() => {
 const mergedConfigs = computed(() => {
   const existingPaths = new Set(configsData.value.map(c => c.path));
   const merged: ConfigItem[] = [...configsData.value];
-
-  // Add schema items that don't exist yet
   schemaData.value.forEach(schema => {
     if (!existingPaths.has(schema.path)) {
       merged.push({
@@ -66,7 +67,6 @@ const mergedConfigs = computed(() => {
       });
     }
   });
-
   return merged;
 });
 

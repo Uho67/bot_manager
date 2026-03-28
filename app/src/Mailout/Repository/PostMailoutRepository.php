@@ -25,7 +25,7 @@ class PostMailoutRepository extends ServiceEntityRepository
     /**
      * Bulk insert post mailout records
      *
-     * @param array<array{chat_id: string, post_id: int}> $mailouts
+     * @param array<array{chat_id: string, post_id: int, remove_mode: string}> $mailouts
      * @return int Number of inserted records
      */
     public function bulkInsertPostMailouts(string $botIdentifier, array $mailouts): int
@@ -42,16 +42,17 @@ class PostMailoutRepository extends ServiceEntityRepository
         $params = [];
 
         foreach ($mailouts as $mailout) {
-            $values[] = '(?, ?, ?, ?, ?)';
+            $values[] = '(?, ?, ?, ?, ?, ?)';
             $params[] = $mailout['chat_id'];
             $params[] = $mailout['post_id'];
             $params[] = PostMailout::STATUS_PENDING;
             $params[] = $botIdentifier;
             $params[] = $nowStr;
+            $params[] = $mailout['remove_mode'] ?? PostMailout::REMOVE_MODE_REMOVE;
         }
 
         $sql = sprintf(
-            'INSERT INTO post_mailout (chat_id, post_id, status, bot_identifier, created_at)
+            'INSERT INTO post_mailout (chat_id, post_id, status, bot_identifier, created_at, remove_mode)
              VALUES %s',
             implode(', ', $values)
         );

@@ -1,16 +1,16 @@
 <template>
   <div class="p-4">
-    <h1 class="page-title">Sended Posts</h1>
+    <h1 class="page-title">{{ t('sent_posts.title') }}</h1>
 
-    <div v-if="loading" class="empty-state">Loading...</div>
+    <div v-if="loading" class="empty-state">{{ t('common.loading') }}</div>
 
     <div v-else class="table-wrapper">
       <table class="data-table rounded-lg">
         <thead>
           <tr>
-            <th class="table-th">Post ID</th>
-            <th class="table-th">Messages Stored</th>
-            <th class="table-th">Actions</th>
+            <th class="table-th">{{ t('table.post_id') }}</th>
+            <th class="table-th">{{ t('table.messages_stored') }}</th>
+            <th class="table-th">{{ t('table.actions') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -25,12 +25,12 @@
                 :disabled="deleting[row.post_id]"
                 class="btn btn-danger btn-sm"
               >
-                {{ deleting[row.post_id] ? 'Deleting...' : 'Delete from users' }}
+                {{ deleting[row.post_id] ? t('common.deleting') : t('sent_posts.delete_from_users') }}
               </button>
             </td>
           </tr>
           <tr v-if="stats.length === 0">
-            <td colspan="3" class="px-4 py-8 text-center text-gray-500">No sent post records found</td>
+            <td colspan="3" class="px-4 py-8 text-center text-gray-500">{{ t('sent_posts.no_records') }}</td>
           </tr>
         </tbody>
       </table>
@@ -40,7 +40,10 @@
 
 <script setup lang="ts">
 import { ref, onMounted, reactive } from 'vue';
+import { useI18n } from 'vue-i18n';
 import api from '../api';
+
+const { t } = useI18n();
 
 interface SentPostStat {
   post_id: number;
@@ -65,18 +68,15 @@ const fetchStats = async () => {
 };
 
 const deleteSent = async (postId: number) => {
-  if (!confirm(`Mark all stored messages for post ${postId} for deletion from Telegram?`)) {
-    return;
-  }
-
+  if (!confirm(t('sent_posts.confirm_delete', { id: postId }))) return;
   deleting[postId] = true;
   try {
     const { data } = await api.post(`/api/mailout/delete-sent/${postId}`);
-    alert(`Marked ${data.marked} message(s) for deletion. They will be removed within 2 minutes.`);
+    alert(t('sent_posts.marked', { count: data.marked }));
     await fetchStats();
   } catch (error: any) {
-    const errorMessage = error.response?.data?.error || 'Failed to mark messages for deletion';
-    alert(`Error: ${errorMessage}`);
+    const errorMessage = error.response?.data?.error || t('common.error');
+    alert(`${t('common.error')}: ${errorMessage}`);
   } finally {
     deleting[postId] = false;
   }

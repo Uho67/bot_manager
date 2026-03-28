@@ -1,12 +1,12 @@
 <template>
   <div class="login-page">
     <form @submit.prevent="onLogin" class="login-form">
-      <h1 class="login-title">Admin Login</h1>
-      <input v-model="admin_name" type="text" placeholder="Admin Name" class="form-input" required/>
-      <input v-model="admin_password" type="password" placeholder="Password" class="form-input" required/>
+      <h1 class="login-title">{{ t('login.title') }}</h1>
+      <input v-model="admin_name" type="text" :placeholder="t('login.admin_name')" class="form-input" required/>
+      <input v-model="admin_password" type="password" :placeholder="t('login.password')" class="form-input" required/>
       <button type="submit" class="btn btn-primary w-full" :disabled="loading">
-        <span v-if="loading">Logging in...</span>
-        <span v-else>Login</span>
+        <span v-if="loading">{{ t('login.logging_in') }}</span>
+        <span v-else>{{ t('login.login') }}</span>
       </button>
       <div v-if="error" class="form-error text-center">{{ error }}</div>
     </form>
@@ -14,10 +14,12 @@
 </template>
 
 <script setup lang="ts">
-import {ref} from 'vue';
+import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import api from '../api';
-import {useRouter} from 'vue-router';
+import { useRouter } from 'vue-router';
 
+const { t } = useI18n();
 const admin_name = ref('');
 const admin_password = ref('');
 const loading = ref(false);
@@ -37,19 +39,15 @@ async function onLogin() {
         'Accept': 'application/json',
       }
     });
-    // Save user info and token to cookies
     document.cookie = `token=${response.data.token}; path=/`;
     document.cookie = `admin_name=${response.data.admin_name}; path=/`;
     document.cookie = `bot_code=${response.data.bot_code}; path=/`;
     document.cookie = `roles=${encodeURIComponent(JSON.stringify(response.data.roles))}; path=/`;
-    // Redirect to main page
     router.push('/');
   } catch (e: any) {
-    error.value = e.response?.data?.error || 'Login failed';
+    error.value = e.response?.data?.error || t('login.login_failed');
   } finally {
     loading.value = false;
   }
 }
 </script>
-
-

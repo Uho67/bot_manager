@@ -139,7 +139,7 @@ Internet (port 80/443)
                    ├── MySQL Container
                    └── Redis Container
 
-Internet (port 8080)
+SSH Tunnel (local:8080 → server:8080, localhost only)
         ↓
    phpMyAdmin Container → MySQL Container
 ```
@@ -155,7 +155,13 @@ Internet (port 8080)
 
 ## phpMyAdmin
 
-Access phpMyAdmin at: `http://your-server-ip:8080`
+phpMyAdmin is bound to `127.0.0.1:8080` only — **not publicly accessible**.
+
+**Access via SSH tunnel (from your local machine):**
+```bash
+ssh -L 8080:localhost:8080 root@46.175.145.84
+```
+Then open `http://localhost:8080` in your browser.
 
 **Login credentials:**
 - Server: `database` (auto-filled)
@@ -166,11 +172,6 @@ Access phpMyAdmin at: `http://your-server-ip:8080`
 ```env
 PMA_PORT=8080
 ```
-
-**Security warning:** In production, consider:
-- Restricting access by IP (firewall)
-- Disabling phpMyAdmin after use
-- Using SSH tunnel instead of exposing port
 
 ---
 

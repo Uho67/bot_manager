@@ -38,6 +38,9 @@ class PostMailout
     public const STATUS_SENT = 'sent';
     public const STATUS_FAILED = 'failed';
 
+    public const REMOVE_MODE_REMOVE = 'remove';
+    public const REMOVE_MODE_NOT_REMOVE = 'not_remove';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -63,6 +66,10 @@ class PostMailout
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     #[Groups(['post_mailout:read'])]
     private ?\DateTimeImmutable $created_at = null;
+
+    #[ORM\Column(length: 20, options: ['default' => self::REMOVE_MODE_REMOVE])]
+    #[Groups(['post_mailout:read'])]
+    private string $remove_mode = self::REMOVE_MODE_REMOVE;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     #[Groups(['post_mailout:read'])]
@@ -129,6 +136,18 @@ class PostMailout
     public function setCreatedAt(\DateTimeImmutable $created_at): static
     {
         $this->created_at = $created_at;
+
+        return $this;
+    }
+
+    public function getRemoveMode(): string
+    {
+        return $this->remove_mode;
+    }
+
+    public function setRemoveMode(string $remove_mode): static
+    {
+        $this->remove_mode = $remove_mode;
 
         return $this;
     }

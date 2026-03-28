@@ -68,6 +68,7 @@ class PostMailoutTelegramController extends AbstractController
                     'chat_id' => $mailout->getChatId(),
                     'post_id' => $mailout->getPostId(),
                     'status' => $mailout->getStatus(),
+                    'remove_mode' => $mailout->getRemoveMode(),
                     'created_at' => $mailout->getCreatedAt()?->format('Y-m-d H:i:s'),
                     'sent_at' => $mailout->getSentAt()?->format('Y-m-d H:i:s'),
                 ];
