@@ -41,7 +41,7 @@ echo -e "${GREEN}✓ Environment configured${NC}"
 echo ""
 echo "Building frontend..."
 cd frontend
-[ ! -d node_modules ] && npm install
+npm install
 npm run build
 cd ..
 echo -e "${GREEN}✓ Frontend built${NC}"
