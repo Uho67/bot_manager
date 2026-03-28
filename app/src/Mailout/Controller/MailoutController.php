@@ -10,6 +10,7 @@ namespace App\Mailout\Controller;
 
 use App\Bot\Entity\Bot;
 use App\Config\Service\ConfigService;
+use App\Mailout\Entity\PostMailout;
 use App\Mailout\Repository\PostMailoutRepository;
 use App\User\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -40,6 +41,11 @@ class MailoutController extends AbstractController
         $user = $this->getUserFromAuth();
         $botIdentifier = $user->getBotIdentifier();
 
+        $body = json_decode($request->getContent(), true) ?? [];
+        $removeMode = ($body['remove_mode'] ?? '') === PostMailout::REMOVE_MODE_NOT_REMOVE
+            ? PostMailout::REMOVE_MODE_NOT_REMOVE
+            : PostMailout::REMOVE_MODE_REMOVE;
+
         // Get all active users for this bot
         $activeUsers = $this->userRepository->createQueryBuilder('u')
             ->where('u.bot_identifier = :botIdentifier')
@@ -61,6 +67,7 @@ class MailoutController extends AbstractController
             fn($user) => [
                 'chat_id' => $user->getChatId(),
                 'post_id' => $postId,
+                'remove_mode' => $removeMode,
             ],
             $activeUsers
         );

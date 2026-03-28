@@ -1,8 +1,7 @@
 <template>
   <div class="page-content-sm">
-    <h1 class="page-title">{{ isEdit ? 'Edit Product' : 'Create Product' }}</h1>
+    <h1 class="page-title">{{ isEdit ? t('products.edit_title') : t('products.create_title') }}</h1>
 
-    <!-- Error Message Display -->
     <div v-if="errorMessage" class="form-error-box">
       <div class="flex items-start">
         <div class="flex-shrink-0">
@@ -11,11 +10,11 @@
           </svg>
         </div>
         <div class="ml-3 flex-1">
-          <h3 class="text-sm font-medium text-red-800">Error</h3>
+          <h3 class="text-sm font-medium text-red-800">{{ t('common.error') }}</h3>
           <p class="mt-1 text-sm text-red-700">{{ errorMessage }}</p>
         </div>
         <button @click="errorMessage = ''" class="ml-3 flex-shrink-0 text-red-400 hover:text-red-600">
-          <span class="sr-only">Dismiss</span>
+          <span class="sr-only">{{ t('common.dismiss') }}</span>
           <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
           </svg>
@@ -26,22 +25,22 @@
     <form @submit.prevent="submitForm" class="space-y-4">
       <input v-if="isEdit" type="hidden" name="id" :value="form.id" />
       <div class="form-group">
-        <label class="form-label">Name</label>
+        <label class="form-label">{{ t('products.name') }}</label>
         <input v-model="form.name" maxlength="50" required class="form-input" />
       </div>
       <div class="form-group">
-        <label class="form-label">Description</label>
+        <label class="form-label">{{ t('products.description') }}</label>
         <RichTextarea v-model="form.description" :rows="5" required />
       </div>
       <div class="form-group">
-        <label class="form-label">Categories</label>
+        <label class="form-label">{{ t('products.categories') }}</label>
         <select v-model="form.categories" multiple class="form-select">
           <option v-for="cat in categories" :key="cat.id" :value="`/api/categories/${cat.id}`">{{ cat.name }}</option>
         </select>
-        <div class="form-hint">Select up to 3 categories</div>
+        <div class="form-hint">{{ t('products.categories_hint') }}</div>
       </div>
       <div class="form-group">
-        <label class="form-label">Image</label>
+        <label class="form-label">{{ t('products.image') }}</label>
         <input type="file" accept="image/*" @change="onImageChange" class="form-input" />
         <div v-if="imagePreview" class="mt-2">
           <img :src="imagePreview" alt="Preview" class="max-h-32 rounded border" />
@@ -49,9 +48,9 @@
       </div>
       <div class="flex gap-2 mt-4">
         <button type="submit" :disabled="isSubmitting" class="btn btn-primary">
-          {{ isSubmitting ? 'Saving...' : 'Save' }}
+          {{ isSubmitting ? t('common.saving') : t('common.save') }}
         </button>
-        <button type="button" @click="goBack" class="btn btn-secondary">Cancel</button>
+        <button type="button" @click="goBack" class="btn btn-secondary">{{ t('common.cancel') }}</button>
       </div>
     </form>
   </div>
@@ -59,9 +58,12 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import api from '../api';
 import RichTextarea from '../components/RichTextarea.vue';
+
+const { t } = useI18n();
 
 interface Category {
   id: number;
@@ -88,7 +90,7 @@ const fetchCategories = async () => {
     const { data } = await api.get('/api/categories');
     categories.value = data['member'] || [];
   } catch (error: any) {
-    errorMessage.value = error.response?.data?.description || error.response?.data?.detail || 'Failed to load categories';
+    errorMessage.value = error.response?.data?.description || error.response?.data?.detail || t('common.error');
   }
 };
 
@@ -103,14 +105,13 @@ const fetchProduct = async () => {
         categories: (data.categories || []).map((cat: Category) => `/api/categories/${cat.id}`),
         image: data.image || '',
       };
-      // Set image preview with full URL if image exists
       if (data.image) {
         imagePreview.value = data.image.startsWith('http')
           ? data.image
           : `${import.meta.env.VITE_API_URL}${data.image}`;
       }
     } catch (error: any) {
-      errorMessage.value = error.response?.data?.description || error.response?.data?.detail || 'Failed to load product';
+      errorMessage.value = error.response?.data?.description || error.response?.data?.detail || t('common.error');
     }
   }
 };
@@ -119,46 +120,33 @@ const onImageChange = async (event: Event) => {
   const target = event.target as HTMLInputElement;
   if (target.files && target.files.length > 0) {
     const file = target.files[0];
-
-    // Show preview immediately
     const reader = new FileReader();
-    reader.onload = (e) => {
-      imagePreview.value = e.target?.result as string;
-    };
+    reader.onload = (e) => { imagePreview.value = e.target?.result as string; };
     reader.readAsDataURL(file);
-
-    // Upload file to backend
     try {
       const formData = new FormData();
       formData.append('image', file);
-
       const response = await api.post('/api/product/upload-image', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
-
       if (response.data.success) {
         form.value.image = response.data.path;
       } else {
-        errorMessage.value = 'Failed to upload image';
+        errorMessage.value = t('products.failed_upload');
       }
     } catch (error: any) {
-      console.error('Image upload error:', error);
-      errorMessage.value = error.response?.data?.description || error.response?.data?.detail || 'Failed to upload image';
+      errorMessage.value = error.response?.data?.description || error.response?.data?.detail || t('products.failed_upload');
     }
   }
 };
 
 const submitForm = async () => {
   if (form.value.categories.length > 3) {
-    errorMessage.value = 'You can select up to 3 categories.';
+    errorMessage.value = t('products.max_categories');
     return;
   }
-
   errorMessage.value = '';
   isSubmitting.value = true;
-
   try {
     if (isEdit.value) {
       await api.put(`/api/products/${route.params.id}`, form.value);
@@ -167,18 +155,14 @@ const submitForm = async () => {
     }
     router.push({ name: 'ProductList' });
   } catch (error: any) {
-    // Extract error message from API Platform error response
     const apiError = error.response?.data;
-    errorMessage.value = apiError?.description || apiError?.detail || apiError?.title || 'An error occurred while saving the product';
-    console.error('API Error:', error.response?.data);
+    errorMessage.value = apiError?.description || apiError?.detail || apiError?.title || t('common.error');
   } finally {
     isSubmitting.value = false;
   }
 };
 
-const goBack = () => {
-  router.push({ name: 'ProductList' });
-};
+const goBack = () => { router.push({ name: 'ProductList' }); };
 
 onMounted(() => {
   fetchCategories();

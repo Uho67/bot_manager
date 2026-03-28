@@ -6,7 +6,7 @@
         v-model="editValues[getConfigKey(config, index)]"
         type="text"
         class="config-input"
-        :placeholder="config.id ? '' : 'Enter value'"
+        :placeholder="config.id ? '' : t('configs.enter_value')"
       />
       <button
         v-if="config.id"
@@ -14,8 +14,8 @@
         @click="saveConfig(config, index)"
         :disabled="loading[getConfigKey(config, index)]"
       >
-        <span v-if="loading[getConfigKey(config, index)]">Saving...</span>
-        <span v-else>Save</span>
+        <span v-if="loading[getConfigKey(config, index)]">{{ t('common.saving') }}</span>
+        <span v-else>{{ t('common.save') }}</span>
       </button>
       <button
         v-else
@@ -23,8 +23,8 @@
         @click="addConfig(config, index)"
         :disabled="loading[getConfigKey(config, index)] || !editValues[getConfigKey(config, index)]"
       >
-        <span v-if="loading[getConfigKey(config, index)]">Adding...</span>
-        <span v-else>Add</span>
+        <span v-if="loading[getConfigKey(config, index)]">{{ t('common.adding') }}</span>
+        <span v-else>{{ t('common.add') }}</span>
       </button>
     </div>
   </div>
@@ -32,6 +32,9 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 interface ConfigItem {
   id?: number;
@@ -72,5 +75,3 @@ const addConfig = async (config: ConfigItem, index: number) => {
   loading.value[key] = false;
 };
 </script>
-
-
