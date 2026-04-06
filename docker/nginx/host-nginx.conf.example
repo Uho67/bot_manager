@@ -1,0 +1,54 @@
+# Host server nginx config (place in /etc/nginx/sites-available/bot_manager)
+# Run: sudo ln -s /etc/nginx/sites-available/bot_manager /etc/nginx/sites-enabled/
+# Then: sudo certbot --nginx -d your-domain.com
+#
+# Replace YOUR_DOMAIN with your actual domain.
+
+server {
+    listen 80;
+    server_name YOUR_DOMAIN;
+    # certbot will add SSL redirect here automatically
+}
+
+server {
+    listen 443 ssl;
+    server_name YOUR_DOMAIN;
+
+    # SSL certs managed by certbot
+    ssl_certificate /etc/letsencrypt/live/YOUR_DOMAIN/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/YOUR_DOMAIN/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    # Security headers
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+
+    # Proxy /bot_manager/* to Docker nginx
+    # Trailing slash on proxy_pass strips the /bot_manager prefix before forwarding
+    location /bot_manager/ {
+        proxy_pass http://127.0.0.1:8081/;
+
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # Timeouts to match PHP-FPM limits
+        proxy_read_timeout 300;
+        proxy_send_timeout 300;
+
+        proxy_buffer_size 128k;
+        proxy_buffers 4 256k;
+        proxy_busy_buffers_size 256k;
+
+        client_max_body_size 50M;
+    }
+
+    # Optional: redirect bare /bot_manager to /bot_manager/
+    location = /bot_manager {
+        return 301 /bot_manager/;
+    }
+}
