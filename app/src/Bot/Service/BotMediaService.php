@@ -75,7 +75,7 @@ class BotMediaService
             'filename' => $filename,
         ]);
 
-        return "/media/telegram/{$botFolder}/photos/{$filename}";
+        return "media/telegram/{$botFolder}/photos/{$filename}";
     }
 
     /**
@@ -85,7 +85,7 @@ class BotMediaService
     {
         $botFolder = $this->getBotFolder($apiKey);
 
-        return "/media/telegram/{$botFolder}/{$type}/{$filename}";
+        return "media/telegram/{$botFolder}/{$type}/{$filename}";
     }
 
     public function moveBotFolders(string $oldApiKey, string $newApiKey): void
