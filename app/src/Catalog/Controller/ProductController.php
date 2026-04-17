@@ -24,6 +24,8 @@ class ProductController extends AbstractController
         private readonly ProductRepository $productRepository,
         private readonly TemplateRepository $templateRepository,
         private readonly TemplateFormatterService $templateFormatter,
+        #[\Symfony\Component\DependencyInjection\Attribute\Autowire('%app.base_path%')]
+        private readonly string $basePath = '',
     ) {
     }
 
@@ -45,7 +47,7 @@ class ProductController extends AbstractController
             'id' => $product->getId(),
             'name' => $product->getName(),
             'description' => $product->getDescription(),
-            'image' => $request->getSchemeAndHttpHost().'/'.\ltrim($product->getImage(), '/'),
+            'image' => $request->getSchemeAndHttpHost().rtrim($this->basePath, '/').'/'.ltrim($product->getImage(), '/'),
             'image_file_id' => $product->getImageFileId(),
             'template' => $formattedTemplate,
         ]);

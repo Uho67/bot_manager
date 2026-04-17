@@ -27,6 +27,8 @@ class PostController extends AbstractController
         private readonly TemplateRepository $templateRepository,
         private readonly TemplateFormatterService $templateFormatter,
         private readonly ProductRepository $productRepository,
+        #[\Symfony\Component\DependencyInjection\Attribute\Autowire('%app.base_path%')]
+        private readonly string $basePath = '',
     ) {
     }
 
@@ -143,6 +145,6 @@ class PostController extends AbstractController
             return null;
         }
 
-        return $request->getSchemeAndHttpHost() . '/' . \ltrim($imagePath, '/');
+        return $request->getSchemeAndHttpHost() . rtrim($this->basePath, '/') . '/' . ltrim($imagePath, '/');
     }
 }

@@ -17,6 +17,8 @@ readonly class CategoryButtonFormatter
 {
     public function __construct(
         private ButtonRepository $buttonRepository,
+        #[\Symfony\Component\DependencyInjection\Attribute\Autowire('%app.base_path%')]
+        private string $basePath = '',
     ) {
     }
 
@@ -36,7 +38,7 @@ readonly class CategoryButtonFormatter
     {
         $imageUrl = $category->getImage() ?? '';
 
-        return $request->getSchemeAndHttpHost().'/'.ltrim($imageUrl, '/');
+        return $request->getSchemeAndHttpHost().rtrim($this->basePath, '/').'/'.ltrim($imageUrl, '/');
     }
 
     private function buildLayout(Category $category, string $botIdentifier): array
