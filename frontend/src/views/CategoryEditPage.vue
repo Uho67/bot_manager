@@ -45,8 +45,11 @@
       <div class="form-group">
         <label class="form-label">{{ t('categories.image') }}</label>
         <input type="file" accept="image/*" @change="onImageChange" class="form-input" />
-        <div v-if="imagePreview" class="mt-2">
+        <div v-if="imagePreview" class="mt-2 flex items-start gap-2">
           <img :src="imagePreview" alt="Preview" class="max-h-32 rounded border" />
+          <button type="button" @click="removeImage" class="btn btn-danger btn-sm">
+            {{ t('products.remove_image') }}
+          </button>
         </div>
       </div>
       <div v-if="isEdit" class="form-group">
@@ -238,6 +241,19 @@ const fetchCategory = async () => {
       errorMessage.value = error.response?.data?.description || error.response?.data?.detail || t('common.error');
     }
   }
+};
+
+const removeImage = async () => {
+  if (isEdit.value && form.value.image) {
+    try {
+      await api.delete(`/api/category/${route.params.id}/remove-image`);
+    } catch (error: any) {
+      errorMessage.value = error.response?.data?.description || error.response?.data?.detail || t('products.failed_delete_image');
+      return;
+    }
+  }
+  form.value.image = '';
+  imagePreview.value = null;
 };
 
 const onImageChange = async (event: Event) => {

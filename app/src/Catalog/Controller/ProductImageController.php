@@ -169,6 +169,43 @@ class ProductImageController extends AbstractController
         }
     }
 
+    #[Route('/product/{id}/remove-image', name: 'product_remove_image', methods: ['DELETE'])]
+    #[IsGranted('ROLE_ADMIN')]
+    public function removeImage(int $id): JsonResponse
+    {
+        try {
+            $user = $this->getUser();
+            if (!$user || !method_exists($user, 'getBotIdentifier')) {
+                return $this->json(['error' => 'User not authenticated'], 401);
+            }
+
+            $botIdentifier = $user->getBotIdentifier();
+            $product = $this->productRepository->findByIdAndBotIdentifier($id, $botIdentifier);
+
+            if (!$product) {
+                return $this->json(['error' => 'Product not found'], 404);
+            }
+
+            if ($product->getImage()) {
+                $this->imageService->deleteImage($product->getImage());
+            }
+
+            $product->setImage(null);
+            $product->setImageFileId(null);
+            $this->productRepository->getEntityManager()->flush();
+
+            return $this->json(['success' => true]);
+        } catch (\Exception $e) {
+            $this->logger->error('Failed to remove product image', [
+                'error' => $e->getMessage(),
+            ]);
+
+            return $this->json([
+                'error' => 'Failed to remove image: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
     #[Route('/product/additional-images/reorder', name: 'product_reorder_additional_images', methods: ['PATCH'])]
     #[IsGranted('ROLE_ADMIN')]
     public function reorderAdditionalImages(Request $request): JsonResponse

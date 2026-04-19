@@ -36,6 +36,7 @@ readonly class PostEntityListener
 
     /**
      * Validate bot_identifier before updating Post.
+     * Reset image_file_id when image changes.
      */
     public function preUpdate(Post $post, PreUpdateEventArgs $args): void
     {
@@ -45,6 +46,10 @@ readonly class PostEntityListener
         }
         if (!$post->getBotIdentifier()) {
             $post->setBotIdentifier($user->getBotIdentifier());
+        }
+
+        if ($args->hasChangedField('image')) {
+            $post->setImageFileId(null);
         }
     }
 }

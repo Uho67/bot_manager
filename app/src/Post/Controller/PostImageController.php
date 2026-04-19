@@ -9,6 +9,7 @@ declare(strict_types=1);
 namespace App\Post\Controller;
 
 use App\Catalog\Service\ImageService;
+use App\Post\Repository\PostRepository;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -22,6 +23,7 @@ class PostImageController extends AbstractController
 {
     public function __construct(
         private readonly ImageService $imageService,
+        private readonly PostRepository $postRepository,
         private readonly LoggerInterface $logger,
     ) {
     }
@@ -60,6 +62,43 @@ class PostImageController extends AbstractController
 
             return $this->json([
                 'error' => 'Failed to upload image: '.$e->getMessage(),
+            ], 500);
+        }
+    }
+
+    #[Route('/post/{id}/remove-image', name: 'post_remove_image', methods: ['DELETE'])]
+    #[IsGranted('ROLE_ADMIN')]
+    public function removeImage(int $id): JsonResponse
+    {
+        try {
+            $user = $this->getUser();
+            if (!$user || !method_exists($user, 'getBotIdentifier')) {
+                return $this->json(['error' => 'User not authenticated'], 401);
+            }
+
+            $botIdentifier = $user->getBotIdentifier();
+            $post = $this->postRepository->findByIdAndBotIdentifier($id, $botIdentifier);
+
+            if (!$post) {
+                return $this->json(['error' => 'Post not found'], 404);
+            }
+
+            if ($post->getImage()) {
+                $this->imageService->deleteImage($post->getImage());
+            }
+
+            $post->setImage(null);
+            $post->setImageFileId(null);
+            $this->postRepository->getEntityManager()->flush();
+
+            return $this->json(['success' => true]);
+        } catch (\Exception $e) {
+            $this->logger->error('Failed to remove post image', [
+                'error' => $e->getMessage(),
+            ]);
+
+            return $this->json([
+                'error' => 'Failed to remove image: ' . $e->getMessage(),
             ], 500);
         }
     }

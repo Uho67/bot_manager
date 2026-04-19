@@ -37,6 +37,7 @@ readonly class CatalogEntityListener
 
     /**
      * Validate bot_identifier before updating Category or Product.
+     * Reset image_file_id when image changes.
      */
     public function preUpdate(Category|Product $catalogEntity, PreUpdateEventArgs $args): void
     {
@@ -46,6 +47,10 @@ readonly class CatalogEntityListener
         }
         if (!$catalogEntity->getBotIdentifier()) {
             $catalogEntity->setBotIdentifier($user->getBotIdentifier());
+        }
+
+        if ($args->hasChangedField('image')) {
+            $catalogEntity->setImageFileId(null);
         }
     }
 }

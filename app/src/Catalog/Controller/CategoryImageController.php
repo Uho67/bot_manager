@@ -169,6 +169,43 @@ class CategoryImageController extends AbstractController
         }
     }
 
+    #[Route('/category/{id}/remove-image', name: 'category_remove_image', methods: ['DELETE'])]
+    #[IsGranted('ROLE_ADMIN')]
+    public function removeImage(int $id): JsonResponse
+    {
+        try {
+            $user = $this->getUser();
+            if (!$user || !method_exists($user, 'getBotIdentifier')) {
+                return $this->json(['error' => 'User not authenticated'], 401);
+            }
+
+            $botIdentifier = $user->getBotIdentifier();
+            $category = $this->categoryRepository->findByIdAndBotIdentifier($id, $botIdentifier);
+
+            if (!$category) {
+                return $this->json(['error' => 'Category not found'], 404);
+            }
+
+            if ($category->getImage()) {
+                $this->imageService->deleteImage($category->getImage());
+            }
+
+            $category->setImage(null);
+            $category->setImageFileId(null);
+            $this->categoryRepository->getEntityManager()->flush();
+
+            return $this->json(['success' => true]);
+        } catch (\Exception $e) {
+            $this->logger->error('Failed to remove category image', [
+                'error' => $e->getMessage(),
+            ]);
+
+            return $this->json([
+                'error' => 'Failed to remove image: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
     #[Route('/category/additional-images/reorder', name: 'category_reorder_additional_images', methods: ['PATCH'])]
     #[IsGranted('ROLE_ADMIN')]
     public function reorderAdditionalImages(Request $request): JsonResponse
