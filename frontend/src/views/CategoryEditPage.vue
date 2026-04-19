@@ -49,6 +49,16 @@
           <img :src="imagePreview" alt="Preview" class="max-h-32 rounded border" />
         </div>
       </div>
+      <div v-if="isEdit" class="form-group">
+        <ImageGallery
+          :images="additionalImages"
+          :entity-id="Number(route.params.id)"
+          :upload-url="`/api/category/${route.params.id}/additional-images`"
+          delete-url="/api/category/additional-image"
+          reorder-url="/api/category/additional-images/reorder"
+          @update:images="additionalImages = $event"
+        />
+      </div>
 
       <div class="section-card mt-6">
         <div class="flex justify-between items-center mb-4">
@@ -128,7 +138,9 @@ import { ref, onMounted, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import api from '../api';
+import ImageGallery from '../components/ImageGallery.vue';
 import type { Button } from '../types/Button';
+import type { ProductImage } from '../types/Product';
 
 const { t } = useI18n();
 
@@ -156,6 +168,7 @@ const form = ref<{
 const allCategories = ref<Category[]>([]);
 const availableButtons = ref<Button[]>([]);
 const categoryProducts = ref<Product[]>([]);
+const additionalImages = ref<ProductImage[]>([]);
 const imagePreview = ref<string | null>(null);
 const errorMessage = ref('');
 const isSubmitting = ref(false);
@@ -213,6 +226,11 @@ const fetchCategory = async () => {
           ? data.image
           : `${import.meta.env.VITE_API_URL}${data.image}`;
       }
+      additionalImages.value = (data.images || []).map((img: any) => ({
+        id: img.id,
+        image: img.image,
+        sort_order: img.sort_order ?? 0,
+      }));
       if (typeof route.params.id === 'string') {
         await fetchCategoryProducts(route.params.id);
       }
@@ -255,7 +273,9 @@ const submitForm = async () => {
   isSubmitting.value = true;
   try {
     if (isEdit.value) {
-      await api.put(`/api/categories/${route.params.id}`, form.value);
+      await api.patch(`/api/categories/${route.params.id}`, form.value, {
+        headers: { 'Content-Type': 'application/merge-patch+json' },
+      });
     } else {
       await api.post('/api/categories', form.value);
     }

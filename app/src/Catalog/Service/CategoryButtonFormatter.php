@@ -27,12 +27,25 @@ class CategoryButtonFormatter
 
     public function format(Category $category, Request $request, string $botIdentifier): array
     {
+        $baseUrl = $request->getSchemeAndHttpHost().rtrim($this->basePath, '/');
+
+        $additionalImages = [];
+        foreach ($category->getImages() as $categoryImage) {
+            $additionalImages[] = [
+                'id' => $categoryImage->getId(),
+                'image' => $baseUrl.'/'.ltrim($categoryImage->getImage(), '/'),
+                'image_file_id' => $categoryImage->getImageFileId(),
+                'sort_order' => $categoryImage->getSortOrder(),
+            ];
+        }
+
         return [
             'id' => $category->getId(),
             'name' => $category->getName(),
             'is_root' => $category->isRoot(),
             'image' => $this->buildImageUrl($category, $request),
             'image_file_id' => $category->getImageFileId(),
+            'additional_images' => $additionalImages,
             'layout' => $this->buildLayout($category, $botIdentifier),
         ];
     }

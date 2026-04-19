@@ -73,10 +73,17 @@ import { useI18n } from 'vue-i18n';
 import api from '../api';
 import type { ProductImage } from '../types/Product';
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   images: ProductImage[];
-  productId: number;
-}>();
+  entityId: number;
+  uploadUrl?: string;
+  deleteUrl?: string;
+  reorderUrl?: string;
+}>(), {
+  uploadUrl: '',
+  deleteUrl: '',
+  reorderUrl: '',
+});
 
 const emit = defineEmits<{
   'update:images': [value: ProductImage[]];
@@ -88,6 +95,15 @@ const uploading = ref(false);
 const errorMessage = ref('');
 const fileInput = ref<HTMLInputElement | null>(null);
 const dragIndex = ref<number | null>(null);
+
+const resolvedUploadUrl = () =>
+  props.uploadUrl || `/api/product/${props.entityId}/additional-images`;
+const resolvedDeleteUrl = (imageId: number) =>
+  props.deleteUrl
+    ? `${props.deleteUrl}/${imageId}`
+    : `/api/product/additional-image/${imageId}`;
+const resolvedReorderUrl = () =>
+  props.reorderUrl || '/api/product/additional-images/reorder';
 
 const getImageUrl = (path: string) => {
   if (path.startsWith('http')) return path;
@@ -111,7 +127,7 @@ const onFileSelected = async (event: Event) => {
     formData.append('image', file);
 
     const response = await api.post(
-      `/api/product/${props.productId}/additional-images`,
+      resolvedUploadUrl(),
       formData,
       { headers: { 'Content-Type': 'multipart/form-data' } }
     );
@@ -138,7 +154,7 @@ const onFileSelected = async (event: Event) => {
 const removeImage = async (imageId: number, index: number) => {
   errorMessage.value = '';
   try {
-    await api.delete(`/api/product/additional-image/${imageId}`);
+    await api.delete(resolvedDeleteUrl(imageId));
     const updated = [...props.images];
     updated.splice(index, 1);
     emit('update:images', updated);
@@ -170,7 +186,7 @@ const onDrop = async (dropIndex: number) => {
 
   // Persist reorder to backend
   try {
-    await api.patch('/api/product/additional-images/reorder', {
+    await api.patch(resolvedReorderUrl(), {
       images: reordered.map((img) => ({ id: img.id, sort_order: img.sort_order })),
     });
   } catch {

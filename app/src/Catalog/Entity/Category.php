@@ -77,6 +77,14 @@ class Category
     private ?array $layout = null;
 
     /**
+     * @var Collection<int, CategoryImage>
+     */
+    #[ORM\OneToMany(targetEntity: CategoryImage::class, mappedBy: 'category', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ORM\OrderBy(['sort_order' => 'ASC'])]
+    #[Groups(['category:read'])]
+    private Collection $images;
+
+    /**
      * @var Collection<int, Product>
      */
     #[ORM\ManyToMany(targetEntity: Product::class, mappedBy: 'categories')]
@@ -95,6 +103,7 @@ class Category
 
     public function __construct()
     {
+        $this->images = new ArrayCollection();
         $this->products = new ArrayCollection();
         $this->childCategories = new ArrayCollection();
     }
@@ -161,6 +170,35 @@ class Category
     public function setBotIdentifier(string $bot_identifier): static
     {
         $this->bot_identifier = $bot_identifier;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CategoryImage>
+     */
+    public function getImages(): Collection
+    {
+        return $this->images;
+    }
+
+    public function addImage(CategoryImage $image): static
+    {
+        if (!$this->images->contains($image)) {
+            $this->images->add($image);
+            $image->setCategory($this);
+        }
+
+        return $this;
+    }
+
+    public function removeImage(CategoryImage $image): static
+    {
+        if ($this->images->removeElement($image)) {
+            if ($image->getCategory() === $this) {
+                $image->setCategory(null);
+            }
+        }
 
         return $this;
     }

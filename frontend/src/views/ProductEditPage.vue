@@ -49,7 +49,7 @@
       <div v-if="isEdit" class="form-group">
         <ImageGallery
           :images="additionalImages"
-          :product-id="Number(route.params.id)"
+          :entity-id="Number(route.params.id)"
           @update:images="additionalImages = $event"
         />
       </div>

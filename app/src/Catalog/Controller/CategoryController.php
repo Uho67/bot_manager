@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace App\Catalog\Controller;
 
+use App\Catalog\Repository\CategoryImageRepository;
 use App\Catalog\Repository\CategoryRepository;
 use App\Catalog\Service\CategoryButtonFormatter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -19,6 +20,7 @@ class CategoryController extends AbstractController
 {
     public function __construct(
         private readonly CategoryRepository $categoryRepository,
+        private readonly CategoryImageRepository $categoryImageRepository,
         private readonly CategoryButtonFormatter $buttonFormatter,
     ) {
     }
@@ -49,6 +51,42 @@ class CategoryController extends AbstractController
         return new JsonResponse([
             'id' => $category->getId(),
             'image_file_id' => $category->getImageFileId(),
+            'message' => 'Image file ID updated successfully',
+        ]);
+    }
+
+    #[Route(
+        '/category-images/{imageId}/image-file-id',
+        name: 'telegram_catalog_category_image_update_file_id',
+        methods: ['PATCH']
+    )]
+    public function updateAdditionalImageFileId(int $imageId, Request $request): JsonResponse
+    {
+        $botIdentifier = $request->attributes->get('bot_identifier') ?? '';
+
+        $categoryImage = $this->categoryImageRepository->find($imageId);
+
+        if (!$categoryImage) {
+            return new JsonResponse(['error' => 'Image not found'], 404);
+        }
+
+        $category = $categoryImage->getCategory();
+        if (!$category || $category->getBotIdentifier() !== $botIdentifier) {
+            return new JsonResponse(['error' => 'Image not found'], 404);
+        }
+
+        $data = json_decode($request->getContent(), true);
+
+        if (!isset($data['image_file_id'])) {
+            return new JsonResponse(['error' => 'image_file_id is required'], 400);
+        }
+
+        $categoryImage->setImageFileId($data['image_file_id']);
+        $this->categoryImageRepository->save($categoryImage, true);
+
+        return new JsonResponse([
+            'id' => $categoryImage->getId(),
+            'image_file_id' => $categoryImage->getImageFileId(),
             'message' => 'Image file ID updated successfully',
         ]);
     }
