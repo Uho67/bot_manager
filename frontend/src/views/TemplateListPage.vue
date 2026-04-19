@@ -9,6 +9,7 @@
           <option value="start">Start</option>
           <option value="category">Category</option>
           <option value="product">Product</option>
+          <option value="images">Images</option>
         </select>
         <button @click="createTemplate" class="btn btn-primary">{{ t('templates.create') }}</button>
       </div>

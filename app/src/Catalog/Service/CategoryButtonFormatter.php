@@ -13,13 +13,16 @@ use App\Catalog\Entity\Category;
 use App\Catalog\Entity\Product;
 use Symfony\Component\HttpFoundation\Request;
 
-readonly class CategoryButtonFormatter
+class CategoryButtonFormatter
 {
+    private string $basePath;
+
     public function __construct(
-        private ButtonRepository $buttonRepository,
+        private readonly ButtonRepository $buttonRepository,
         #[\Symfony\Component\DependencyInjection\Attribute\Autowire('%app.base_path%')]
-        private string $basePath = '',
+        ?string $basePath = '',
     ) {
+        $this->basePath = $basePath ?? '';
     }
 
     public function format(Category $category, Request $request, string $botIdentifier): array

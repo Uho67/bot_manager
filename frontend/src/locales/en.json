@@ -187,7 +187,15 @@
     "categories_hint": "Select up to 3 categories",
     "image": "Image",
     "failed_upload": "Failed to upload image",
-    "max_categories": "You can select up to 3 categories."
+    "max_categories": "You can select up to 3 categories.",
+    "additional_images": "Additional Images",
+    "add_image": "Add Image",
+    "remove_image": "Remove Image",
+    "max_images": "Maximum 9 additional images allowed",
+    "no_images": "No additional images",
+    "failed_upload_additional": "Failed to upload additional image",
+    "failed_delete_image": "Failed to delete image",
+    "failed_reorder_images": "Failed to reorder images"
   },
   "categories": {
     "title": "Categories",
@@ -243,7 +251,10 @@
     "select_type": "Select type...",
     "type_hint": "Template type defines where it will be used",
     "categories_label": "Categories",
-    "products_label": "Products"
+    "products_label": "Products",
+    "text": "Text",
+    "text_placeholder": "Message text to send after product photos",
+    "text_hint": "This text will be sent as a message after product photos (HTML supported)"
   },
   "posts": {
     "title": "Posts",

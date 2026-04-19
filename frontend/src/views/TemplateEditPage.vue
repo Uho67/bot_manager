@@ -39,8 +39,14 @@
               <option value="start">Start</option>
               <option value="category">Category</option>
               <option value="product">Product</option>
+              <option value="images">Images</option>
             </select>
             <div class="form-hint">{{ t('templates.type_hint') }}</div>
+          </div>
+          <div v-if="form.type === 'images'" class="form-group">
+            <label class="form-label">{{ t('templates.text') }}</label>
+            <textarea v-model="form.text" class="form-input" rows="4" :placeholder="t('templates.text_placeholder')"></textarea>
+            <div class="form-hint">{{ t('templates.text_hint') }}</div>
           </div>
         </div>
       </div>
@@ -137,10 +143,12 @@ const isEdit = computed(() => !!route.params.id);
 const form = ref<{
   name: string;
   type: string;
+  text: string;
   layout: (string | number)[][];
 }>({
   name: '',
   type: '',
+  text: '',
   layout: [],
 });
 
@@ -205,6 +213,7 @@ const fetchTemplate = async () => {
       form.value = {
         name: data.name,
         type: data.type,
+        text: data.text || '',
         layout: normalizeLayout(data.layout || []),
       };
     } catch (error: any) {
@@ -216,6 +225,7 @@ const fetchTemplate = async () => {
       form.value = {
         name: data.name + ' (Copy)',
         type: data.type,
+        text: data.text || '',
         layout: normalizeLayout(data.layout || []),
       };
     } catch (error: any) {

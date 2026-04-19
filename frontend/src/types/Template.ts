@@ -1,7 +1,8 @@
 export interface Template {
 	id: number;
 	name: string;
-	type: 'post' | 'start' | 'category' | 'product';
+	type: 'post' | 'start' | 'category' | 'product' | 'images';
+	text?: string;
 	layout: number[][];
 }
 

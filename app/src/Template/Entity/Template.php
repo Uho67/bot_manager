@@ -45,6 +45,7 @@ class Template
     public const string TYPE_POST = 'post';
     public const string TYPE_START = 'start';
     public const string TYPE_PRODUCT = 'product';
+    public const string TYPE_IMAGES = 'images';
 
     public const int MAX_BUTTONS_PER_LINE = 8;
 
@@ -67,8 +68,12 @@ class Template
     #[ORM\Column(length: 20)]
     #[Groups(['template:read', 'template:write'])]
     #[Assert\NotBlank]
-    #[Assert\Choice(choices: [self::TYPE_POST, self::TYPE_START, self::TYPE_PRODUCT])]
+    #[Assert\Choice(choices: [self::TYPE_POST, self::TYPE_START, self::TYPE_PRODUCT, self::TYPE_IMAGES])]
     private ?string $type = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(['template:read', 'template:write'])]
+    private ?string $text = null;
 
     #[ORM\Column(type: Types::JSON)]
     #[Groups(['template:read', 'template:write'])]
@@ -101,6 +106,18 @@ class Template
     public function setName(string $name): static
     {
         $this->name = $name;
+
+        return $this;
+    }
+
+    public function getText(): ?string
+    {
+        return $this->text;
+    }
+
+    public function setText(?string $text): static
+    {
+        $this->text = $text;
 
         return $this;
     }

@@ -34,6 +34,7 @@ readonly class TemplateFormatterService
             'id' => $template->getId(),
             'name' => $template->getName(),
             'type' => $template->getType(),
+            'text' => $template->getText(),
             'layout' => $this->formatLayout($template->getLayout(), $botIdentifier),
         ];
     }

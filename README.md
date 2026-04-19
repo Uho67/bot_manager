@@ -61,6 +61,27 @@ make cache-clear   # Clear cache
 make clean-all     # Remove everything
 ```
 
+## Auto-Restart After Server Reboot
+
+All containers use `restart: unless-stopped` policy, so Docker will restart them automatically — as long as the Docker daemon itself starts on boot.
+
+### Enable Docker on boot
+
+```bash
+sudo systemctl enable docker
+sudo systemctl is-enabled docker   # should print "enabled"
+```
+
+### Verify after reboot
+
+```bash
+sudo reboot
+# reconnect via SSH after ~1 minute
+docker ps          # all containers should be running
+```
+
+---
+
 ## Troubleshooting
 
 ### Git conflicts on server

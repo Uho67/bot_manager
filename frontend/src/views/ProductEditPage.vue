@@ -46,6 +46,13 @@
           <img :src="imagePreview" alt="Preview" class="max-h-32 rounded border" />
         </div>
       </div>
+      <div v-if="isEdit" class="form-group">
+        <ImageGallery
+          :images="additionalImages"
+          :product-id="Number(route.params.id)"
+          @update:images="additionalImages = $event"
+        />
+      </div>
       <div class="flex gap-2 mt-4">
         <button type="submit" :disabled="isSubmitting" class="btn btn-primary">
           {{ isSubmitting ? t('common.saving') : t('common.save') }}
@@ -62,6 +69,8 @@ import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import api from '../api';
 import RichTextarea from '../components/RichTextarea.vue';
+import ImageGallery from '../components/ImageGallery.vue';
+import type { ProductImage } from '../types/Product';
 
 const { t } = useI18n();
 
@@ -81,6 +90,7 @@ const form = ref<{ id?: string; name: string; description: string; categories: s
   image: '',
 });
 const categories = ref<Category[]>([]);
+const additionalImages = ref<ProductImage[]>([]);
 const imagePreview = ref<string | null>(null);
 const errorMessage = ref('');
 const isSubmitting = ref(false);
@@ -110,6 +120,11 @@ const fetchProduct = async () => {
           ? data.image
           : `${import.meta.env.VITE_API_URL}${data.image}`;
       }
+      additionalImages.value = (data.images || []).map((img: any) => ({
+        id: img.id,
+        image: img.image,
+        sort_order: img.sort_order,
+      }));
     } catch (error: any) {
       errorMessage.value = error.response?.data?.description || error.response?.data?.detail || t('common.error');
     }
@@ -149,7 +164,9 @@ const submitForm = async () => {
   isSubmitting.value = true;
   try {
     if (isEdit.value) {
-      await api.put(`/api/products/${route.params.id}`, form.value);
+      await api.patch(`/api/products/${route.params.id}`, form.value, {
+        headers: { 'Content-Type': 'application/merge-patch+json' },
+      });
     } else {
       await api.post('/api/products', form.value);
     }
