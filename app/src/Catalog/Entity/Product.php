@@ -39,7 +39,6 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Patch(),
         new Delete(),
     ],
-    order: ['name' => 'ASC'],
     normalizationContext: ['groups' => ['product:read']],
     denormalizationContext: ['groups' => ['product:write']],
     security: "is_granted('ROLE_ADMIN')",

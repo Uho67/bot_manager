@@ -1,6 +1,9 @@
 <template>
   <div class="p-4">
-    <h1 class="page-title">{{ t('products.title') }}</h1>
+    <div class="flex items-center justify-between mb-4">
+      <h1 class="page-title mb-0">{{ t('products.title') }}</h1>
+      <button @click="createProduct" class="btn btn-primary">{{ t('products.create') }}</button>
+    </div>
     <div class="table-wrapper">
       <table class="data-table rounded-lg">
         <thead>
