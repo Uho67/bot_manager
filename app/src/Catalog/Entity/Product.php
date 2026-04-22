@@ -30,13 +30,14 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiResource(
     shortName: 'Product',
     operations: [
-        new GetCollection(),
+        new GetCollection(paginationEnabled: true, paginationItemsPerPage: 20),
         new Get(),
         new Post(),
         new Put(),
         new Patch(),
         new Delete(),
     ],
+    order: ['name' => 'ASC'],
     normalizationContext: ['groups' => ['product:read']],
     denormalizationContext: ['groups' => ['product:write']],
     security: "is_granted('ROLE_ADMIN')",

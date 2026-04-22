@@ -195,7 +195,13 @@
     "no_images": "Нет дополнительных изображений",
     "failed_upload_additional": "Ошибка загрузки дополнительного изображения",
     "failed_delete_image": "Ошибка удаления изображения",
-    "failed_reorder_images": "Ошибка изменения порядка изображений"
+    "failed_reorder_images": "Ошибка изменения порядка изображений",
+    "no_products": "Товары не найдены",
+    "showing": "Показано {first}–{last} из {total} товаров",
+    "previous": "Назад",
+    "next": "Вперёд",
+    "page_of": "Страница {current} из {total}",
+    "per_page": "{n} на странице"
   },
   "categories": {
     "title": "Категории",

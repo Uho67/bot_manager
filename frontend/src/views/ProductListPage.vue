@@ -29,9 +29,36 @@
               </div>
             </td>
           </tr>
+          <tr v-if="products.length === 0">
+            <td colspan="4" class="px-4 py-8 text-center text-gray-500">{{ t('products.no_products') }}</td>
+          </tr>
         </tbody>
       </table>
     </div>
+
+    <div v-if="pagination.totalItems > 0" class="mt-4 flex items-center justify-between">
+      <div class="text-sm text-gray-700">
+        {{ t('products.showing', { first: pagination.firstItem, last: pagination.lastItem, total: pagination.totalItems }) }}
+      </div>
+      <div class="flex items-center gap-2">
+        <button @click="goToPage(pagination.currentPage - 1)" :disabled="pagination.currentPage === 1" class="btn btn-secondary btn-sm">
+          {{ t('products.previous') }}
+        </button>
+        <span class="text-sm text-gray-700">
+          {{ t('products.page_of', { current: pagination.currentPage, total: pagination.totalPages }) }}
+        </span>
+        <button @click="goToPage(pagination.currentPage + 1)" :disabled="pagination.currentPage >= pagination.totalPages" class="btn btn-secondary btn-sm">
+          {{ t('products.next') }}
+        </button>
+        <select v-model="pagination.itemsPerPage" @change="changeItemsPerPage" class="form-select w-auto text-sm">
+          <option :value="10">{{ t('products.per_page', { n: 10 }) }}</option>
+          <option :value="20">{{ t('products.per_page', { n: 20 }) }}</option>
+          <option :value="50">{{ t('products.per_page', { n: 50 }) }}</option>
+          <option :value="100">{{ t('products.per_page', { n: 100 }) }}</option>
+        </select>
+      </div>
+    </div>
+
     <button @click="createProduct" class="btn btn-primary mt-4">{{ t('products.create') }}</button>
   </div>
 </template>
@@ -47,10 +74,47 @@ const { t } = useI18n();
 const products = ref<Product[]>([]);
 const dropdownOpen = ref<number|null>(null);
 const router = useRouter();
+const pagination = ref({
+  currentPage: 1,
+  itemsPerPage: 20,
+  totalItems: 0,
+  totalPages: 0,
+  firstItem: 0,
+  lastItem: 0,
+});
 
 const fetchProducts = async () => {
-  const { data } = await api.get('/api/products');
-  products.value = data['member'] || [];
+  const params = new URLSearchParams();
+  params.append('page', pagination.value.currentPage.toString());
+  params.append('itemsPerPage', pagination.value.itemsPerPage.toString());
+
+  const { data } = await api.get(`/api/products?${params.toString()}`);
+  products.value = data['hydra:member'] || data['member'] || [];
+
+  if (data['hydra:totalItems'] !== undefined) {
+    pagination.value.totalItems = data['hydra:totalItems'];
+  }
+  if (pagination.value.totalItems > 0) {
+    pagination.value.totalPages = Math.ceil(pagination.value.totalItems / pagination.value.itemsPerPage);
+    pagination.value.firstItem = (pagination.value.currentPage - 1) * pagination.value.itemsPerPage + 1;
+    pagination.value.lastItem = Math.min(pagination.value.currentPage * pagination.value.itemsPerPage, pagination.value.totalItems);
+  } else {
+    pagination.value.totalPages = 0;
+    pagination.value.firstItem = 0;
+    pagination.value.lastItem = 0;
+  }
+};
+
+const goToPage = (page: number) => {
+  if (page >= 1 && page <= pagination.value.totalPages) {
+    pagination.value.currentPage = page;
+    fetchProducts();
+  }
+};
+
+const changeItemsPerPage = () => {
+  pagination.value.currentPage = 1;
+  fetchProducts();
 };
 
 const openDropdown = (id: number) => {

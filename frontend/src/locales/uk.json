@@ -195,7 +195,13 @@
     "no_images": "Немає додаткових зображень",
     "failed_upload_additional": "Помилка завантаження додаткового зображення",
     "failed_delete_image": "Помилка видалення зображення",
-    "failed_reorder_images": "Помилка зміни порядку зображень"
+    "failed_reorder_images": "Помилка зміни порядку зображень",
+    "no_products": "Товарів не знайдено",
+    "showing": "Показано {first}–{last} з {total} товарів",
+    "previous": "Назад",
+    "next": "Вперед",
+    "page_of": "Сторінка {current} з {total}",
+    "per_page": "{n} на сторінці"
   },
   "categories": {
     "title": "Категорії",
