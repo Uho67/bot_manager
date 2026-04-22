@@ -91,8 +91,9 @@ const fetchProducts = async () => {
   const { data } = await api.get(`/api/products?${params.toString()}`);
   products.value = data['hydra:member'] || data['member'] || [];
 
-  if (data['hydra:totalItems'] !== undefined) {
-    pagination.value.totalItems = data['hydra:totalItems'];
+  const total = data['hydra:totalItems'] ?? data['totalItems'];
+  if (total !== undefined) {
+    pagination.value.totalItems = total;
   }
   if (pagination.value.totalItems > 0) {
     pagination.value.totalPages = Math.ceil(pagination.value.totalItems / pagination.value.itemsPerPage);
