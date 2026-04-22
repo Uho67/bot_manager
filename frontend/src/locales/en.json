@@ -321,7 +321,11 @@
     "per_page": "{n} per page",
     "confirm_delete_selected": "Are you sure you want to delete {count} user(s)?",
     "deleted_successfully": "Users deleted successfully",
-    "mailouts_created": "Success: {count} mailout(s) created"
+    "mailouts_created": "Success: {count} mailout(s) created",
+    "import_users": "Import Users",
+    "importing": "Importing...",
+    "import_result": "Imported: {imported}, Skipped: {skipped}",
+    "import_error": "Import failed"
   },
   "mailout": {
     "title": "Mailout Status",

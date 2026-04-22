@@ -321,7 +321,11 @@
     "per_page": "{n} на странице",
     "confirm_delete_selected": "Вы уверены, что хотите удалить {count} пользователей?",
     "deleted_successfully": "Пользователи успешно удалены",
-    "mailouts_created": "Успешно: создано {count} рассылок"
+    "mailouts_created": "Успешно: создано {count} рассылок",
+    "import_users": "Импорт пользователей",
+    "importing": "Импорт...",
+    "import_result": "Импортировано: {imported}, Пропущено: {skipped}",
+    "import_error": "Ошибка импорта"
   },
   "mailout": {
     "title": "Статус рассылки",

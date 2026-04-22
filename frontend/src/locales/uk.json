@@ -321,7 +321,11 @@
     "per_page": "{n} на сторінці",
     "confirm_delete_selected": "Ви впевнені, що хочете видалити {count} користувачів?",
     "deleted_successfully": "Користувачів успішно видалено",
-    "mailouts_created": "Успішно: створено {count} розсилок"
+    "mailouts_created": "Успішно: створено {count} розсилок",
+    "import_users": "Імпорт користувачів",
+    "importing": "Імпорт...",
+    "import_result": "Імпортовано: {imported}, Пропущено: {skipped}",
+    "import_error": "Помилка імпорту"
   },
   "mailout": {
     "title": "Статус розсилки",
