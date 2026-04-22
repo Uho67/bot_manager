@@ -5,8 +5,14 @@
       <table class="data-table rounded-lg">
         <thead>
           <tr>
-            <th class="table-th">{{ t('table.id') }}</th>
-            <th class="table-th">{{ t('table.name') }}</th>
+            <th class="table-th cursor-pointer select-none" @click="toggleSort('id')">
+              {{ t('table.id') }}
+              <span v-if="sortField === 'id'">{{ sortDirection === 'asc' ? ' ▲' : ' ▼' }}</span>
+            </th>
+            <th class="table-th cursor-pointer select-none" @click="toggleSort('name')">
+              {{ t('table.name') }}
+              <span v-if="sortField === 'name'">{{ sortDirection === 'asc' ? ' ▲' : ' ▼' }}</span>
+            </th>
             <th class="table-th">{{ t('table.image') }}</th>
             <th class="table-th">{{ t('table.actions') }}</th>
           </tr>
@@ -66,7 +72,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import api from '../api';
 import type { Product } from '../types/Product';
 
@@ -74,19 +80,36 @@ const { t } = useI18n();
 const products = ref<Product[]>([]);
 const dropdownOpen = ref<number|null>(null);
 const router = useRouter();
+const route = useRoute();
+
+const sortField = ref<string>(typeof route.query.sortField === 'string' ? route.query.sortField : 'id');
+const sortDirection = ref<string>(typeof route.query.sortDirection === 'string' ? route.query.sortDirection : 'desc');
+
 const pagination = ref({
-  currentPage: 1,
-  itemsPerPage: 20,
+  currentPage: route.query.page ? Number(route.query.page) : 1,
+  itemsPerPage: route.query.itemsPerPage ? Number(route.query.itemsPerPage) : 20,
   totalItems: 0,
   totalPages: 0,
   firstItem: 0,
   lastItem: 0,
 });
 
+const updateQueryParams = () => {
+  router.replace({
+    query: {
+      page: pagination.value.currentPage.toString(),
+      itemsPerPage: pagination.value.itemsPerPage.toString(),
+      sortField: sortField.value,
+      sortDirection: sortDirection.value,
+    },
+  });
+};
+
 const fetchProducts = async () => {
   const params = new URLSearchParams();
   params.append('page', pagination.value.currentPage.toString());
   params.append('itemsPerPage', pagination.value.itemsPerPage.toString());
+  params.append(`order[${sortField.value}]`, sortDirection.value);
 
   const { data } = await api.get(`/api/products?${params.toString()}`);
   products.value = data['hydra:member'] || data['member'] || [];
@@ -104,6 +127,8 @@ const fetchProducts = async () => {
     pagination.value.firstItem = 0;
     pagination.value.lastItem = 0;
   }
+
+  updateQueryParams();
 };
 
 const goToPage = (page: number) => {
@@ -114,6 +139,17 @@ const goToPage = (page: number) => {
 };
 
 const changeItemsPerPage = () => {
+  pagination.value.currentPage = 1;
+  fetchProducts();
+};
+
+const toggleSort = (field: string) => {
+  if (sortField.value === field) {
+    sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortField.value = field;
+    sortDirection.value = 'asc';
+  }
   pagination.value.currentPage = 1;
   fetchProducts();
 };
