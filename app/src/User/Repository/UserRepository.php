@@ -252,8 +252,80 @@ class UserRepository extends ServiceEntityRepository
     }
 
     /**
+     * Bulk insert users, skipping existing ones (matched by unique chat_id + bot_identifier).
+     *
+     * @param array<int, array{chat_id: mixed, name?: mixed, username?: mixed, status?: mixed, created_at?: \DateTimeImmutable}> $usersData
+     * @return array{imported: int, skipped: int, errors: array<string>}
+     */
+    public function bulkInsertIgnoreUsers(string $botIdentifier, array $usersData): array
+    {
+        if (empty($usersData)) {
+            return ['imported' => 0, 'skipped' => 0, 'errors' => []];
+        }
+
+        $conn = $this->getEntityManager()->getConnection();
+        $now = new \DateTimeImmutable();
+        $nowStr = $now->format('Y-m-d H:i:s');
+
+        $errors = [];
+        $validUsers = [];
+
+        foreach ($usersData as $index => $userData) {
+            if (empty($userData['chat_id'])) {
+                $errors[] = "Row {$index}: chat_id is required";
+                continue;
+            }
+
+            $createdAt = $userData['created_at'] instanceof \DateTimeImmutable
+                ? $userData['created_at']->format('Y-m-d H:i:s')
+                : $nowStr;
+
+            $validUsers[] = [
+                'chat_id'    => (string) $userData['chat_id'],
+                'name'       => (string) ($userData['name'] ?? ''),
+                'username'   => (string) ($userData['username'] ?? ''),
+                'status'     => (string) ($userData['status'] ?? 'active'),
+                'created_at' => $createdAt,
+            ];
+        }
+
+        if (empty($validUsers)) {
+            return ['imported' => 0, 'skipped' => 0, 'errors' => $errors];
+        }
+
+        $values = [];
+        $params = [];
+
+        foreach ($validUsers as $userData) {
+            $values[] = '(?, ?, ?, ?, ?, ?, ?)';
+            $params[] = $userData['chat_id'];
+            $params[] = $botIdentifier;
+            $params[] = $userData['name'];
+            $params[] = $userData['username'];
+            $params[] = $userData['status'];
+            $params[] = $userData['created_at'];
+            $params[] = $nowStr;
+        }
+
+        $sql = sprintf(
+            'INSERT IGNORE INTO `user` (chat_id, bot_identifier, name, username, status, created_at, updated_at)
+             VALUES %s',
+            implode(', ', $values)
+        );
+
+        $imported = (int) $conn->executeStatement($sql, $params);
+        $skipped = count($validUsers) - $imported;
+
+        return [
+            'imported' => $imported,
+            'skipped'  => max(0, $skipped),
+            'errors'   => $errors,
+        ];
+    }
+
+    /**
      * Bulk delete users by IDs for a specific bot
-     * 
+     *
      * @param array<int> $userIds
      * @return int Number of deleted users
      */

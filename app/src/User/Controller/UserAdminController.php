@@ -14,6 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 #[Route('/api/users')]
@@ -86,6 +87,100 @@ class UserAdminController extends AbstractController
         return new JsonResponse([
             'message' => 'Post mailout records created successfully',
             'created' => $created,
+        ]);
+    }
+
+    #[Route('/import-csv', name: 'api_users_import_csv', methods: ['POST'])]
+    public function importCsv(Request $request): JsonResponse
+    {
+        $user = $this->getUserFromAuth();
+        $botIdentifier = $user->getBotIdentifier();
+
+        /** @var UploadedFile|null $file */
+        $file = $request->files->get('file');
+
+        if (!$file instanceof UploadedFile) {
+            return new JsonResponse(['error' => 'No file uploaded. Expected multipart field "file".'], 400);
+        }
+
+        if (strtolower($file->getClientOriginalExtension()) !== 'csv') {
+            return new JsonResponse(['error' => 'Invalid file type. Only CSV files are accepted.'], 400);
+        }
+
+        $handle = fopen($file->getPathname(), 'r');
+        if ($handle === false) {
+            return new JsonResponse(['error' => 'Could not read uploaded file.'], 500);
+        }
+
+        $header = fgetcsv($handle);
+        if ($header === false) {
+            fclose($handle);
+            return new JsonResponse(['error' => 'CSV file is empty or invalid.'], 400);
+        }
+
+        // Normalize header column names
+        $columns = array_map('trim', $header);
+        $colIndex = array_flip($columns);
+
+        $required = ['chat_id'];
+        foreach ($required as $col) {
+            if (!isset($colIndex[$col])) {
+                fclose($handle);
+                return new JsonResponse(['error' => "Missing required column: {$col}"], 400);
+            }
+        }
+
+        $usersData = [];
+        $rowNumber = 1;
+
+        while (($row = fgetcsv($handle)) !== false) {
+            ++$rowNumber;
+
+            $chatId = isset($colIndex['chat_id']) ? trim($row[$colIndex['chat_id']] ?? '') : '';
+            if ($chatId === '') {
+                continue;
+            }
+
+            $firstName = isset($colIndex['first_name']) ? trim($row[$colIndex['first_name']] ?? '') : '';
+            $lastName  = isset($colIndex['last_name'])  ? trim($row[$colIndex['last_name']]  ?? '') : '';
+            $name      = trim($firstName . ' ' . $lastName) ?: $chatId;
+
+            $username = isset($colIndex['user_name']) ? trim($row[$colIndex['user_name']] ?? '') : '';
+
+            $isBlocked = isset($colIndex['is_blocked']) ? trim($row[$colIndex['is_blocked']] ?? '0') : '0';
+            $status    = $isBlocked === '1' ? 'blocked' : 'active';
+
+            $createdAt = null;
+            if (isset($colIndex['createdAt'])) {
+                $ms = (int) ($row[$colIndex['createdAt']] ?? 0);
+                if ($ms > 0) {
+                    $createdAt = new \DateTimeImmutable('@' . (int) ($ms / 1000));
+                }
+            }
+
+            $usersData[] = [
+                'chat_id'    => $chatId,
+                'name'       => $name,
+                'username'   => $username,
+                'status'     => $status,
+                'created_at' => $createdAt,
+            ];
+        }
+
+        fclose($handle);
+
+        if (empty($usersData)) {
+            return new JsonResponse(['error' => 'No valid rows found in CSV.'], 400);
+        }
+
+        $result = $this->userRepository->bulkInsertIgnoreUsers($botIdentifier, $usersData);
+
+        return new JsonResponse([
+            'message'  => 'Import completed',
+            'total'    => count($usersData),
+            'imported' => $result['imported'],
+            'skipped'  => $result['skipped'],
+            'errors'   => $result['errors'],
         ]);
     }
 

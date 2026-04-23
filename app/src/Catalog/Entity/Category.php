@@ -23,7 +23,6 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Serializer\Attribute\SerializedName;
-use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
 #[ORM\Index(name: 'idx_category_bot_identifier', columns: ['bot_identifier'])]
@@ -97,7 +96,6 @@ class Category
     #[ORM\ManyToMany(targetEntity: self::class)]
     #[ORM\JoinTable(name: 'category_children')]
     #[Groups(['category:read', 'category:write'])]
-    #[Assert\Count(max: 20, maxMessage: 'A category cannot have more than {{ limit }} children.')]
     #[ValidCategoryChildren]
     private Collection $childCategories;
 

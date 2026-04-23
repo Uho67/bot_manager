@@ -8,6 +8,8 @@ declare(strict_types=1);
 
 namespace App\Catalog\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -30,7 +32,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiResource(
     shortName: 'Product',
     operations: [
-        new GetCollection(),
+        new GetCollection(paginationEnabled: true, paginationItemsPerPage: 20),
         new Get(),
         new Post(),
         new Put(),
@@ -41,6 +43,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     denormalizationContext: ['groups' => ['product:write']],
     security: "is_granted('ROLE_ADMIN')",
 )]
+#[ApiFilter(OrderFilter::class, properties: ['id', 'name'])]
 class Product
 {
     #[ORM\Id]

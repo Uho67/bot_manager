@@ -1,6 +1,12 @@
 <template>
   <div class="p-4">
-    <h1 class="page-title">{{ t('users.title') }}</h1>
+    <div class="flex items-center gap-4 mb-4">
+      <h1 class="page-title mb-0">{{ t('users.title') }}</h1>
+      <input ref="csvFileInput" type="file" accept=".csv" class="hidden" @change="importUsers" />
+      <button @click="(csvFileInput as HTMLInputElement).click()" :disabled="importing" class="btn btn-primary btn-sm">
+        {{ importing ? t('users.importing') : t('users.import_users') }}
+      </button>
+    </div>
 
     <div class="section-card">
       <h2 class="text-lg font-semibold mb-3">{{ t('users.filters') }}</h2>
@@ -142,6 +148,8 @@ import type { User } from '../types/User';
 
 const { t } = useI18n();
 const users = ref<User[]>([]);
+const csvFileInput = ref<HTMLInputElement | null>(null);
+const importing = ref(false);
 const selectedUsers = ref<number[]>([]);
 const showSendPostModal = ref(false);
 const sendPostId = ref<number | null>(null);
@@ -240,6 +248,30 @@ const massSendPost = async () => {
   } catch (error: any) {
     const errorMessage = error.response?.data?.error || t('common.error');
     alert(`${t('common.error')}: ${errorMessage}`);
+  }
+};
+
+const importUsers = async (event: Event) => {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
+  if (!file) return;
+
+  importing.value = true;
+  const formData = new FormData();
+  formData.append('file', file);
+
+  try {
+    const { data } = await api.post('/api/users/import-csv', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    alert(t('users.import_result', { imported: data.imported, skipped: data.skipped }));
+    fetchUsers();
+  } catch (error: any) {
+    const errorMessage = error.response?.data?.error || t('users.import_error');
+    alert(`${t('users.import_error')}: ${errorMessage}`);
+  } finally {
+    importing.value = false;
+    input.value = '';
   }
 };
 

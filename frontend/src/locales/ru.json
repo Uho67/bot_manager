@@ -197,7 +197,13 @@
     "failed_delete_image": "Ошибка удаления изображения",
     "failed_reorder_images": "Ошибка изменения порядка изображений",
     "out_of_stock": "нет в наличии",
-    "enabled": "Активный"
+    "enabled": "Активный",
+    "no_products": "Товары не найдены",
+    "showing": "Показано {first}–{last} из {total} товаров",
+    "previous": "Назад",
+    "next": "Вперёд",
+    "page_of": "Страница {current} из {total}",
+    "per_page": "{n} на странице"
   },
   "categories": {
     "title": "Категории",
@@ -317,7 +323,11 @@
     "per_page": "{n} на странице",
     "confirm_delete_selected": "Вы уверены, что хотите удалить {count} пользователей?",
     "deleted_successfully": "Пользователи успешно удалены",
-    "mailouts_created": "Успешно: создано {count} рассылок"
+    "mailouts_created": "Успешно: создано {count} рассылок",
+    "import_users": "Импорт пользователей",
+    "importing": "Импорт...",
+    "import_result": "Импортировано: {imported}, Пропущено: {skipped}",
+    "import_error": "Ошибка импорта"
   },
   "mailout": {
     "title": "Статус рассылки",

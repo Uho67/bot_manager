@@ -197,7 +197,13 @@
     "failed_delete_image": "Помилка видалення зображення",
     "failed_reorder_images": "Помилка зміни порядку зображень",
     "out_of_stock": "немає в наявності",
-    "enabled": "Активний"
+    "enabled": "Активний",
+    "no_products": "Товарів не знайдено",
+    "showing": "Показано {first}–{last} з {total} товарів",
+    "previous": "Назад",
+    "next": "Вперед",
+    "page_of": "Сторінка {current} з {total}",
+    "per_page": "{n} на сторінці"
   },
   "categories": {
     "title": "Категорії",
@@ -317,7 +323,11 @@
     "per_page": "{n} на сторінці",
     "confirm_delete_selected": "Ви впевнені, що хочете видалити {count} користувачів?",
     "deleted_successfully": "Користувачів успішно видалено",
-    "mailouts_created": "Успішно: створено {count} розсилок"
+    "mailouts_created": "Успішно: створено {count} розсилок",
+    "import_users": "Імпорт користувачів",
+    "importing": "Імпорт...",
+    "import_result": "Імпортовано: {imported}, Пропущено: {skipped}",
+    "import_error": "Помилка імпорту"
   },
   "mailout": {
     "title": "Статус розсилки",
