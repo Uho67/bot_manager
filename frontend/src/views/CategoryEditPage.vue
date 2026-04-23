@@ -281,10 +281,6 @@ const onImageChange = async (event: Event) => {
 };
 
 const submitForm = async () => {
-  if (form.value.childCategories.length > 10) {
-    errorMessage.value = t('categories.max_children');
-    return;
-  }
   errorMessage.value = '';
   isSubmitting.value = true;
   try {
