@@ -196,6 +196,8 @@
     "failed_upload_additional": "Failed to upload additional image",
     "failed_delete_image": "Failed to delete image",
     "failed_reorder_images": "Failed to reorder images",
+    "out_of_stock": "out of stock",
+    "enabled": "Active",
     "no_products": "No products found",
     "showing": "Showing {first} to {last} of {total} products",
     "previous": "Previous",

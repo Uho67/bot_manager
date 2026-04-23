@@ -196,6 +196,8 @@
     "failed_upload_additional": "Ошибка загрузки дополнительного изображения",
     "failed_delete_image": "Ошибка удаления изображения",
     "failed_reorder_images": "Ошибка изменения порядка изображений",
+    "out_of_stock": "нет в наличии",
+    "enabled": "Активный",
     "no_products": "Товары не найдены",
     "showing": "Показано {first}–{last} из {total} товаров",
     "previous": "Назад",

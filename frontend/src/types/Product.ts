@@ -11,6 +11,7 @@ export interface Product {
   image?: string;
   images: ProductImage[];
   categories: Category[];
+  enabled: boolean;
 }
 
 export interface Category {
