@@ -67,6 +67,10 @@ class Product
     private ?string $image_file_id = null;
 
 
+    #[ORM\Column(type: Types::BOOLEAN, options: ['default' => true])]
+    #[Groups(['product:read', 'product:write'])]
+    private bool $enabled = true;
+
     #[ORM\Column(length: 255)]
     #[Groups(['product:read'])]
     private ?string $bot_identifier = null;
@@ -156,6 +160,18 @@ class Product
     public function setBotIdentifier(string $bot_identifier): static
     {
         $this->bot_identifier = $bot_identifier;
+
+        return $this;
+    }
+
+    public function isEnabled(): bool
+    {
+        return $this->enabled;
+    }
+
+    public function setEnabled(bool $enabled): static
+    {
+        $this->enabled = $enabled;
 
         return $this;
     }

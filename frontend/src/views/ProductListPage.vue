@@ -14,7 +14,12 @@
         <tbody>
           <tr v-for="product in products" :key="product.id" class="table-row-hover">
             <td class="table-td">{{ product.id }}</td>
-            <td class="table-td">{{ product.name }}</td>
+            <td class="table-td">
+              {{ product.name }}
+              <span v-if="!product.enabled" class="ml-2 inline-block bg-red-100 text-red-700 text-xs font-semibold px-2 py-0.5 rounded">
+                {{ t('products.out_of_stock') }}
+              </span>
+            </td>
             <td class="table-td">
               <img v-if="product.image" :src="getImageUrl(product.image)" alt="Product Image" class="w-16 h-16 object-cover rounded mx-auto">
               <span v-else class="text-gray-400 text-sm">{{ t('common.no_image') }}</span>

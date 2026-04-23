@@ -56,6 +56,10 @@
           @update:images="additionalImages = $event"
         />
       </div>
+      <div class="form-group flex items-center gap-3">
+        <label class="form-label mb-0">{{ t('products.enabled') }}</label>
+        <input type="checkbox" v-model="form.enabled" class="h-4 w-4" />
+      </div>
       <div class="flex gap-2 mt-4">
         <button type="submit" :disabled="isSubmitting" class="btn btn-primary">
           {{ isSubmitting ? t('common.saving') : t('common.save') }}
@@ -85,12 +89,13 @@ interface Category {
 const route = useRoute();
 const router = useRouter();
 const isEdit = computed(() => !!route.params.id);
-const form = ref<{ id?: string; name: string; description: string; categories: string[]; image?: string }>({
+const form = ref<{ id?: string; name: string; description: string; categories: string[]; image?: string; enabled: boolean }>({
   id: '',
   name: '',
   description: '',
   categories: [],
   image: '',
+  enabled: true,
 });
 const categories = ref<Category[]>([]);
 const additionalImages = ref<ProductImage[]>([]);
@@ -117,6 +122,7 @@ const fetchProduct = async () => {
         description: data.description,
         categories: (data.categories || []).map((cat: Category) => `/api/categories/${cat.id}`),
         image: data.image || '',
+        enabled: data.enabled ?? true,
       };
       if (data.image) {
         imagePreview.value = data.image.startsWith('http')

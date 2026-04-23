@@ -195,7 +195,9 @@
     "no_images": "Нет дополнительных изображений",
     "failed_upload_additional": "Ошибка загрузки дополнительного изображения",
     "failed_delete_image": "Ошибка удаления изображения",
-    "failed_reorder_images": "Ошибка изменения порядка изображений"
+    "failed_reorder_images": "Ошибка изменения порядка изображений",
+    "out_of_stock": "нет в наличии",
+    "enabled": "Активный"
   },
   "categories": {
     "title": "Категории",

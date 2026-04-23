@@ -195,7 +195,9 @@
     "no_images": "Немає додаткових зображень",
     "failed_upload_additional": "Помилка завантаження додаткового зображення",
     "failed_delete_image": "Помилка видалення зображення",
-    "failed_reorder_images": "Помилка зміни порядку зображень"
+    "failed_reorder_images": "Помилка зміни порядку зображень",
+    "out_of_stock": "немає в наявності",
+    "enabled": "Активний"
   },
   "categories": {
     "title": "Категорії",

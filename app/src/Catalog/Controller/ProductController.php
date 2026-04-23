@@ -67,6 +67,7 @@ class ProductController extends AbstractController
             'description' => $product->getDescription(),
             'image' => $baseUrl.'/'.ltrim($product->getImage(), '/'),
             'image_file_id' => $product->getImageFileId(),
+            'enabled' => $product->isEnabled(),
             'additional_images' => $additionalImages,
             'template' => $formattedTemplate,
             'images_template' => $formattedImagesTemplate,
