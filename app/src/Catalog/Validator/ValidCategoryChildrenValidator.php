@@ -11,6 +11,7 @@ namespace App\Catalog\Validator;
 use App\Catalog\Entity\Category;
 use Doctrine\ORM\EntityManagerInterface;
 use LogicException;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
@@ -21,6 +22,7 @@ class ValidCategoryChildrenValidator extends ConstraintValidator
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly RequestStack $requestStack,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -43,11 +45,25 @@ class ValidCategoryChildrenValidator extends ConstraintValidator
         $childrenIds = array_filter($childrenIds);
 
         if (\in_array($currentCategory->getId(), $childrenIds, true)) {
-            throw new LogicException('A category cannot be its own child.');
+            $this->logger->warning('Category self-reference attempt blocked', [
+                'category_id' => $currentCategory->getId(),
+                'submitted_children' => $childrenIds,
+            ]);
+            $this->context->buildViolation($constraint->message)
+                ->addViolation();
+
+            return;
         }
 
         if (!empty($childrenIds) && $this->isAncestor($childrenIds, $currentCategory)) {
-            throw new LogicException('Check children for circular reference.');
+            $this->logger->warning('Circular category reference attempt blocked', [
+                'category_id' => $currentCategory->getId(),
+                'submitted_children' => $childrenIds,
+            ]);
+            $this->context->buildViolation($constraint->circularMessage)
+                ->addViolation();
+
+            return;
         }
     }
 

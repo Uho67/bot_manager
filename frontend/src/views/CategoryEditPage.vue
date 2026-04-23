@@ -11,7 +11,7 @@
         </div>
         <div class="ml-3 flex-1">
           <h3 class="text-sm font-medium text-red-800">{{ t('common.error') }}</h3>
-          <p class="mt-1 text-sm text-red-700">{{ errorMessage }}</p>
+          <pre class="mt-1 text-sm text-red-700 whitespace-pre-wrap">{{ errorMessage }}</pre>
         </div>
         <button @click="errorMessage = ''" class="ml-3 flex-shrink-0 text-red-400 hover:text-red-600">
           <span class="sr-only">{{ t('common.dismiss') }}</span>
@@ -294,7 +294,13 @@ const submitForm = async () => {
     await router.push({ name: 'CategoryList' });
   } catch (error: any) {
     const apiError = error.response?.data;
-    errorMessage.value = apiError?.description || apiError?.detail || apiError?.title || t('common.error');
+    if (apiError?.violations?.length) {
+      errorMessage.value = (apiError.violations as Array<{ propertyPath: string; message: string }>)
+        .map(v => v.propertyPath ? `${v.propertyPath}: ${v.message}` : v.message)
+        .join('\n');
+    } else {
+      errorMessage.value = apiError?.description || apiError?.detail || apiError?.title || t('common.error');
+    }
   } finally {
     isSubmitting.value = false;
   }
