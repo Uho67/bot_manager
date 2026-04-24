@@ -83,13 +83,24 @@
     "users": "Users",
     "mailout_status": "Mailout Status",
     "cache_clean": "Cache Clean",
+    "cache_clean_products": "Clear Products Cache",
+    "cache_clean_categories": "Clear Categories Cache",
+    "cache_clean_posts": "Clear Posts Cache",
+    "cache_clean_all": "Clear All Cache",
     "cleaning": "Cleaning...",
     "logout": "Logout",
     "language": "Language"
   },
   "cache": {
     "confirm_clean": "Are you sure you want to clean the cache?",
-    "cleaned_success": "Cache cleaned successfully"
+    "cleaned_success": "Cache cleaned successfully",
+    "confirm_clean_products": "Clear products cache?",
+    "confirm_clean_categories": "Clear categories cache?",
+    "confirm_clean_posts": "Clear posts cache?",
+    "confirm_clean_all": "Clear ALL cache? This will remove all cached entries.",
+    "cleaned_products": "Products cache cleared",
+    "cleaned_categories": "Categories cache cleared",
+    "cleaned_posts": "Posts cache cleared"
   },
   "login": {
     "title": "Admin Login",

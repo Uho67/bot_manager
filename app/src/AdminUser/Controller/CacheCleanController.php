@@ -31,6 +31,29 @@ readonly class CacheCleanController
     #[Route('/api/admin-user/cache-clean', name: 'api_admin_user_cache_clean', methods: ['POST'])]
     public function __invoke(): JsonResponse
     {
+        return $this->sendCacheDelete('/cache');
+    }
+
+    #[Route('/api/admin-user/cache-clean/products', name: 'api_admin_user_cache_clean_products', methods: ['POST'])]
+    public function clearProducts(): JsonResponse
+    {
+        return $this->sendCacheDelete('/cache/products');
+    }
+
+    #[Route('/api/admin-user/cache-clean/categories', name: 'api_admin_user_cache_clean_categories', methods: ['POST'])]
+    public function clearCategories(): JsonResponse
+    {
+        return $this->sendCacheDelete('/cache/categories');
+    }
+
+    #[Route('/api/admin-user/cache-clean/posts', name: 'api_admin_user_cache_clean_posts', methods: ['POST'])]
+    public function clearPosts(): JsonResponse
+    {
+        return $this->sendCacheDelete('/cache/posts');
+    }
+
+    private function sendCacheDelete(string $path): JsonResponse
+    {
         $token = $this->tokenStorage->getToken();
         $user = $token?->getUser();
 
@@ -53,7 +76,6 @@ readonly class CacheCleanController
             ], 400);
         }
 
-        // Get bot to retrieve hashed API key
         $bot = $this->entityManager->getRepository(Bot::class)->findOneBy(
             ['bot_identifier' => $botIdentifier]
         );
@@ -69,8 +91,7 @@ readonly class CacheCleanController
         }
 
         try {
-            // Send DELETE request with Bearer authorization using hashed API key
-            $response = $this->httpClient->request('DELETE', $endpoint . '/cache', [
+            $response = $this->httpClient->request('DELETE', $endpoint . $path, [
                 'headers' => [
                     'Authorization' => \sprintf('Bearer %s', $apiKey),
                 ],
