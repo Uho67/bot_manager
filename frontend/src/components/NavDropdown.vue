@@ -23,9 +23,20 @@
         <button v-if="!isSuperAdmin && user?.roles?.indexOf('ROLE_ADMIN') !== -1" @click="goTo('/users')" class="nav-menu-item" role="menuitem">{{ t('nav.users') }}</button>
         <button v-if="!isSuperAdmin && user?.roles?.indexOf('ROLE_ADMIN') !== -1" @click="goTo('/mailout')" class="nav-menu-item" role="menuitem">{{ t('nav.mailout_status') }}</button>
         <div class="border-t my-1"></div>
-        <button v-if="user && (user.roles?.includes('ROLE_ADMIN') || user.roles?.includes('ROLE_SUPER_ADMIN'))" @click="handleCacheClean" :disabled="cacheCleaning" class="nav-menu-item-action" role="menuitem">
-          {{ cacheCleaning ? t('nav.cleaning') : t('nav.cache_clean') }}
-        </button>
+        <template v-if="user && (user.roles?.includes('ROLE_ADMIN') || user.roles?.includes('ROLE_SUPER_ADMIN'))">
+          <button @click="handleCacheClean('products')" :disabled="cacheCleaning" class="nav-menu-item-action" role="menuitem">
+            {{ cacheCleaning === 'products' ? t('nav.cleaning') : t('nav.cache_clean_products') }}
+          </button>
+          <button @click="handleCacheClean('categories')" :disabled="cacheCleaning" class="nav-menu-item-action" role="menuitem">
+            {{ cacheCleaning === 'categories' ? t('nav.cleaning') : t('nav.cache_clean_categories') }}
+          </button>
+          <button @click="handleCacheClean('posts')" :disabled="cacheCleaning" class="nav-menu-item-action" role="menuitem">
+            {{ cacheCleaning === 'posts' ? t('nav.cleaning') : t('nav.cache_clean_posts') }}
+          </button>
+          <button @click="handleCacheClean('all')" :disabled="cacheCleaning" class="nav-menu-item-action" role="menuitem">
+            {{ cacheCleaning === 'all' ? t('nav.cleaning') : t('nav.cache_clean_all') }}
+          </button>
+        </template>
         <div class="border-t my-1"></div>
         <!-- Language switcher -->
         <div class="px-4 py-2 flex items-center gap-2">
@@ -55,7 +66,7 @@ const { t, locale } = useI18n();
 const { user, logout } = useAuth();
 const router = useRouter();
 const open = ref(false);
-const cacheCleaning = ref(false);
+const cacheCleaning = ref<string | false>(false);
 
 const currentLocale = computed(() => locale.value);
 
@@ -83,19 +94,40 @@ function changeLocale(lang: string) {
   setLocale(lang);
 }
 
-async function handleCacheClean() {
+const cacheEndpoints: Record<string, string> = {
+  products: '/api/admin-user/cache-clean/products',
+  categories: '/api/admin-user/cache-clean/categories',
+  posts: '/api/admin-user/cache-clean/posts',
+  all: '/api/admin-user/cache-clean',
+};
+
+const cacheConfirmKeys: Record<string, string> = {
+  products: 'cache.confirm_clean_products',
+  categories: 'cache.confirm_clean_categories',
+  posts: 'cache.confirm_clean_posts',
+  all: 'cache.confirm_clean_all',
+};
+
+const cacheSuccessKeys: Record<string, string> = {
+  products: 'cache.cleaned_products',
+  categories: 'cache.cleaned_categories',
+  posts: 'cache.cleaned_posts',
+  all: 'cache.cleaned_success',
+};
+
+async function handleCacheClean(type: string) {
   if (cacheCleaning.value) return;
 
-  if (!confirm(t('cache.confirm_clean'))) {
+  if (!confirm(t(cacheConfirmKeys[type]))) {
     return;
   }
 
-  cacheCleaning.value = true;
+  cacheCleaning.value = type;
   open.value = false;
 
   try {
-    const response = await api.post('/api/admin-user/cache-clean');
-    alert(response.data.message || t('cache.cleaned_success'));
+    await api.post(cacheEndpoints[type]);
+    alert(t(cacheSuccessKeys[type]));
   } catch (error: any) {
     const errorMessage = error.response?.data?.error || error.response?.data?.message || t('common.error');
     alert(`${t('common.error')}: ${errorMessage}`);
