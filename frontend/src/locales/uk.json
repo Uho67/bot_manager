@@ -83,13 +83,24 @@
     "users": "Користувачі",
     "mailout_status": "Статус розсилки",
     "cache_clean": "Очистити кеш",
+    "cache_clean_products": "Очистити кеш товарів",
+    "cache_clean_categories": "Очистити кеш категорій",
+    "cache_clean_posts": "Очистити кеш постів",
+    "cache_clean_all": "Очистити весь кеш",
     "cleaning": "Очищення...",
     "logout": "Вийти",
     "language": "Мова"
   },
   "cache": {
     "confirm_clean": "Ви впевнені, що хочете очистити кеш?",
-    "cleaned_success": "Кеш успішно очищено"
+    "cleaned_success": "Кеш успішно очищено",
+    "confirm_clean_products": "Очистити кеш товарів?",
+    "confirm_clean_categories": "Очистити кеш категорій?",
+    "confirm_clean_posts": "Очистити кеш постів?",
+    "confirm_clean_all": "Очистити ВЕСЬ кеш? Всі кешовані записи буде видалено.",
+    "cleaned_products": "Кеш товарів очищено",
+    "cleaned_categories": "Кеш категорій очищено",
+    "cleaned_posts": "Кеш постів очищено"
   },
   "login": {
     "title": "Вхід до панелі",
@@ -329,7 +340,13 @@
     "import_result": "Імпортовано: {imported}, Пропущено: {skipped}",
     "import_error": "Помилка імпорту",
     "count_total": "{count} користувачів загалом",
-    "count_filtered": "{count} знайдено"
+    "count_filtered": "{count} знайдено",
+    "first": "Перша",
+    "last": "Остання",
+    "of_pages": "з {total}",
+    "select_all_n": "Вибрати всіх {total} користувачів",
+    "all_selected": "Вибрано всіх {total} користувачів.",
+    "loading_ids": "Завантаження..."
   },
   "mailout": {
     "title": "Статус розсилки",

@@ -324,6 +324,89 @@ class UserRepository extends ServiceEntityRepository
     }
 
     /**
+     * Return all user IDs matching the given filters (no pagination).
+     * Accepts the same filter params as the API collection endpoint.
+     *
+     * @param array<string, mixed> $params
+     * @return int[]
+     */
+    public function findAllIdsByBotIdentifierWithFilters(string $botIdentifier, array $params = []): array
+    {
+        $qb = $this->createQueryBuilder('u')
+            ->select('u.id')
+            ->where('u.bot_identifier = :botIdentifier')
+            ->setParameter('botIdentifier', $botIdentifier);
+
+        if (!empty($params['status'])) {
+            $qb->andWhere('u.status = :status')->setParameter('status', $params['status']);
+        }
+
+        if (!empty($params['username'])) {
+            $qb->andWhere('u.username LIKE :username')->setParameter('username', '%' . $params['username'] . '%');
+        }
+
+        if (!empty($params['created_at']['after'])) {
+            try {
+                $qb->andWhere('u.created_at >= :ca_after')
+                    ->setParameter('ca_after', new \DateTimeImmutable($params['created_at']['after']));
+            } catch (\Exception) {
+            }
+        }
+
+        if (!empty($params['created_at']['before'])) {
+            try {
+                $qb->andWhere('u.created_at <= :ca_before')
+                    ->setParameter('ca_before', new \DateTimeImmutable($params['created_at']['before']));
+            } catch (\Exception) {
+            }
+        }
+
+        if (!empty($params['updated_at']['after'])) {
+            try {
+                $qb->andWhere('u.updated_at >= :ua_after')
+                    ->setParameter('ua_after', new \DateTimeImmutable($params['updated_at']['after']));
+            } catch (\Exception) {
+            }
+        }
+
+        if (!empty($params['updated_at']['before'])) {
+            try {
+                $qb->andWhere('u.updated_at <= :ua_before')
+                    ->setParameter('ua_before', new \DateTimeImmutable($params['updated_at']['before']));
+            } catch (\Exception) {
+            }
+        }
+
+        return array_column($qb->getQuery()->getArrayResult(), 'id');
+    }
+
+    /**
+     * Set status = 'inactive' for all users matching the given chat_ids and bot.
+     *
+     * @param array<string> $chatIds
+     * @return int Number of updated rows
+     */
+    public function deactivateByChatIds(string $botIdentifier, array $chatIds): int
+    {
+        if (empty($chatIds)) {
+            return 0;
+        }
+
+        return $this->createQueryBuilder('u')
+            ->update()
+            ->set('u.status', ':inactive')
+            ->set('u.updated_at', ':now')
+            ->where('u.bot_identifier = :botIdentifier')
+            ->andWhere('u.chat_id IN (:chatIds)')
+            ->setParameter('inactive', 'inactive')
+            ->setParameter('now', new \DateTimeImmutable())
+            ->setParameter('botIdentifier', $botIdentifier)
+            ->setParameter('chatIds', $chatIds)
+            ->getQuery()
+            ->execute();
+    }
+
+    /**
      * Bulk delete users by IDs for a specific bot
      *
      * @param array<int> $userIds

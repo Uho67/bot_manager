@@ -83,13 +83,24 @@
     "users": "Пользователи",
     "mailout_status": "Статус рассылки",
     "cache_clean": "Очистить кэш",
+    "cache_clean_products": "Очистить кэш товаров",
+    "cache_clean_categories": "Очистить кэш категорий",
+    "cache_clean_posts": "Очистить кэш постов",
+    "cache_clean_all": "Очистить весь кэш",
     "cleaning": "Очистка...",
     "logout": "Выйти",
     "language": "Язык"
   },
   "cache": {
     "confirm_clean": "Вы уверены, что хотите очистить кэш?",
-    "cleaned_success": "Кэш успешно очищен"
+    "cleaned_success": "Кэш успешно очищен",
+    "confirm_clean_products": "Очистить кэш товаров?",
+    "confirm_clean_categories": "Очистить кэш категорий?",
+    "confirm_clean_posts": "Очистить кэш постов?",
+    "confirm_clean_all": "Очистить ВЕСЬ кэш? Все кэшированные записи будут удалены.",
+    "cleaned_products": "Кэш товаров очищен",
+    "cleaned_categories": "Кэш категорий очищен",
+    "cleaned_posts": "Кэш постов очищен"
   },
   "login": {
     "title": "Вход в панель",
@@ -329,7 +340,13 @@
     "import_result": "Импортировано: {imported}, Пропущено: {skipped}",
     "import_error": "Ошибка импорта",
     "count_total": "{count} пользователей всего",
-    "count_filtered": "{count} найдено"
+    "count_filtered": "{count} найдено",
+    "first": "Первая",
+    "last": "Последняя",
+    "of_pages": "из {total}",
+    "select_all_n": "Выбрать всех {total} пользователей",
+    "all_selected": "Выбрано всех {total} пользователей.",
+    "loading_ids": "Загрузка..."
   },
   "mailout": {
     "title": "Статус рассылки",
