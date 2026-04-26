@@ -4,6 +4,7 @@ import type { AdminUser } from '../types/AdminUser';
 
 interface UseAdminUsersReturn {
   admins: Ref<AdminUser[]>;
+  totalItems: Ref<number>;
   loading: Ref<boolean>;
   error: Ref<Error | null>;
   fetchAdmins: () => Promise<void>;
@@ -14,6 +15,7 @@ interface UseAdminUsersReturn {
 
 export function useAdminUsers(): UseAdminUsersReturn {
   const admins = ref<AdminUser[]>([]);
+  const totalItems = ref<number>(0);
   const loading = ref<boolean>(false);
   const error = ref<Error | null>(null);
 
@@ -23,6 +25,7 @@ export function useAdminUsers(): UseAdminUsersReturn {
     try {
       const response = await api.get('/api/admin_users');
       admins.value = response.data['member'] || response.data;
+      totalItems.value = response.data['hydra:totalItems'] ?? response.data['totalItems'] ?? admins.value.length;
     } catch (e) {
       error.value = e as Error;
     } finally {
@@ -47,5 +50,5 @@ export function useAdminUsers(): UseAdminUsersReturn {
     await fetchAdmins();
   };
 
-  return { admins, loading, error, fetchAdmins, createAdmin, updateAdmin, deleteAdmin };
+  return { admins, totalItems, loading, error, fetchAdmins, createAdmin, updateAdmin, deleteAdmin };
 }

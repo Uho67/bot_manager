@@ -3,7 +3,10 @@
     <div class="page-content">
       <div class="page-header">
         <div>
-          <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ t('admin_users.title') }}</h1>
+          <h1 class="text-3xl font-bold text-gray-900 mb-2">
+            {{ t('admin_users.title') }}
+            <span v-if="!loading" class="ml-3 inline-flex items-center px-3 py-1 rounded-full text-base font-semibold bg-blue-100 text-blue-700">{{ totalItems }}</span>
+          </h1>
           <p class="text-gray-600">{{ t('admin_users.subtitle') }}</p>
         </div>
         <div class="mt-4 sm:mt-0 flex gap-3">
@@ -114,10 +117,10 @@
         </button>
       </div>
 
-      <div v-if="admins.length" class="stats-card">
+      <div v-if="!loading" class="stats-card">
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div class="text-center">
-            <p class="text-3xl font-bold text-blue-600">{{ admins.length }}</p>
+            <p class="text-3xl font-bold text-blue-600">{{ totalItems }}</p>
             <p class="text-sm text-gray-600 mt-1">{{ t('admin_users.total') }}</p>
           </div>
           <div class="text-center">
@@ -157,7 +160,7 @@ import AdminUserModal from '../components/AdminUserModal.vue';
 import ConfirmDeleteModal from '../components/ConfirmDeleteModal.vue';
 
 const { t } = useI18n();
-const { admins, loading, error, fetchAdmins, createAdmin, updateAdmin, deleteAdmin } = useAdminUsers();
+const { admins, totalItems, loading, error, fetchAdmins, createAdmin, updateAdmin, deleteAdmin } = useAdminUsers();
 
 const isModalOpen = ref(false);
 const isDeleteModalOpen = ref(false);

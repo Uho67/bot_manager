@@ -2,7 +2,7 @@
   <div class="p-4">
     <div class="flex items-center gap-4 mb-4">
       <h1 class="page-title mb-0">{{ t('users.title') }}</h1>
-      <span v-if="pagination.totalItems > 0" class="badge badge-blue text-sm px-3 py-1">
+      <span v-if="dataLoaded" class="badge badge-blue text-sm px-3 py-1">
         {{ hasActiveFilters ? t('users.count_filtered', { count: pagination.totalItems }) : t('users.count_total', { count: pagination.totalItems }) }}
       </span>
       <input ref="csvFileInput" type="file" accept=".csv" class="hidden" @change="importUsers" />
@@ -195,6 +195,7 @@ import type { User } from '../types/User';
 
 const { t } = useI18n();
 const users = ref<User[]>([]);
+const dataLoaded = ref(false);
 const csvFileInput = ref<HTMLInputElement | null>(null);
 const importing = ref(false);
 const selectedUsers = ref<number[]>([]);
@@ -253,9 +254,11 @@ const fetchUsers = async () => {
     const { data } = await api.get(`/api/users?${params.toString()}`);
     users.value = data['hydra:member'] || data['member'] || [];
 
-    if (data['hydra:totalItems'] !== undefined) {
-      pagination.value.totalItems = data['hydra:totalItems'];
+    const serverTotal = data['hydra:totalItems'] ?? data['totalItems'];
+    if (serverTotal !== undefined) {
+      pagination.value.totalItems = serverTotal;
     }
+    dataLoaded.value = true;
     if (pagination.value.totalItems > 0) {
       pagination.value.totalPages = Math.ceil(pagination.value.totalItems / pagination.value.itemsPerPage);
       pagination.value.firstItem = (pagination.value.currentPage - 1) * pagination.value.itemsPerPage + 1;
