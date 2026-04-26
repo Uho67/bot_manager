@@ -2,6 +2,9 @@
   <div class="p-4">
     <div class="flex items-center gap-4 mb-4">
       <h1 class="page-title mb-0">{{ t('users.title') }}</h1>
+      <span v-if="pagination.totalItems > 0" class="badge badge-blue text-sm px-3 py-1">
+        {{ hasActiveFilters ? t('users.count_filtered', { count: pagination.totalItems }) : t('users.count_total', { count: pagination.totalItems }) }}
+      </span>
       <input ref="csvFileInput" type="file" accept=".csv" class="hidden" @change="importUsers" />
       <button @click="(csvFileInput as HTMLInputElement).click()" :disabled="importing" class="btn btn-primary btn-sm">
         {{ importing ? t('users.importing') : t('users.import_users') }}
@@ -141,7 +144,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import api from '../api';
 import type { User } from '../types/User';
@@ -169,6 +172,10 @@ const pagination = ref({
   firstItem: 0,
   lastItem: 0,
 });
+
+const hasActiveFilters = computed(() =>
+  Object.values(filters.value).some(v => v !== '')
+);
 
 const fetchUsers = async () => {
   try {

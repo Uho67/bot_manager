@@ -327,7 +327,9 @@
     "import_users": "Імпорт користувачів",
     "importing": "Імпорт...",
     "import_result": "Імпортовано: {imported}, Пропущено: {skipped}",
-    "import_error": "Помилка імпорту"
+    "import_error": "Помилка імпорту",
+    "count_total": "{count} користувачів загалом",
+    "count_filtered": "{count} знайдено"
   },
   "mailout": {
     "title": "Статус розсилки",
