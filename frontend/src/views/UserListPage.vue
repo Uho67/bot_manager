@@ -46,13 +46,28 @@
       </div>
     </div>
 
-    <div v-if="selectedUsers.length > 0" class="alert-info mb-4 flex items-center justify-between">
-      <span class="text-sm font-medium text-blue-800">
-        {{ t('users.selected', { count: selectedUsers.length }) }}
-      </span>
-      <div class="flex gap-2">
-        <button @click="showSendPostModal = true" class="btn btn-success btn-sm">{{ t('users.send_post') }}</button>
-        <button @click="massDelete" class="btn btn-danger btn-sm">{{ t('users.delete_selected') }}</button>
+    <div v-if="selectedUsers.length > 0" class="alert-info mb-4">
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <div class="flex items-center gap-3 flex-wrap">
+          <span class="text-sm font-medium text-blue-800">
+            {{ t('users.selected', { count: selectedUsers.length }) }}
+          </span>
+          <button
+            v-if="!allPagesSelected && isPageFullySelected && pagination.totalItems > users.length"
+            @click="selectAllPages"
+            :disabled="loadingAllIds"
+            class="text-sm text-blue-700 underline hover:text-blue-900 bg-transparent border-0 p-0 cursor-pointer"
+          >
+            {{ loadingAllIds ? t('users.loading_ids') : t('users.select_all_n', { total: pagination.totalItems }) }}
+          </button>
+          <span v-if="allPagesSelected" class="text-sm text-blue-600 italic">
+            {{ t('users.all_selected', { total: pagination.totalItems }) }}
+          </span>
+        </div>
+        <div class="flex gap-2">
+          <button @click="showSendPostModal = true" class="btn btn-success btn-sm">{{ t('users.send_post') }}</button>
+          <button @click="massDelete" class="btn btn-danger btn-sm">{{ t('users.delete_selected') }}</button>
+        </div>
       </div>
     </div>
 
@@ -82,15 +97,29 @@
         <thead>
           <tr>
             <th class="table-th">
-              <input type="checkbox" @change="toggleSelectAll" :checked="selectedUsers.length === users.length && users.length > 0" class="form-checkbox" />
+              <input type="checkbox" @change="toggleSelectAll" :checked="isPageFullySelected" class="form-checkbox" />
             </th>
-            <th class="table-th">{{ t('table.id') }}</th>
-            <th class="table-th">{{ t('users.name') }}</th>
-            <th class="table-th">{{ t('users.username') }}</th>
-            <th class="table-th">{{ t('users.chat_id') }}</th>
-            <th class="table-th">{{ t('table.status') }}</th>
-            <th class="table-th">{{ t('users.created_at') }}</th>
-            <th class="table-th">{{ t('users.updated_at') }}</th>
+            <th class="table-th cursor-pointer select-none" @click="toggleSort('id')">
+              {{ t('table.id') }} <span class="text-xs opacity-60">{{ getSortIcon('id') }}</span>
+            </th>
+            <th class="table-th cursor-pointer select-none" @click="toggleSort('name')">
+              {{ t('users.name') }} <span class="text-xs opacity-60">{{ getSortIcon('name') }}</span>
+            </th>
+            <th class="table-th cursor-pointer select-none" @click="toggleSort('username')">
+              {{ t('users.username') }} <span class="text-xs opacity-60">{{ getSortIcon('username') }}</span>
+            </th>
+            <th class="table-th cursor-pointer select-none" @click="toggleSort('chat_id')">
+              {{ t('users.chat_id') }} <span class="text-xs opacity-60">{{ getSortIcon('chat_id') }}</span>
+            </th>
+            <th class="table-th cursor-pointer select-none" @click="toggleSort('status')">
+              {{ t('table.status') }} <span class="text-xs opacity-60">{{ getSortIcon('status') }}</span>
+            </th>
+            <th class="table-th cursor-pointer select-none" @click="toggleSort('created_at')">
+              {{ t('users.created_at') }} <span class="text-xs opacity-60">{{ getSortIcon('created_at') }}</span>
+            </th>
+            <th class="table-th cursor-pointer select-none" @click="toggleSort('updated_at')">
+              {{ t('users.updated_at') }} <span class="text-xs opacity-60">{{ getSortIcon('updated_at') }}</span>
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -115,25 +144,40 @@
       </table>
     </div>
 
-    <div v-if="pagination.totalItems > 0" class="mt-4 flex items-center justify-between">
+    <div v-if="pagination.totalItems > 0" class="mt-4 flex items-center justify-between flex-wrap gap-2">
       <div class="text-sm text-gray-700">
         {{ t('users.showing', { first: pagination.firstItem, last: pagination.lastItem, total: pagination.totalItems }) }}
       </div>
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-2 flex-wrap">
+        <button @click="goToPage(1)" :disabled="pagination.currentPage === 1" class="btn btn-secondary btn-sm">
+          {{ t('users.first') }}
+        </button>
         <button @click="goToPage(pagination.currentPage - 1)" :disabled="pagination.currentPage === 1" class="btn btn-secondary btn-sm">
           {{ t('users.previous') }}
         </button>
-        <span class="text-sm text-gray-700">
-          {{ t('users.page_of', { current: pagination.currentPage, total: pagination.totalPages }) }}
-        </span>
+        <div class="flex items-center gap-1 text-sm text-gray-700">
+          <input
+            type="number"
+            v-model.number="pageInput"
+            @keyup.enter="goToPage(pageInput)"
+            @blur="goToPage(pageInput)"
+            min="1"
+            :max="pagination.totalPages"
+            class="form-input w-16 text-center text-sm py-1"
+          />
+          <span>{{ t('users.of_pages', { total: pagination.totalPages }) }}</span>
+        </div>
         <button @click="goToPage(pagination.currentPage + 1)" :disabled="pagination.currentPage >= pagination.totalPages" class="btn btn-secondary btn-sm">
           {{ t('users.next') }}
         </button>
+        <button @click="goToPage(pagination.totalPages)" :disabled="pagination.currentPage >= pagination.totalPages" class="btn btn-secondary btn-sm">
+          {{ t('users.last') }}
+        </button>
         <select v-model="pagination.itemsPerPage" @change="changeItemsPerPage" class="form-select w-auto text-sm">
-          <option :value="10">{{ t('users.per_page', { n: 10 }) }}</option>
           <option :value="20">{{ t('users.per_page', { n: 20 }) }}</option>
           <option :value="50">{{ t('users.per_page', { n: 50 }) }}</option>
           <option :value="100">{{ t('users.per_page', { n: 100 }) }}</option>
+          <option :value="200">{{ t('users.per_page', { n: 200 }) }}</option>
         </select>
       </div>
     </div>
@@ -141,7 +185,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import api from '../api';
 import type { User } from '../types/User';
@@ -151,8 +195,14 @@ const users = ref<User[]>([]);
 const csvFileInput = ref<HTMLInputElement | null>(null);
 const importing = ref(false);
 const selectedUsers = ref<number[]>([]);
+const allPagesSelected = ref(false);
+const loadingAllIds = ref(false);
 const showSendPostModal = ref(false);
 const sendPostId = ref<number | null>(null);
+const sortColumn = ref('');
+const sortDirection = ref<'asc' | 'desc'>('asc');
+const pageInput = ref(1);
+
 const filters = ref({
   status: '',
   username: '',
@@ -161,24 +211,35 @@ const filters = ref({
   updated_at_from: '',
   updated_at_to: '',
 });
+
 const pagination = ref({
   currentPage: 1,
-  itemsPerPage: 20,
+  itemsPerPage: 100,
   totalItems: 0,
   totalPages: 0,
   firstItem: 0,
   lastItem: 0,
 });
 
+const isPageFullySelected = computed(
+  () => users.value.length > 0 && users.value.every(u => selectedUsers.value.includes(u.id))
+);
+
+const buildFilterParams = (): URLSearchParams => {
+  const params = new URLSearchParams();
+  if (filters.value.status) params.append('status', filters.value.status);
+  if (filters.value.username) params.append('username', filters.value.username);
+  if (filters.value.created_at_from) params.append('created_at[after]', filters.value.created_at_from);
+  if (filters.value.created_at_to) params.append('created_at[before]', filters.value.created_at_to);
+  if (filters.value.updated_at_from) params.append('updated_at[after]', filters.value.updated_at_from);
+  if (filters.value.updated_at_to) params.append('updated_at[before]', filters.value.updated_at_to);
+  if (sortColumn.value) params.append(`order[${sortColumn.value}]`, sortDirection.value);
+  return params;
+};
+
 const fetchUsers = async () => {
   try {
-    const params = new URLSearchParams();
-    if (filters.value.status) params.append('status', filters.value.status);
-    if (filters.value.username) params.append('username', filters.value.username);
-    if (filters.value.created_at_from) params.append('created_at[gte]', filters.value.created_at_from);
-    if (filters.value.created_at_to) params.append('created_at[lte]', filters.value.created_at_to);
-    if (filters.value.updated_at_from) params.append('updated_at[gte]', filters.value.updated_at_from);
-    if (filters.value.updated_at_to) params.append('updated_at[lte]', filters.value.updated_at_to);
+    const params = buildFilterParams();
     params.append('page', pagination.value.currentPage.toString());
     params.append('itemsPerPage', pagination.value.itemsPerPage.toString());
 
@@ -197,27 +258,87 @@ const fetchUsers = async () => {
       pagination.value.firstItem = 0;
       pagination.value.lastItem = 0;
     }
-    selectedUsers.value = [];
+    pageInput.value = pagination.value.currentPage;
+    if (!allPagesSelected.value) {
+      selectedUsers.value = [];
+    }
   } catch (error) {
     console.error('Error fetching users:', error);
     users.value = [];
   }
 };
 
-const applyFilters = () => { pagination.value.currentPage = 1; fetchUsers(); };
+const applyFilters = () => {
+  pagination.value.currentPage = 1;
+  allPagesSelected.value = false;
+  selectedUsers.value = [];
+  fetchUsers();
+};
+
 const clearFilters = () => {
   filters.value = { status: '', username: '', created_at_from: '', created_at_to: '', updated_at_from: '', updated_at_to: '' };
+  sortColumn.value = '';
+  sortDirection.value = 'asc';
+  pagination.value.currentPage = 1;
+  allPagesSelected.value = false;
+  selectedUsers.value = [];
+  fetchUsers();
+};
+
+const goToPage = (page: number) => {
+  const target = Math.max(1, Math.min(page, pagination.value.totalPages));
+  if (target !== pagination.value.currentPage) {
+    pagination.value.currentPage = target;
+    fetchUsers();
+  }
+  pageInput.value = pagination.value.currentPage;
+};
+
+const changeItemsPerPage = () => {
+  pagination.value.currentPage = 1;
+  allPagesSelected.value = false;
+  selectedUsers.value = [];
+  fetchUsers();
+};
+
+const toggleSort = (column: string) => {
+  if (sortColumn.value === column) {
+    sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortColumn.value = column;
+    sortDirection.value = 'asc';
+  }
   pagination.value.currentPage = 1;
   fetchUsers();
 };
-const goToPage = (page: number) => {
-  if (page >= 1 && page <= pagination.value.totalPages) { pagination.value.currentPage = page; fetchUsers(); }
+
+const getSortIcon = (column: string): string => {
+  if (sortColumn.value !== column) return '⇅';
+  return sortDirection.value === 'asc' ? '▲' : '▼';
 };
-const changeItemsPerPage = () => { pagination.value.currentPage = 1; fetchUsers(); };
 
 const toggleSelectAll = (event: Event) => {
-  const target = event.target as HTMLInputElement;
-  selectedUsers.value = target.checked ? users.value.map(u => u.id) : [];
+  const checked = (event.target as HTMLInputElement).checked;
+  if (checked) {
+    selectedUsers.value = users.value.map(u => u.id);
+  } else {
+    selectedUsers.value = [];
+    allPagesSelected.value = false;
+  }
+};
+
+const selectAllPages = async () => {
+  loadingAllIds.value = true;
+  try {
+    const params = buildFilterParams();
+    const { data } = await api.get(`/api/users/select-all-ids?${params.toString()}`);
+    selectedUsers.value = data.ids ?? [];
+    allPagesSelected.value = true;
+  } catch (error) {
+    console.error('Error fetching all user IDs:', error);
+  } finally {
+    loadingAllIds.value = false;
+  }
 };
 
 const massDelete = async () => {
@@ -226,6 +347,7 @@ const massDelete = async () => {
   try {
     await api.post('/api/users/mass-delete', { ids: selectedUsers.value });
     selectedUsers.value = [];
+    allPagesSelected.value = false;
     fetchUsers();
     alert(t('users.deleted_successfully'));
   } catch (error: any) {
@@ -244,6 +366,7 @@ const massSendPost = async () => {
     showSendPostModal.value = false;
     sendPostId.value = null;
     selectedUsers.value = [];
+    allPagesSelected.value = false;
     alert(t('users.mailouts_created', { count: data.created }));
   } catch (error: any) {
     const errorMessage = error.response?.data?.error || t('common.error');

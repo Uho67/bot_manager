@@ -27,6 +27,18 @@ class UserAdminController extends AbstractController
     ) {
     }
 
+    #[Route('/select-all-ids', name: 'api_users_select_all_ids', methods: ['GET'])]
+    public function selectAllIds(Request $request): JsonResponse
+    {
+        $user = $this->getUserFromAuth();
+        $botIdentifier = $user->getBotIdentifier();
+
+        $params = $request->query->all();
+        $ids = $this->userRepository->findAllIdsByBotIdentifierWithFilters($botIdentifier, $params);
+
+        return new JsonResponse(['ids' => $ids]);
+    }
+
     #[Route('/mass-delete', name: 'api_users_mass_delete', methods: ['POST'])]
     public function massDelete(Request $request): JsonResponse
     {

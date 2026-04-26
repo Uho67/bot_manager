@@ -52,14 +52,12 @@ class PostMailoutRepository extends ServiceEntityRepository
         }
 
         $sql = sprintf(
-            'INSERT INTO post_mailout (chat_id, post_id, status, bot_identifier, created_at, remove_mode)
+            'INSERT IGNORE INTO post_mailout (chat_id, post_id, status, bot_identifier, created_at, remove_mode)
              VALUES %s',
             implode(', ', $values)
         );
 
-        $conn->executeStatement($sql, $params);
-
-        return count($mailouts);
+        return (int) $conn->executeStatement($sql, $params);
     }
 
     /**

@@ -338,7 +338,13 @@
     "import_users": "Імпорт користувачів",
     "importing": "Імпорт...",
     "import_result": "Імпортовано: {imported}, Пропущено: {skipped}",
-    "import_error": "Помилка імпорту"
+    "import_error": "Помилка імпорту",
+    "first": "Перша",
+    "last": "Остання",
+    "of_pages": "з {total}",
+    "select_all_n": "Вибрати всіх {total} користувачів",
+    "all_selected": "Вибрано всіх {total} користувачів.",
+    "loading_ids": "Завантаження..."
   },
   "mailout": {
     "title": "Статус розсилки",
