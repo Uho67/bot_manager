@@ -9,6 +9,7 @@ declare(strict_types=1);
 namespace App\Mailout\Controller;
 
 use App\Mailout\Repository\PostMailoutRepository;
+use App\User\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,6 +20,7 @@ class PostMailoutTelegramController extends AbstractController
 {
     public function __construct(
         private readonly PostMailoutRepository $postMailoutRepository,
+        private readonly UserRepository $userRepository,
     ) {
     }
 
@@ -73,6 +75,39 @@ class PostMailoutTelegramController extends AbstractController
                     'sent_at' => $mailout->getSentAt()?->format('Y-m-d H:i:s'),
                 ];
             }, $mailouts),
+        ]);
+    }
+
+    /**
+     * Called by NestJS when Telegram returns 403 (bot blocked by user).
+     * Deletes the pending mailout records and marks those users as inactive.
+     */
+    #[Route('/report-blocked', name: 'telegram_post_mailout_report_blocked', methods: ['POST'])]
+    public function reportBlocked(Request $request): JsonResponse
+    {
+        $botIdentifier = $request->attributes->get('bot_identifier') ?? '';
+
+        $data = json_decode($request->getContent(), true);
+
+        if (!\is_array($data) || !isset($data['chat_ids'], $data['mailout_ids'])
+            || !\is_array($data['chat_ids']) || !\is_array($data['mailout_ids'])) {
+            return new JsonResponse(['error' => 'Expected "chat_ids" and "mailout_ids" arrays.'], 400);
+        }
+
+        $deleted = 0;
+        $deactivated = 0;
+
+        if (!empty($data['mailout_ids'])) {
+            $deleted = $this->postMailoutRepository->bulkDeletePostMailouts($botIdentifier, $data['mailout_ids']);
+        }
+
+        if (!empty($data['chat_ids'])) {
+            $deactivated = $this->userRepository->deactivateByChatIds($botIdentifier, $data['chat_ids']);
+        }
+
+        return new JsonResponse([
+            'mailouts_deleted' => $deleted,
+            'users_deactivated' => $deactivated,
         ]);
     }
 

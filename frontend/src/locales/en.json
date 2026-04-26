@@ -338,7 +338,13 @@
     "import_users": "Import Users",
     "importing": "Importing...",
     "import_result": "Imported: {imported}, Skipped: {skipped}",
-    "import_error": "Import failed"
+    "import_error": "Import failed",
+    "first": "First",
+    "last": "Last",
+    "of_pages": "of {total}",
+    "select_all_n": "Select all {total} users",
+    "all_selected": "All {total} users selected.",
+    "loading_ids": "Loading..."
   },
   "mailout": {
     "title": "Mailout Status",

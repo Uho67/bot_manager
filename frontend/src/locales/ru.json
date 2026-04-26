@@ -338,7 +338,13 @@
     "import_users": "Импорт пользователей",
     "importing": "Импорт...",
     "import_result": "Импортировано: {imported}, Пропущено: {skipped}",
-    "import_error": "Ошибка импорта"
+    "import_error": "Ошибка импорта",
+    "first": "Первая",
+    "last": "Последняя",
+    "of_pages": "из {total}",
+    "select_all_n": "Выбрать всех {total} пользователей",
+    "all_selected": "Выбрано всех {total} пользователей.",
+    "loading_ids": "Загрузка..."
   },
   "mailout": {
     "title": "Статус рассылки",

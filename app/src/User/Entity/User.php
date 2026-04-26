@@ -9,6 +9,7 @@ declare(strict_types=1);
 namespace App\User\Entity;
 
 use ApiPlatform\Doctrine\Orm\Filter\DateFilter;
+use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
@@ -49,6 +50,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 #[ApiFilter(SearchFilter::class, properties: ['status' => 'exact', 'username' => 'partial'])]
 #[ApiFilter(DateFilter::class, properties: ['created_at', 'updated_at'])]
+#[ApiFilter(OrderFilter::class, properties: ['id', 'name', 'username', 'chat_id', 'status', 'created_at', 'updated_at'])]
 class User
 {
     #[ORM\Id]
