@@ -339,6 +339,8 @@
     "importing": "Импорт...",
     "import_result": "Импортировано: {imported}, Пропущено: {skipped}",
     "import_error": "Ошибка импорта",
+    "count_total": "{count} пользователей всего",
+    "count_filtered": "{count} найдено",
     "first": "Первая",
     "last": "Последняя",
     "of_pages": "из {total}",

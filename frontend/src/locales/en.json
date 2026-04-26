@@ -339,6 +339,8 @@
     "importing": "Importing...",
     "import_result": "Imported: {imported}, Skipped: {skipped}",
     "import_error": "Import failed",
+    "count_total": "{count} users total",
+    "count_filtered": "{count} found",
     "first": "First",
     "last": "Last",
     "of_pages": "of {total}",
