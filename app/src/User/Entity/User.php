@@ -37,7 +37,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiResource(
     shortName: 'User',
     operations: [
-        new GetCollection(paginationEnabled: true, paginationItemsPerPage: 20),
+        new GetCollection(paginationEnabled: true, paginationItemsPerPage: 100, paginationClientItemsPerPage: true, paginationMaximumItemsPerPage: 200),
         new Get(),
         new ApiPost(),
         new Put(),
