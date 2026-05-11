@@ -162,7 +162,7 @@ class PostMailoutRepository extends ServiceEntityRepository
     /**
      * Bulk delete post mailouts by IDs for a specific bot
      *
-     * @param array<int> $mailoutIds
+     * @param array<int|string> $mailoutIds
      * @return int Number of deleted mailouts
      */
     public function bulkDeletePostMailouts(string $botIdentifier, array $mailoutIds): int
@@ -171,13 +171,14 @@ class PostMailoutRepository extends ServiceEntityRepository
             return 0;
         }
 
-        $qb = $this->createQueryBuilder('m')
-            ->delete()
-            ->where('m.bot_identifier = :botIdentifier')
-            ->andWhere('m.id IN (:ids)')
-            ->setParameter('botIdentifier', $botIdentifier)
-            ->setParameter('ids', $mailoutIds);
+        $conn = $this->getEntityManager()->getConnection();
 
-        return $qb->getQuery()->execute();
+        $placeholders = implode(', ', array_fill(0, count($mailoutIds), '?'));
+        $params = array_merge([$botIdentifier], array_values($mailoutIds));
+
+        return (int) $conn->executeStatement(
+            sprintf('DELETE FROM post_mailout WHERE bot_identifier = ? AND id IN (%s)', $placeholders),
+            $params,
+        );
     }
 }
